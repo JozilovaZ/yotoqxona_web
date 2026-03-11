@@ -22,6 +22,18 @@ fi
 
 cd /var/www/yotoqxona
 
+# Create .env file if not exists
+if [ ! -f ".env" ]; then
+    echo "Creating .env file..."
+    SECRET=$(python3 -c "import secrets; print(secrets.token_urlsafe(50))")
+    cat > .env <<EOF
+DJANGO_SECRET_KEY=${SECRET}
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=bekendchi.uz,www.bekendchi.uz
+EOF
+    echo ".env file created."
+fi
+
 # Create virtual environment
 python3 -m venv venv
 source venv/bin/activate

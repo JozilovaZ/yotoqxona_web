@@ -6,6 +6,7 @@ After=network.target
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/yotoqxona
+EnvironmentFile=/var/www/yotoqxona/.env
 ExecStart=/var/www/yotoqxona/venv/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
