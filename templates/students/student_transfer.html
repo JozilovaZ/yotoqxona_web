@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-warning text-dark py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-random me-2"></i>Xonani almashtirish</h5>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <p class="mb-4">
+                        Talaba: <strong>{{ student.get_full_name }}</strong><br>
+                        Hozirgi xonasi: <span class="badge bg-secondary">{{ student.room.number }}</span>
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="text-start mb-3">
+                            <label class="form-label fw-bold">Yangi xonani tanlang</label>
+                            {{ form.room }}
+                        </div>
+                        <div class="text-start mb-4">
+                            <label class="form-label fw-bold">Ko'chirish sababi</label>
+                            {{ form.reason }}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold">Ko'chirishni tasdiqlash</button>
+                            <a href="{% url 'students:student_detail' student.pk %}" class="btn btn-light">Bekor qilish</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    select, textarea {
+        display: block; width: 100%; padding: 0.5rem;
+        border: 1px solid #ced4da; border-radius: 0.375rem;
+    }
+</style>
+{% endblock %}

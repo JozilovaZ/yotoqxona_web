@@ -8,21 +8,22 @@ from django.utils import timezone
 
 from .models import Student, RoomTransfer
 from .forms import StudentForm, StudentTransferForm
-from apps.buildings.models import Room
+from buildings.models import Room, Building, Floor  # Floor qo'shildi
 
 
 class StudentListView(LoginRequiredMixin, ListView):
     model = Student
     template_name = 'students/student_list.html'
     context_object_name = 'students'
-    paginate_by = 20
+    # Guruhlashda pagination biroz chalkashlik keltirishi mumkin,
+    # shuning uchun paginate_by ni o'chirib turish yoki oshirish ma'qul.
+    paginate_by = 100
 
     def get_queryset(self):
         queryset = Student.objects.filter(is_active=True).select_related(
             'room', 'room__floor', 'room__floor__building'
         )
 
-        # Qidiruv
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(
@@ -33,21 +34,29 @@ class StudentListView(LoginRequiredMixin, ListView):
                 Q(group__icontains=search)
             )
 
-        # Filtrlash
-        building = self.request.GET.get('building')
-        floor = self.request.GET.get('floor')
+        building_id = self.request.GET.get('building')
+        if building_id:
+            queryset = queryset.filter(room__floor__building_id=building_id)
 
-        if building:
-            queryset = queryset.filter(room__floor__building_id=building)
-        if floor:
-            queryset = queryset.filter(room__floor_id=floor)
-
-        return queryset.order_by('last_name', 'first_name')
+        # Tartib: Avval bino, keyin etaj, keyin xona raqami
+        return queryset.order_by('room__floor__building', 'room__floor__number', 'room__number')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        from apps.buildings.models import Building
+        queryset = self.get_queryset()
+
         context['buildings'] = Building.objects.filter(is_active=True)
+
+        # Talabalarni etajlar (Floor) bo'yicha guruhlash mantiqi
+        floor_ids = queryset.values_list('room__floor_id', flat=True).distinct()
+        floors = Floor.objects.filter(id__in=floor_ids).select_related('building').order_by('building', 'number')
+
+        floor_data = [
+            {'floor': floor, 'students': queryset.filter(room__floor=floor)}
+            for floor in floors
+        ]
+
+        context['floor_data'] = floor_data
         return context
 
 
@@ -58,10 +67,12 @@ class StudentDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['payments'] = self.object.payments.all().order_by('-payment_date')[:10]
-        context['invoices'] = self.object.invoices.all().order_by('-issue_date')[:10]
+        # hasattr tekshiruvi xatolikni oldini oladi
+        if hasattr(self.object, 'payments'):
+            context['payments'] = self.object.payments.all().order_by('-payment_date')[:10]
+        if hasattr(self.object, 'invoices'):
+            context['invoices'] = self.object.invoices.all().order_by('-issue_date')[:10]
         context['transfers'] = self.object.transfers.all().order_by('-transferred_at')[:5]
-        context['attendances'] = self.object.attendances.all().order_by('-date')[:30]
         return context
 
 
@@ -116,10 +127,8 @@ class StudentTransferView(LoginRequiredMixin, View):
         if form.is_valid():
             new_room = form.cleaned_data['room']
             reason = form.cleaned_data.get('reason', '')
-
             old_room = student.room
 
-            # Transfer yaratish
             RoomTransfer.objects.create(
                 student=student,
                 from_room=old_room,
@@ -128,16 +137,13 @@ class StudentTransferView(LoginRequiredMixin, View):
                 transferred_by=request.user
             )
 
-            # Talabani yangi xonaga o'tkazish
             student.room = new_room
             student.save()
 
-            # Xonalar statusini yangilash
-            if old_room:
-                old_room.update_status()
+            if old_room: old_room.update_status()
             new_room.update_status()
 
-            messages.success(request, f'{student.full_name} muvaffaqiyatli ko\'chirildi')
+            messages.success(request, f'{student.first_name} ko\'chirildi')
             return redirect('students:student_detail', pk=pk)
 
         return render(request, self.template_name, {'student': student, 'form': form})
@@ -152,17 +158,15 @@ class StudentCheckoutView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         student = get_object_or_404(Student, pk=pk)
-
         old_room = student.room
         student.is_active = False
         student.check_out_date = timezone.now().date()
         student.room = None
         student.save()
 
-        if old_room:
-            old_room.update_status()
+        if old_room: old_room.update_status()
 
-        messages.success(request, f'{student.full_name} yotoqxonadan chiqarildi')
+        messages.success(request, f'{student.first_name} chiqarildi')
         return redirect('students:student_list')
 
 

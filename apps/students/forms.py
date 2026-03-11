@@ -1,7 +1,6 @@
 from django import forms
 from .models import Student
-from apps.buildings.models import Building, Floor, Room
-
+from buildings.models import Building, Floor, Room
 
 class StudentForm(forms.ModelForm):
     building = forms.ModelChoiceField(
@@ -23,7 +22,8 @@ class StudentForm(forms.ModelForm):
             'first_name', 'last_name', 'middle_name', 'gender', 'birth_date', 'photo',
             'phone', 'email', 'emergency_contact', 'emergency_phone',
             'student_id', 'faculty', 'group', 'course',
-            'room', 'check_in_date', 'notes'
+            'building', 'floor', 'room',
+            'check_in_date', 'notes'
         ]
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -47,21 +47,39 @@ class StudentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Xona raqamini ko'rsatish formati
+        self.fields['room'].label_from_instance = lambda obj: f"{obj.number}-xona"
 
-        # Agar instance mavjud bo'lsa (tahrirlash)
-        if self.instance and self.instance.pk and self.instance.room:
+        if 'building' in self.data:
+            try:
+                building_id = int(self.data.get('building'))
+                self.fields['floor'].queryset = Floor.objects.filter(building_id=building_id, is_active=True)
+            except (ValueError, TypeError):
+                pass
+        elif self.instance and self.instance.pk and self.instance.room:
             self.fields['building'].initial = self.instance.room.floor.building
-            self.fields['floor'].queryset = Floor.objects.filter(
-                building=self.instance.room.floor.building,
-                is_active=True
-            )
+            self.fields['floor'].queryset = Floor.objects.filter(building=self.instance.room.floor.building)
             self.fields['floor'].initial = self.instance.room.floor
-            self.fields['room'].queryset = Room.objects.filter(
-                floor=self.instance.room.floor,
-                is_active=True
-            )
+
+        if 'floor' in self.data:
+            try:
+                floor_id = int(self.data.get('floor'))
+                self.fields['room'].queryset = Room.objects.filter(floor_id=floor_id, is_active=True)
+            except (ValueError, TypeError):
+                pass
+        elif self.instance and self.instance.pk and self.instance.room:
+            self.fields['room'].queryset = Room.objects.filter(floor=self.instance.room.floor)
         else:
             self.fields['room'].queryset = Room.objects.none()
+
+    def clean_room(self):
+        room = self.cleaned_data.get('room')
+        if room:
+            if self.instance.pk and self.instance.room == room:
+                return room
+            if hasattr(room, 'available_beds') and room.available_beds <= 0:
+                raise forms.ValidationError("Ushbu xonada bo'sh joy qolmagan!")
+        return room
 
 
 class StudentTransferForm(forms.Form):
@@ -83,37 +101,33 @@ class StudentTransferForm(forms.Form):
     reason = forms.CharField(
         required=False,
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
-        label='Sabab'
+        label='Ko\'chirish sababi'
     )
 
-    def __init__(self, *args, student=None, **kwargs):
+    def __init__(self, *args, **kwargs):
+        self.student = kwargs.pop('student', None)
         super().__init__(*args, **kwargs)
-        self.student = student
+        self.fields['room'].label_from_instance = lambda obj: f"{obj.number}-xona"
 
         if 'building' in self.data:
             try:
                 building_id = int(self.data.get('building'))
-                self.fields['floor'].queryset = Floor.objects.filter(
-                    building_id=building_id,
-                    is_active=True
-                )
+                self.fields['floor'].queryset = Floor.objects.filter(building_id=building_id, is_active=True)
             except (ValueError, TypeError):
                 pass
 
         if 'floor' in self.data:
             try:
                 floor_id = int(self.data.get('floor'))
-                self.fields['room'].queryset = Room.objects.filter(
-                    floor_id=floor_id,
-                    is_active=True
-                ).exclude(status='full')
+                self.fields['room'].queryset = Room.objects.filter(floor_id=floor_id, is_active=True).exclude(status='full')
             except (ValueError, TypeError):
                 pass
 
     def clean_room(self):
         room = self.cleaned_data.get('room')
-        if room and room.available_beds <= 0:
-            raise forms.ValidationError('Bu xonada bo\'sh joy yo\'q')
-        if self.student and room == self.student.room:
-            raise forms.ValidationError('Talaba allaqachon shu xonada')
+        if room:
+            if hasattr(room, 'available_beds') and room.available_beds <= 0:
+                raise forms.ValidationError("Bu xonada bo'sh joy yo'q")
+            if self.student and room == self.student.room:
+                raise forms.ValidationError("Talaba hozirda ham shu xonada yashaydi")
         return room

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block page_title %}Inventar{% endblock %}
+{% block page_sub %}<p class="page-sub">Xonalar jihozlari nazorati</p>{% endblock %}
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <a href="{% url 'inventory:item_create' %}" class="btn btn-primary btn-sm px-3">
+        <i class="fas fa-plus me-1"></i> Jihoz turi
+    </a>
+    <a href="{% url 'inventory:category_list' %}" class="btn btn-dark btn-sm px-3">
+        Kategoriyalar
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .inv-kpi { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+    @media(max-width:700px){ .inv-kpi{ grid-template-columns:1fr; } }
+    .ikpi {
+        background:#fff; border:1px solid var(--border); border-radius:14px; padding:20px;
+        display:flex; align-items:center; gap:16px;
+    }
+    .ikpi-icon {
+        width:46px; height:46px; border-radius:12px; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center; font-size:1rem;
+    }
+    .ikpi-icon.p { background:var(--p10); color:var(--p); }
+    .ikpi-icon.d { background:rgba(0,0,0,0.06); color:var(--dark); }
+    .ikpi-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--gray); margin-bottom:4px; }
+    .ikpi-value { font-size:1.8rem; font-weight:900; color:var(--dark); letter-spacing:-1px; line-height:1; }
+
+    .inv-grid { display:grid; grid-template-columns:2fr 1fr; gap:20px; }
+    @media(max-width:900px){ .inv-grid{ grid-template-columns:1fr; } }
+
+    .inv-panel { background:#fff; border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+    .inv-panel-head {
+        padding:14px 18px; border-bottom:1px solid var(--border);
+        font-size:0.875rem; font-weight:700; color:var(--dark);
+        display:flex; align-items:center; gap:8px;
+    }
+    .inv-panel-head i { color:var(--p); }
+
+    .inv-tbl { width:100%; border-collapse:collapse; }
+    .inv-tbl thead th {
+        padding:9px 16px; font-size:0.7rem; font-weight:700;
+        text-transform:uppercase; color:var(--gray);
+        background:#fafafb; border-bottom:1px solid var(--border);
+    }
+    .inv-tbl tbody td {
+        padding:12px 16px; font-size:0.85rem;
+        border-bottom:1px solid #f5f5f7; vertical-align:middle;
+    }
+    .inv-tbl tbody tr:last-child td { border-bottom:none; }
+    .inv-tbl tbody tr:hover td { background:#fafafb; }
+
+    .broken-badge {
+        background:rgba(0,0,0,0.07); color:var(--dark);
+        border-radius:7px; padding:3px 9px;
+        font-size:0.72rem; font-weight:700;
+    }
+
+    .cat-item {
+        padding:12px 18px; border-bottom:1px solid #f5f5f7;
+        display:flex; align-items:center; gap:12px;
+    }
+    .cat-item:last-child { border-bottom:none; }
+    .cat-prog { flex:1; }
+    .cat-name { font-size:0.85rem; font-weight:600; color:var(--dark); margin-bottom:5px; }
+    .cat-bar { height:5px; background:#f0f0f2; border-radius:99px; overflow:hidden; }
+    .cat-fill { height:100%; background:var(--p); border-radius:99px; }
+    .cat-count { font-size:0.85rem; font-weight:800; color:var(--p); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- KPI -->
+<div class="inv-kpi">
+    <div class="ikpi">
+        <div class="ikpi-icon p"><i class="fas fa-list"></i></div>
+        <div>
+            <div class="ikpi-label">Kategoriyalar</div>
+            <div class="ikpi-value">{{ total_categories }}</div>
+        </div>
+    </div>
+    <div class="ikpi">
+        <div class="ikpi-icon p"><i class="fas fa-boxes"></i></div>
+        <div>
+            <div class="ikpi-label">Jami jihozlar (soni)</div>
+            <div class="ikpi-value">{{ total_room_items }}</div>
+        </div>
+    </div>
+    <div class="ikpi">
+        <div class="ikpi-icon d"><i class="fas fa-tools"></i></div>
+        <div>
+            <div class="ikpi-label">Buzilgan jihozlar</div>
+            <div class="ikpi-value">
+                {% for stat in condition_stats %}{% if stat.condition == 'broken' %}{{ stat.count }}{% endif %}{% empty %}0{% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="inv-grid">
+    <!-- Buzilgan jihozlar -->
+    <div class="inv-panel">
+        <div class="inv-panel-head">
+            <i class="fas fa-exclamation-circle"></i> Ta'mirga muhtoj jihozlar
+        </div>
+        <div class="table-responsive">
+            <table class="inv-tbl">
+                <thead>
+                    <tr>
+                        <th>Jihoz nomi</th>
+                        <th>Xona</th>
+                        <th>Soni</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b_item in broken_items %}
+                    <tr>
+                        <td><strong>{{ b_item.item.name }}</strong></td>
+                        <td>
+                            <span class="broken-badge">{{ b_item.room.number }}-xona</span>
+                        </td>
+                        <td style="font-weight:700;">{{ b_item.quantity }}</td>
+                        <td>
+                            <a href="{% url 'inventory:room_inventory_edit' b_item.id %}" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 10px;">
+                                Tahrirlash
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="padding:40px;text-align:center;color:var(--gray);font-size:0.85rem;">
+                            <i class="fas fa-check-circle" style="color:var(--p);font-size:1.5rem;display:block;margin-bottom:8px;"></i>
+                            Barcha jihozlar yaxshi holatda
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Kategoriyalar -->
+    <div class="inv-panel">
+        <div class="inv-panel-head">
+            <i class="fas fa-tag"></i> Top kategoriyalar
+        </div>
+        {% for cat in category_stats %}
+        <div class="cat-item">
+            <div class="cat-prog">
+                <div class="cat-name">{{ cat.name }}</div>
+                <div class="cat-bar">
+                    <div class="cat-fill" style="width:{% if cat.item_count %}{{ cat.item_count }}0{% else %}0{% endif %}%;"></div>
+                </div>
+            </div>
+            <div class="cat-count">{{ cat.item_count }}</div>
+        </div>
+        {% empty %}
+        <div style="padding:30px;text-align:center;color:var(--gray);font-size:0.85rem;">Kategoriyalar yo'q</div>
+        {% endfor %}
+        <div style="padding:14px 18px;border-top:1px solid var(--border);">
+            <a href="{% url 'inventory:item_list' %}" class="btn btn-dark btn-sm w-100">
+                Barcha jihozlar
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -5,14 +5,14 @@ from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, F, Exists, OuterRef
 from django.utils import timezone
 
 from .models import Building, Floor, Room
 from .forms import BuildingForm, FloorForm, RoomForm
-from apps.students.models import Student
-from apps.finance.models import Payment, Invoice
-from apps.attendance.models import Attendance
+from students.models import Student
+from finance.models import Payment, Invoice
+from attendance.models import Attendance
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -32,21 +32,33 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             total=Sum('capacity')
         )['total'] or 0
         context['total_capacity'] = total_capacity
+        context['occupied_beds'] = context['total_students']
+        context['free_beds'] = max(0, total_capacity - context['total_students'])
         context['occupancy_rate'] = round(
             (context['total_students'] / total_capacity * 100) if total_capacity > 0 else 0, 1
         )
 
         # Bo'sh xonalar
-        context['empty_rooms'] = Room.objects.filter(
-            is_active=True,
-            status='available'
-        ).count()
+        context['empty_rooms'] = Room.objects.filter(is_active=True, status='available').count()
+        context['full_rooms'] = Room.objects.filter(is_active=True, status='full').count()
+        context['partial_rooms'] = Room.objects.filter(is_active=True, status='partial').count()
 
-        # Moliya
+        # Moliya - bu oy
         context['total_collected_month'] = Payment.objects.filter(
             payment_date__year=today.year,
             payment_date__month=today.month,
             status='completed'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+
+        # Moliya - bugun
+        context['total_collected_today'] = Payment.objects.filter(
+            payment_date__date=today,
+            status='completed'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+
+        # Kutilayotgan to'lovlar
+        context['pending_amount'] = Invoice.objects.filter(
+            status__in=['pending', 'partial', 'overdue']
         ).aggregate(total=Sum('amount'))['total'] or 0
 
         # Qarzdorlar
@@ -58,19 +70,45 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ).filter(
             total_invoiced__gt=0
         ).exclude(
-            total_paid__gte=Sum('invoices__amount')
+            total_paid__gte=F('total_invoiced')
         ).count()
 
-        # Bugungi davomat
-        context['today_attendance'] = Attendance.objects.filter(
-            date=today,
-            status='present'
-        ).count()
+        # Davomat
+        today_att = Attendance.objects.filter(date=today)
+        context['today_present'] = today_att.filter(status='present').count()
+        context['today_absent'] = today_att.filter(status='absent').count()
+        context['today_attendance'] = context['today_present']
+        context['attendance_rate'] = round(
+            (context['today_present'] / context['total_students'] * 100)
+            if context['total_students'] > 0 else 0, 1
+        )
 
         # Oxirgi talabalar
         context['recent_students'] = Student.objects.filter(
             is_active=True
-        ).select_related('room', 'room__floor', 'room__floor__building').order_by('-created_at')[:5]
+        ).select_related('room', 'room__floor', 'room__floor__building').order_by('-created_at')[:8]
+
+        # Oxirgi to'lovlar
+        context['recent_payments'] = Payment.objects.filter(
+            status='completed'
+        ).select_related('student').order_by('-payment_date')[:6]
+
+        # Binolar bandlik ma'lumoti
+        buildings = Building.objects.filter(is_active=True)
+        buildings_data = []
+        for b in buildings:
+            cap = Room.objects.filter(floor__building=b, is_active=True).aggregate(
+                total=Sum('capacity'))['total'] or 0
+            occ = Student.objects.filter(room__floor__building=b, is_active=True).count()
+            rate = round((occ / cap * 100) if cap > 0 else 0)
+            buildings_data.append({
+                'building': b,
+                'capacity': cap,
+                'occupied': occ,
+                'free': max(0, cap - occ),
+                'rate': rate,
+            })
+        context['buildings_data'] = buildings_data
 
         # Xonalar holati
         context['rooms_by_status'] = Room.objects.filter(is_active=True).values('status').annotate(
@@ -99,7 +137,6 @@ class BuildingDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['floors'] = self.object.floors.filter(is_active=True).prefetch_related('rooms')
         return context
-
 
 class BuildingCreateView(LoginRequiredMixin, CreateView):
     model = Building
@@ -242,7 +279,23 @@ class RoomDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['students'] = Student.objects.filter(room=self.object, is_active=True)
+        today = timezone.now()
+
+        # Talabalarni joriy oydagi to'lov holati bilan birga olish
+        context['students'] = Student.objects.filter(
+            room=self.object,
+            is_active=True
+        ).annotate(
+            has_paid=Exists(
+                Payment.objects.filter(
+                    student=OuterRef('pk'),
+                    payment_date__year=today.year,
+                    payment_date__month=today.month,
+                    status='completed'
+                )
+            )
+        )
+
         context['inventory'] = self.object.inventory.all().select_related('item', 'item__category')
         return context
 

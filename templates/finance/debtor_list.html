@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-exclamation-circle text-danger me-2"></i>Qarzdorlar Ro'yxati</h4>
+            <span class="badge bg-danger">{{ debtors.count }} ta talaba</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Talaba</th>
+                        <th>Bino / Xona</th>
+                        <th>Umumiy Hisob</th>
+                        <th>To'langan</th>
+                        <th class="text-danger">Qarz miqdori</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in debtors %}
+                    <tr>
+                        <td class="ps-3">
+                            <div class="fw-bold">{{ student.get_full_name }}</div>
+                            <div class="small text-muted">{{ student.phone_number }}</div>
+                        </td>
+                        <td>{{ student.room.floor.building.name }} / {{ student.room.number }}</td>
+                        <td>{{ student.total_invoiced }}</td>
+                        <td class="text-success">{{ student.total_paid }}</td>
+                        <td class="fw-bold text-danger">{{ student.debt }}</td>
+                        <td>
+                            <a href="{% url 'finance:payment_create' %}?student={{ student.id }}" class="btn btn-sm btn-outline-success">
+                                To'lov olish
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -3,11 +3,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, View
 from django.urls import reverse_lazy, reverse
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F
 
 from .models import InventoryCategory, InventoryItem, RoomInventory, InventoryLog
 from .forms import CategoryForm, ItemForm, RoomInventoryForm
-from apps.buildings.models import Room, Building
+from buildings.models import Room, Building
 
 
 class InventoryDashboardView(LoginRequiredMixin, TemplateView):
@@ -213,20 +213,24 @@ class InventoryReportView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Bino bo'yicha statistika
+        # Bino bo'yicha statistika - DB aggregate ishlatamiz
+        from django.db.models import ExpressionWrapper, DecimalField
+        annotated_inventory = RoomInventory.objects.annotate(
+            value=ExpressionWrapper(
+                F('quantity') * F('item__unit_price'),
+                output_field=DecimalField()
+            )
+        )
+
         context['building_stats'] = []
         for building in Building.objects.filter(is_active=True):
-            rooms = Room.objects.filter(floor__building=building)
-            inventory = RoomInventory.objects.filter(room__in=rooms)
-            total_value = sum(item.total_value for item in inventory)
+            inv = annotated_inventory.filter(room__floor__building=building)
             context['building_stats'].append({
                 'building': building,
-                'item_count': inventory.aggregate(total=Sum('quantity'))['total'] or 0,
-                'total_value': total_value
+                'item_count': inv.aggregate(total=Sum('quantity'))['total'] or 0,
+                'total_value': inv.aggregate(total=Sum('value'))['total'] or 0,
             })
 
-        # Umumiy qiymat
-        all_inventory = RoomInventory.objects.all()
-        context['grand_total'] = sum(item.total_value for item in all_inventory)
+        context['grand_total'] = annotated_inventory.aggregate(total=Sum('value'))['total'] or 0
 
         return context

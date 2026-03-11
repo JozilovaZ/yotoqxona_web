@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block page_title %}Talabalar{% endblock %}
+{% block page_sub %}<p class="page-sub">Barcha faol talabalar ro'yxati</p>{% endblock %}
+{% block page_actions %}
+<a href="{% url 'students:student_create' %}" class="btn btn-primary btn-sm px-3">
+    <i class="fas fa-plus me-1"></i> Yangi talaba
+</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-bar {
+        background:#fff; border:1px solid var(--border);
+        border-radius:14px; padding:16px 20px; margin-bottom:20px;
+    }
+
+    .floor-label {
+        display:flex; align-items:center; gap:10px;
+        margin: 28px 0 10px;
+    }
+    .floor-badge-main {
+        background:var(--dark); color:#fff;
+        border-radius:9px; padding:5px 14px;
+        font-size:0.78rem; font-weight:800; letter-spacing:0.5px;
+    }
+    .floor-bname { font-size:0.95rem; font-weight:700; color:var(--dark); }
+
+    .stu-panel {
+        background:#fff; border:1px solid var(--border);
+        border-radius:14px; overflow:hidden; margin-bottom:6px;
+    }
+
+    .stu-tbl { width:100%; border-collapse:collapse; }
+    .stu-tbl thead th {
+        padding:10px 18px; font-size:0.7rem; font-weight:700;
+        text-transform:uppercase; letter-spacing:0.5px; color:var(--gray);
+        background:#fafafb; border-bottom:1px solid var(--border);
+    }
+    .stu-tbl tbody td {
+        padding:14px 18px; font-size:0.85rem;
+        border-bottom:1px solid #f5f5f7; vertical-align:middle;
+    }
+    .stu-tbl tbody tr:last-child td { border-bottom:none; }
+    .stu-tbl tbody tr:hover td { background:#fafafb; }
+
+    .room-cell {
+        background:#fafafb !important;
+        text-align:center; vertical-align:middle !important;
+        border-right:1px solid var(--border) !important;
+        font-weight:800; font-size:1.05rem; color:var(--dark);
+        min-width:80px;
+    }
+    .room-cell .room-sub { font-size:0.65rem; font-weight:500; color:var(--gray); margin-top:2px; }
+
+    .stu-name { font-weight:700; color:var(--dark); font-size:0.9rem; }
+    .stu-date { font-size:0.72rem; color:var(--gray); margin-top:2px; }
+
+    .id-chip {
+        background:var(--p10); color:var(--p);
+        border-radius:7px; padding:3px 9px;
+        font-size:0.72rem; font-weight:700;
+    }
+    .group-txt { font-size:0.8rem; color:var(--gray); margin-top:3px; }
+
+    .act-btn {
+        width:32px; height:32px; border-radius:8px;
+        border:1px solid var(--border); background:#fff;
+        display:inline-flex; align-items:center; justify-content:center;
+        color:var(--gray); text-decoration:none; transition:0.15s;
+        font-size:0.75rem;
+    }
+    .act-btn:hover { background:var(--p); border-color:var(--p); color:#fff; }
+
+    .empty-panel {
+        background:#fff; border:1px solid var(--border); border-radius:14px;
+        padding:60px 20px; text-align:center; color:var(--gray);
+    }
+    .empty-panel i { font-size:2.5rem; color:var(--border); display:block; margin-bottom:12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- FILTR -->
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted ps-3">
+                    <i class="fas fa-search" style="font-size:0.8rem;"></i>
+                </span>
+                <input type="text" name="search" class="form-control border-start-0"
+                       placeholder="Ism, ID yoki telefon..." value="{{ request.GET.search }}"
+                       style="border-radius:0 10px 10px 0;">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="building" class="form-select">
+                <option value="">Barcha binolar</option>
+                {% for b in buildings %}
+                <option value="{{ b.id }}" {% if request.GET.building == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-dark w-100">
+                <i class="fas fa-filter me-1"></i> Saralash
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- TALABALAR JADVALI -->
+{% for item in floor_data %}
+<div class="floor-label">
+    <span class="floor-badge-main">{{ item.floor.number }}-QAVAT</span>
+    <span class="floor-bname">{{ item.floor.building.name }}</span>
+</div>
+
+<div class="stu-panel">
+    <div class="table-responsive">
+        <table class="stu-tbl">
+            <thead>
+                <tr>
+                    <th style="width:85px;">Xona</th>
+                    <th>Talaba</th>
+                    <th>ID / Guruh</th>
+                    <th>Telefon</th>
+                    <th class="text-end">Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% regroup item.students by room as room_list %}
+                {% for room in room_list %}
+                    {% for student in room.list %}
+                    <tr>
+                        {% if forloop.first %}
+                        <td rowspan="{{ room.list|length }}" class="room-cell">
+                            {{ room.grouper.number }}
+                            <div class="room-sub">XONA</div>
+                        </td>
+                        {% endif %}
+                        <td>
+                            <div class="stu-name">{{ student.last_name }} {{ student.first_name }}</div>
+                            <div class="stu-date"><i class="far fa-calendar-alt me-1"></i>{{ student.check_in_date|date:"d.m.Y" }}</div>
+                        </td>
+                        <td>
+                            <div class="id-chip">{{ student.student_id }}</div>
+                            <div class="group-txt">{{ student.group }}</div>
+                        </td>
+                        <td style="font-size:0.85rem;font-weight:600;color:var(--dark);">{{ student.phone }}</td>
+                        <td class="text-end" style="padding-right:18px;">
+                            <a href="{% url 'students:student_detail' student.pk %}" class="act-btn me-1" title="Ko'rish">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'students:student_update' student.pk %}" class="act-btn" title="Tahrirlash">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% empty %}
+<div class="empty-panel">
+    <i class="fas fa-users-slash"></i>
+    <div style="font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:6px;">Talabalar topilmadi</div>
+    <div style="font-size:0.85rem;">Qidiruv parametrlarini o'zgartirib ko'ring yoki yangi talaba qo'shing.</div>
+    <a href="{% url 'students:student_create' %}" class="btn btn-primary btn-sm mt-3">Talaba qo'shish</a>
+</div>
+{% endfor %}
+
+{% endblock %}

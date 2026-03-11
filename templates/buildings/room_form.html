@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'buildings:building_list' %}">Binolar</a></li>
+                    <li class="breadcrumb-item active">Xona qo'shish</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        {% if object %}Xonani tahrirlash: {{ object.number }}{% else %}Yangi xona qo'shish{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            Iltimos, xatolarni tuzating!
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            {% for field in form %}
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">{{ field.label }}</label>
+                                <div class="field-container">
+                                    {{ field }}
+                                </div>
+                                {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" onclick="history.back()" class="btn btn-light border">Orqaga</button>
+                            <button type="submit" class="btn btn-primary px-4">Saqlash</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Widgetlarga Bootstrap uslubini berish */
+    input, select, textarea {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+</style>
+{% endblock %}

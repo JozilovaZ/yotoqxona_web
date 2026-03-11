@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -53,6 +55,10 @@ INSTALLED_APPS = [
 
 ]
 
+# Faylning eng oxiriga quyidagi qatorlarni qo'shing:
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -64,11 +70,12 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
-
+# config/settings.py ichida
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/"templates",
+                 os.path.join(BASE_DIR, 'apps/buildings/templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -3,7 +3,6 @@ from django.utils.html import format_html
 from django.db.models import Sum, Count
 from .models import Building, Floor, Room
 
-
 # --- INLINES (Ichma-ich tahrirlash uchun) ---
 
 class RoomInline(admin.TabularInline):
@@ -108,22 +107,6 @@ class RoomAdmin(admin.ModelAdmin):
 
     capacity_info.short_description = "Bandlik"
 
-    # Statusni rangli ko'rsatish
-    def status_colored(self, obj):
-        colors = {
-            'available': 'green',
-            'partial': 'orange',
-            'full': 'red',
-            'maintenance': 'gray',
-        }
-        return format_html(
-            '<span style="color: {}; font-weight: bold;">{}</span>',
-            colors.get(obj.status, 'black'),
-            obj.get_status_display()
-        )
-
-    status_colored.short_description = "Holati"
-
     # Vizual progress bar (Bandlik foizi)
     def occupancy_bar(self, obj):
         percent = obj.occupancy_percentage
@@ -148,3 +131,4 @@ class RoomAdmin(admin.ModelAdmin):
         )
 
     occupancy_bar.short_description = "To'lish foizi"
+

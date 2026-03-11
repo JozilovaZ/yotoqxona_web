@@ -9,7 +9,9 @@ from datetime import timedelta
 
 from .models import Invoice, Payment, FinancialSummary
 from .forms import InvoiceForm, PaymentForm, BulkInvoiceForm
-from apps.students.models import Student
+from students.models import Student
+
+from django.db.models import Prefetch
 
 
 class FinanceDashboardView(LoginRequiredMixin, TemplateView):
@@ -19,42 +21,82 @@ class FinanceDashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         today = timezone.now().date()
 
-        # Bugungi statistika
-        context['today_payments'] = Payment.objects.filter(
-            payment_date__date=today,
-            status='completed'
-        ).aggregate(total=Sum('amount'))['total'] or 0
+        month_names = ["", "Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun",
+                       "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"]
 
-        # Oylik statistika
-        context['month_payments'] = Payment.objects.filter(
-            payment_date__year=today.year,
-            payment_date__month=today.month,
-            status='completed'
-        ).aggregate(total=Sum('amount'))['total'] or 0
+        selected_month = int(self.request.GET.get('month', today.month))
+        selected_year = int(self.request.GET.get('year', today.year))
+        search_query = self.request.GET.get('search', '').strip()
 
-        # Kutilayotgan to'lovlar
-        context['pending_invoices'] = Invoice.objects.filter(
-            status__in=['pending', 'partial']
-        ).aggregate(total=Sum('amount'))['total'] or 0
+        selected_month_name = month_names[selected_month]
 
-        # Muddati o'tgan
-        context['overdue_invoices'] = Invoice.objects.filter(
-            status__in=['pending', 'partial', 'overdue'],
-            due_date__lt=today
-        ).count()
+        # Statistikalar
+        context['today_payments'] = \
+        Payment.objects.filter(payment_date__date=today, status='completed').aggregate(total=Sum('amount'))[
+            'total'] or 0
+        context['month_payments'] = \
+        Payment.objects.filter(reference=selected_month_name, payment_date__year=selected_year,
+                               status='completed').aggregate(total=Sum('amount'))['total'] or 0
+        context['pending_invoices'] = \
+        Invoice.objects.filter(status__in=['pending', 'partial']).aggregate(total=Sum('amount'))['total'] or 0
+        context['overdue_invoices'] = Invoice.objects.filter(status__in=['pending', 'partial', 'overdue'],
+                                                             due_date__lt=today).count() or 0
 
-        # Oxirgi to'lovlar
-        context['recent_payments'] = Payment.objects.filter(
-            status='completed'
-        ).select_related('student', 'invoice').order_by('-payment_date')[:10]
+        from buildings.models import Floor, Room
+        floors_data = []
 
-        # Qarzdorlar
-        context['top_debtors'] = Student.objects.filter(
-            is_active=True
-        ).annotate(
-            debt=Sum('invoices__amount') - Sum('payments__amount', filter=Q(payments__status='completed'))
-        ).filter(debt__gt=0).order_by('-debt')[:5]
+        # Barcha qavatlarni aylanib chiqamiz
+        for floor in Floor.objects.all().order_by('number'):
+            rooms_list = []
+            rooms = Room.objects.filter(floor=floor).order_by('number')
 
+            for room in rooms:
+                # Faqat aktiv talabalarni olamiz
+                active_students = room.students.filter(is_active=True)
+
+                # Qidiruv mantiqi
+                if search_query:
+                    active_students = active_students.filter(
+                        Q(first_name__icontains=search_query) |
+                        Q(last_name__icontains=search_query) |
+                        Q(middle_name__icontains=search_query)
+                    )
+
+                student_count = active_students.count()
+
+                # DIQQAT: Agar qidiruv bo'sh bo'lsa, xonani baribir chiqaramiz (talaba bo'lmasa ham)
+                # Agar qidiruvda ism yozilgan bo'lsa, faqat topilgan xonalarni chiqaramiz
+                if search_query and student_count == 0:
+                    continue
+
+                students_data = []
+                for student in active_students:
+                    payment = Payment.objects.filter(
+                        student=student,
+                        reference=selected_month_name,
+                        status='completed'
+                    ).first()
+                    students_data.append({'obj': student, 'payment': payment})
+
+                # Xonani ro'yxatga qo'shish (faqat talabasi bor yoki qidiruv bo'lmagan holatda)
+                if students_data or not search_query:
+                    rooms_list.append({
+                        'number': room.number,
+                        'students': students_data,
+                        'rowspan': student_count if student_count > 0 else 1
+                    })
+
+            # Qavatda xonalar bo'lsa, floors_data ga qo'shamiz
+            if rooms_list:
+                floors_data.append({'floor': floor, 'rooms': rooms_list})
+
+        context.update({
+            'floors_data': floors_data,
+            'selected_month': selected_month,
+            'selected_month_name': selected_month_name,
+            'search_query': search_query,
+            'months_range': [(i, name) for i, name in enumerate(month_names[1:], 1)]
+        })
         return context
 
 
@@ -260,11 +302,16 @@ class DebtorListView(LoginRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
+        from django.db.models.functions import Coalesce
+        from django.db.models import DecimalField, Value
         return Student.objects.filter(
             is_active=True
         ).annotate(
-            total_invoiced=Sum('invoices__amount'),
-            total_paid=Sum('payments__amount', filter=Q(payments__status='completed'))
+            total_invoiced=Coalesce(Sum('invoices__amount'), Value(0, output_field=DecimalField())),
+            total_paid=Coalesce(
+                Sum('payments__amount', filter=Q(payments__status='completed')),
+                Value(0, output_field=DecimalField())
+            )
         ).annotate(
             debt=F('total_invoiced') - F('total_paid')
         ).filter(

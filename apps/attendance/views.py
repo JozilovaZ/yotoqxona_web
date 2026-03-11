@@ -10,8 +10,8 @@ import calendar
 
 from .models import Attendance, AttendanceReport
 from .forms import AttendanceForm, BulkAttendanceForm
-from apps.students.models import Student
-from apps.buildings.models import Building, Floor, Room
+from students.models import Student
+from buildings.models import Building, Floor, Room
 
 
 class AttendanceDashboardView(LoginRequiredMixin, TemplateView):
@@ -104,11 +104,53 @@ class DailyAttendanceView(LoginRequiredMixin, TemplateView):
 
 
 class MarkAttendanceView(LoginRequiredMixin, View):
+    def get(self, request):
+        today = timezone.now().date()
+        date_str = request.GET.get('date')
+        selected_date = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else today
+
+        # Finance dizayni kabi ma'lumotlarni guruhlash
+        floors_data = []
+        floors = Floor.objects.all().order_by('number')
+
+        for floor in floors:
+            rooms_list = []
+            rooms = floor.rooms.all().order_by('number')
+
+            for room in rooms:
+                students = room.students.filter(is_active=True).order_by('last_name')
+                if students.exists():
+                    student_entries = []
+                    for student in students:
+                        attendance = Attendance.objects.filter(student=student, date=selected_date).first()
+                        student_entries.append({
+                            'obj': student,
+                            'status': attendance.status if attendance else None
+                        })
+
+                    rooms_list.append({
+                        'number': room.number,
+                        'students': student_entries,
+                        'rowspan': students.count()
+                    })
+
+            if rooms_list:
+                floors_data.append({
+                    'floor': floor,
+                    'rooms': rooms_list
+                })
+
+        context = {
+            'floors_data': floors_data,
+            'selected_date': selected_date,
+            'statuses': Attendance.Status.choices,  # Bor, Yo'q, Kechikkan va h.k.
+        }
+        return render(request, 'attendance/daily.html', context)
+
     def post(self, request):
         date_str = request.POST.get('date')
         selected_date = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else timezone.now().date()
 
-        # Barcha student_* so'rovlarni olish
         for key, value in request.POST.items():
             if key.startswith('student_'):
                 student_id = key.replace('student_', '')
@@ -116,14 +158,11 @@ class MarkAttendanceView(LoginRequiredMixin, View):
                     Attendance.objects.update_or_create(
                         student_id=student_id,
                         date=selected_date,
-                        defaults={
-                            'status': value,
-                            'marked_by': request.user
-                        }
+                        defaults={'status': value, 'marked_by': request.user}
                     )
 
-        messages.success(request, 'Davomat saqlandi')
-        return redirect(f"{reverse('attendance:daily')}?date={selected_date}")
+        messages.success(request, 'Davomat saqlandi!')
+        return redirect(f"{reverse('attendance:mark')}?date={selected_date}")
 
 
 class AttendanceHistoryView(LoginRequiredMixin, ListView):
@@ -251,23 +290,33 @@ class AttendanceReportView(LoginRequiredMixin, TemplateView):
         context['month'] = month
         context['month_name'] = calendar.month_name[month]
 
-        # Talabalar ro'yxati
+        # Talabalar ro'yxati - barcha davomatlarni bir so'rovda olamiz
         students = Student.objects.filter(is_active=True).select_related('room')
+
+        # Bir so'rovda barcha davomatlarni olamiz
+        all_attendances = Attendance.objects.filter(
+            date__year=year,
+            date__month=month,
+            student__is_active=True
+        ).values('student_id', 'status')
+
+        # student_id bo'yicha guruhlash
+        from collections import defaultdict
+        att_map = defaultdict(lambda: {'present': 0, 'absent': 0, 'late': 0, 'total': 0})
+        for att in all_attendances:
+            sid = att['student_id']
+            att_map[sid]['total'] += 1
+            if att['status'] in att_map[sid]:
+                att_map[sid][att['status']] += 1
 
         student_stats = []
         for student in students:
-            attendances = Attendance.objects.filter(
-                student=student,
-                date__year=year,
-                date__month=month
-            )
-            present = attendances.filter(status='present').count()
-            absent = attendances.filter(status='absent').count()
-            late = attendances.filter(status='late').count()
-            total = attendances.count()
-
+            data = att_map[student.id]
+            present = data['present']
+            absent = data['absent']
+            late = data['late']
+            total = data['total']
             rate = round((present + late) / total * 100, 1) if total > 0 else 0
-
             student_stats.append({
                 'student': student,
                 'present': present,

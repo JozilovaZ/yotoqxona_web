@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 
 
+
 class Building(models.Model):
     """Yotoqxona binosi"""
     name = models.CharField(max_length=100, verbose_name="Bino nomi")
@@ -35,7 +36,7 @@ class Building(models.Model):
 
     @property
     def occupied_beds(self):
-        from apps.students.models import Student
+        from students.models import Student
         return Student.objects.filter(
             room__floor__building=self,
             is_active=True
@@ -78,7 +79,7 @@ class Floor(models.Model):
 
     @property
     def occupied_beds(self):
-        from apps.students.models import Student
+        from students.models import Student
         return Student.objects.filter(room__floor=self, is_active=True).count()
 
 
@@ -146,7 +147,7 @@ class Room(models.Model):
 
     @property
     def current_occupancy(self):
-        from apps.students.models import Student
+        from students.models import Student
         return Student.objects.filter(room=self, is_active=True).count()
 
     @property

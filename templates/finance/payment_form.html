@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold text-success">
+                        <i class="fas fa-money-bill-wave me-2"></i>To'lov qabul qilish
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                {{ form.student|as_crispy_field }}
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                {{ form.invoice|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.amount|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.payment_method|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.payment_date|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.reference|as_crispy_field }}
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                {{ form.notes|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <a href="{% url 'finance:dashboard' %}" class="btn btn-light border">Bekor qilish</a>
+                            <button type="submit" class="btn btn-success px-4 shadow-sm">
+                                <i class="fas fa-check me-1"></i>To'lovni saqlash
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('id_student').addEventListener('change', function() {
+        const studentId = this.value;
+        const invoiceSelect = document.getElementById('id_invoice');
+
+        if (studentId) {
+            // Agar API orqali kvitansiyalarni yuklamoqchi bo'lsangiz, shu yerda fetch ishlating
+            // Hozircha formani qayta yuklash orqali ham ishlashi mumkin
+        }
+    });
+</script>
+{% endblock %}

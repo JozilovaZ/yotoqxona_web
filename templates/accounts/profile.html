@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Mening profilim</h2>
+    <div class="card shadow">
+        <div class="card-body">
+            <h5 class="card-title">{{ user.get_full_name|default:user.username }}</h5>
+            <p class="card-text"><strong>Email:</strong> {{ user.email }}</p>
+            <p class="card-text"><strong>Roli:</strong> {% if user.is_admin %}Admin{% else %}Xodim{% endif %}</p>
+            <p class="card-text"><strong>A'zo bo'lgan sana:</strong> {{ user.date_joined|date:"d.m.Y" }}</p>
+
+            <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary">Foydalanuvchilar ro'yxati</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

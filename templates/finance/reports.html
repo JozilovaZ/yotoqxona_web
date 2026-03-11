@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h3 class="fw-bold mb-4">Moliyaviy Hisobotlar ({{ year }})</h3>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Oy</th>
+                            <th>Hisob chiqarildi (Invoiced)</th>
+                            <th>Yig'ildi (Collected)</th>
+                            <th>Farq (Balance)</th>
+                            <th>Foizda</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in yearly_stats %}
+                        <tr>
+                            <td class="fw-bold">{{ stat.month }}-oy</td>
+                            <td class="text-primary">{{ stat.invoiced }}</td>
+                            <td class="text-success">{{ stat.collected }}</td>
+                            <td class="text-danger">
+                                {% with diff=stat.invoiced|add:stat.collected %}
+                                    {{ stat.invoiced|add:"-stat.collected" }} {% endwith %}
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 10px;">
+                                    {% widthratio stat.collected stat.invoiced 100 as percentage %}
+                                    <div class="progress-bar bg-success" style="width: {{ percentage }}%"></div>
+                                </div>
+                                <small>{{ percentage }}%</small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

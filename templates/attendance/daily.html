@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block page_title %}Davomat belgilash{% endblock %}
+{% block page_sub %}<p class="page-sub">{{ selected_date|date:"d MMMM Y" }}</p>{% endblock %}
+
+{% block extra_css %}
+<style>
+    .date-bar {
+        background:#fff; border:1px solid var(--border);
+        border-radius:14px; padding:14px 20px; margin-bottom:20px;
+        display:flex; align-items:center; gap:16px;
+    }
+    .date-bar label { font-size:0.8rem; font-weight:700; color:var(--gray); white-space:nowrap; }
+
+    .att-floor-head {
+        display:flex; align-items:center; gap:10px;
+        margin: 24px 0 10px;
+    }
+    .att-floor-badge {
+        background:var(--dark); color:#fff;
+        border-radius:9px; padding:5px 14px;
+        font-size:0.78rem; font-weight:800;
+    }
+
+    .att-card {
+        background:#fff; border:1px solid var(--border);
+        border-radius:14px; overflow:hidden; margin-bottom:6px;
+    }
+
+    .att-tbl { width:100%; border-collapse:collapse; }
+    .att-tbl thead th {
+        padding:10px 18px; font-size:0.7rem; font-weight:700;
+        text-transform:uppercase; color:var(--gray);
+        background:#fafafb; border-bottom:1px solid var(--border);
+    }
+    .att-tbl tbody td {
+        padding:12px 18px; font-size:0.85rem;
+        border-bottom:1px solid #f5f5f7; vertical-align:middle;
+    }
+    .att-tbl tbody tr:last-child td { border-bottom:none; }
+
+    .room-num-cell {
+        background:#fafafb !important;
+        text-align:center; vertical-align:middle !important;
+        border-right:1px solid var(--border) !important;
+        font-weight:800; font-size:1.05rem; color:var(--dark);
+        width:80px;
+    }
+    .room-num-sub { font-size:0.65rem; font-weight:500; color:var(--gray); }
+
+    .stu-name { font-weight:700; color:var(--dark); }
+    .stu-id { font-size:0.72rem; color:var(--gray); margin-top:2px; }
+
+    /* Radio tugmalar */
+    .att-choices { display:flex; gap:4px; flex-wrap:wrap; }
+    .att-choice { display:none; }
+    .att-choice-lbl {
+        padding:6px 14px; border-radius:8px; cursor:pointer;
+        font-size:0.78rem; font-weight:700; border:1.5px solid var(--border);
+        background:#fff; color:var(--gray); transition:all 0.15s;
+        user-select:none;
+    }
+    .att-choice-lbl:hover { border-color:var(--p); color:var(--p); }
+    .att-choice:checked + .att-choice-lbl {
+        background:var(--p); border-color:var(--p); color:#fff;
+    }
+    .att-choice:checked + .lbl-absent {
+        background:var(--dark); border-color:var(--dark); color:#fff;
+    }
+    .att-choice:checked + .lbl-late {
+        background:var(--gray); border-color:var(--gray); color:#fff;
+    }
+    .att-choice:checked + .lbl-excused {
+        background:#6b7280; border-color:#6b7280; color:#fff;
+    }
+
+    .save-bar {
+        position:sticky; bottom:0; z-index:100;
+        background:#fff; border-top:1px solid var(--border);
+        padding:14px 20px;
+        margin: 0 -28px;
+        text-align:center;
+    }
+    .btn-save {
+        background:var(--p); color:#fff; border:none;
+        border-radius:12px; padding:12px 40px;
+        font-size:0.95rem; font-weight:700; cursor:pointer;
+        transition:0.15s; font-family:'Inter',sans-serif;
+    }
+    .btn-save:hover { background:#5C00D3; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- SANA TANLASH -->
+<div class="date-bar">
+    <label><i class="fas fa-calendar me-2" style="color:var(--p);"></i> Sana:</label>
+    <form method="get" style="display:flex;gap:10px;align-items:center;flex:1;">
+        <input type="date" name="date" class="form-control" style="max-width:200px;"
+               value="{{ selected_date|date:'Y-m-d' }}" onchange="this.form.submit()">
+    </form>
+    <a href="{% url 'attendance:history' %}" class="btn btn-dark btn-sm px-3">
+        <i class="fas fa-history me-1"></i> Tarix
+    </a>
+</div>
+
+<!-- DAVOMAT SHAKLI -->
+<form method="post" action="{% url 'attendance:mark' %}">
+    {% csrf_token %}
+    <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+
+    {% for data in floors_data %}
+    <div class="att-floor-head">
+        <span class="att-floor-badge">{{ data.floor.number }}-QAVAT</span>
+    </div>
+
+    <div class="att-card">
+        <div class="table-responsive">
+            <table class="att-tbl">
+                <thead>
+                    <tr>
+                        <th style="width:80px;">Xona</th>
+                        <th>Talaba</th>
+                        <th>Davomat holati</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in data.rooms %}
+                        {% for item in room.students %}
+                        <tr>
+                            {% if forloop.first %}
+                            <td rowspan="{{ room.rowspan }}" class="room-num-cell">
+                                {{ room.number }}
+                                <div class="room-num-sub">XONA</div>
+                            </td>
+                            {% endif %}
+
+                            <td>
+                                <div class="stu-name">{{ item.obj.last_name }} {{ item.obj.first_name }}</div>
+                                <div class="stu-id">{{ item.obj.student_id }}</div>
+                            </td>
+
+                            <td>
+                                <div class="att-choices">
+                                    {% for status_val, status_name in statuses %}
+                                    <input type="radio" class="att-choice"
+                                           name="student_{{ item.obj.id }}"
+                                           id="s{{ item.obj.id }}_{{ status_val }}"
+                                           value="{{ status_val }}"
+                                           {% if item.status == status_val %}checked{% endif %}>
+                                    <label class="att-choice-lbl lbl-{{ status_val }}"
+                                           for="s{{ item.obj.id }}_{{ status_val }}">
+                                        {{ status_name }}
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% empty %}
+    <div style="background:#fff;border:1px solid var(--border);border-radius:14px;padding:60px;text-align:center;color:var(--gray);">
+        Hozirda xonalarda faol talabalar yo'q
+    </div>
+    {% endfor %}
+
+    <div class="save-bar">
+        <button type="submit" class="btn-save">
+            <i class="fas fa-save me-2"></i>Davomatni saqlash
+        </button>
+    </div>
+</form>
+
+{% endblock %}

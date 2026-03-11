@@ -11,13 +11,14 @@ urlpatterns = [
     path('list/', views.BuildingListView.as_view(), name='building_list'),
     path('create/', views.BuildingCreateView.as_view(), name='building_create'),
     path('<int:pk>/', views.BuildingDetailView.as_view(), name='building_detail'),
-    path('<int:pk>/edit/', views.BuildingUpdateView.as_view(), name='building_edit'),
+    path('<int:pk>/edit/', views.BuildingUpdateView.as_view(), name='building_update'),
     path('<int:pk>/delete/', views.BuildingDeleteView.as_view(), name='building_delete'),
 
     # Floors
     path('<int:building_pk>/floors/', views.FloorListView.as_view(), name='floor_list'),
     path('<int:building_pk>/floors/create/', views.FloorCreateView.as_view(), name='floor_create'),
-    path('floors/<int:pk>/edit/', views.FloorUpdateView.as_view(), name='floor_edit'),
+    # SHU YERDA: floor_edit edi, floor_update qildik (shablonga moslash uchun)
+    path('floors/<int:pk>/edit/', views.FloorUpdateView.as_view(), name='floor_update'),
     path('floors/<int:pk>/delete/', views.FloorDeleteView.as_view(), name='floor_delete'),
 
     # Rooms

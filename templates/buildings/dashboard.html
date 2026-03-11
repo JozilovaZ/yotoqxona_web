@@ -1,0 +1,429 @@
+{% extends "base.html" %}
+
+{% block page_title %}Umumiy ko'rinish{% endblock %}
+{% block page_sub %}<p class="page-sub">Yotoqxona boshqaruv tizimi — joriy holat</p>{% endblock %}
+{% block page_actions %}
+<div style="display:flex;gap:10px;">
+    <a href="{% url 'students:student_create' %}" class="btn-accent">Talaba qo'shish</a>
+    <a href="{% url 'finance:payment_create' %}" style="
+        display:inline-block; padding:8px 18px; border-radius:10px;
+        border:1.5px solid rgba(92,0,211,.25); color:var(--p);
+        font-weight:700; font-size:0.875rem; text-decoration:none;
+        background:#fff; transition:all .15s;
+    " onmouseover="this.style.background='var(--p)';this.style.color='#fff';"
+       onmouseout="this.style.background='#fff';this.style.color='var(--p)';">
+        To'lov qabul qilish
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─── METRIKA KARTALAR ─── */
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+@media(max-width:1100px){ .kpi-row{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:580px){  .kpi-row{ grid-template-columns:1fr; } }
+
+.kpi {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 22px;
+    transition: box-shadow .2s, border-color .2s;
+}
+.kpi:hover {
+    box-shadow: 0 8px 32px rgba(92,0,211,.09);
+    border-color: rgba(92,0,211,.2);
+}
+
+
+.kpi-label {
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--gray); margin-bottom: 10px;
+}
+.kpi-value {
+    font-size: 2.6rem; font-weight: 900;
+    color: var(--dark); letter-spacing: -2px;
+    line-height: 1; margin-bottom: 14px;
+}
+.kpi-value.sm { font-size: 1.7rem; letter-spacing: -1px; }
+
+.kpi-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 11px; border-radius: 99px;
+    font-size: 0.72rem; font-weight: 700;
+}
+.kpi-chip.purple { background: var(--p10); color: var(--p); }
+.kpi-chip.orange { background: var(--accent10); color: var(--accent); }
+.kpi-chip.dark   { background: rgba(18,0,42,.07); color: var(--dark); }
+
+/* ─── ASOSIY IKKI USTUN ─── */
+.dash-two {
+    display: grid;
+    grid-template-columns: 7fr 4fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+@media(max-width:1050px){ .dash-two{ grid-template-columns:1fr; } }
+
+/* ─── PANEL ─── */
+.panel {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+.panel-head {
+    padding: 16px 22px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.ph-title {
+    font-size: 0.875rem; font-weight: 800;
+    color: var(--dark); letter-spacing: -.3px;
+}
+.ph-link {
+    font-size: 0.75rem; font-weight: 700;
+    color: var(--p); text-decoration: none;
+    border-bottom: 1px dashed var(--p20);
+    transition: border-color .15s;
+}
+.ph-link:hover { border-color: var(--p); }
+
+/* ─── TALABALAR JADVALI ─── */
+.stu-tbl { width:100%; border-collapse:collapse; }
+.stu-tbl thead th {
+    padding: 10px 20px;
+    font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .7px;
+    color: var(--gray); background: #FAFAFE;
+    border-bottom: 1.5px solid var(--border);
+}
+.stu-tbl tbody td {
+    padding: 14px 20px; font-size: 0.855rem;
+    border-bottom: 1px solid #F2EFF9;
+    vertical-align: middle;
+}
+.stu-tbl tbody tr:last-child td { border-bottom: none; }
+.stu-tbl tbody tr:hover td { background: #FAFAFE; }
+
+.stu-full  { font-weight: 700; color: var(--dark); font-size: .875rem; }
+.stu-id    { font-size: .72rem; color: var(--gray); margin-top: 2px; }
+
+.room-pill {
+    display: inline-block;
+    background: var(--p10); color: var(--p);
+    border-radius: 8px; padding: 3px 10px;
+    font-size: .73rem; font-weight: 700; white-space: nowrap;
+}
+
+.entry-date { font-size: .78rem; color: var(--gray); }
+
+.view-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1.5px solid var(--border); color: var(--gray);
+    text-decoration: none; font-size: .72rem; transition: all .15s;
+}
+.view-btn:hover { background: var(--p); border-color: var(--p); color: #fff; }
+
+/* ─── BINOLAR BANDLIK ─── */
+.bld-item {
+    padding: 16px 22px;
+    border-bottom: 1.5px solid #F2EFF9;
+    cursor: default;
+}
+.bld-item:last-child { border-bottom: none; }
+
+.bld-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+}
+.bld-name { font-size: .875rem; font-weight: 700; color: var(--dark); }
+.bld-pct  { font-size: .78rem; font-weight: 800; color: var(--p); }
+
+.bld-bar {
+    height: 7px; background: #EDE8F8;
+    border-radius: 99px; overflow: hidden;
+}
+.bld-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--p), rgba(92,0,211,.55));
+    transition: width .6s cubic-bezier(.25,.8,.25,1);
+}
+.bld-fill.hi { background: linear-gradient(90deg, var(--accent), rgba(255,85,0,.6)); }
+
+.bld-meta {
+    display: flex; justify-content: space-between;
+    font-size: .7rem; color: var(--gray);
+    margin-top: 6px;
+}
+
+/* ─── PASTKI UCHLIK ─── */
+.dash-three {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+}
+@media(max-width:900px){ .dash-three{ grid-template-columns:1fr; } }
+@media(max-width:600px){ .dash-three{ grid-template-columns:1fr; } }
+
+/* Xona holati */
+.status-row {
+    padding: 13px 22px;
+    border-bottom: 1px solid #F2EFF9;
+    display: flex; align-items: center; gap: 12px;
+}
+.status-row:last-child { border-bottom: none; }
+
+.s-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.s-dot.available   { background: #22C55E; }
+.s-dot.partial     { background: var(--p); }
+.s-dot.full        { background: var(--accent); }
+.s-dot.maintenance { background: var(--gray); }
+
+.s-name { flex: 1; font-size: .855rem; font-weight: 600; color: var(--dark); }
+.s-num  { font-size: .855rem; font-weight: 800; color: var(--dark); }
+
+/* Mini stat panel */
+.mini-stat {
+    padding: 20px 22px;
+    border-bottom: 1px solid #F2EFF9;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.mini-stat:last-child { border-bottom: none; }
+.ms-label { font-size: .78rem; font-weight: 600; color: var(--gray); }
+.ms-value { font-size: 1.25rem; font-weight: 900; color: var(--dark); letter-spacing: -.5px; }
+.ms-value.purple { color: var(--p); }
+.ms-value.orange { color: var(--accent); }
+
+/* EMPTY */
+.dash-empty {
+    padding: 44px 20px; text-align: center;
+    font-size: .875rem; color: var(--gray);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ═══ 1-QATOR: KPI KARTALAR ═══ -->
+<div class="kpi-row">
+
+    <div class="kpi">
+        <div class="kpi-label">Jami talabalar</div>
+        <div class="kpi-value">{{ total_students }}</div>
+        <span class="kpi-chip purple">
+            Sig'im {{ total_capacity }} · Bo'sh {{ free_beds }}
+        </span>
+    </div>
+
+    <div class="kpi">
+        <div class="kpi-label">Bandlik darajasi</div>
+        <div class="kpi-value">{{ occupancy_rate }}<span style="font-size:1.4rem;font-weight:600;">%</span></div>
+        <span class="kpi-chip dark">
+            {{ full_rooms }} to'liq · {{ empty_rooms }} bo'sh xona
+        </span>
+    </div>
+
+    <div class="kpi">
+        <div class="kpi-label">Bu oy tushum</div>
+        <div class="kpi-value sm">{{ total_collected_month|floatformat:0 }}<span style="font-size:.9rem;font-weight:500;"> so'm</span></div>
+        <span class="kpi-chip orange">
+            Bugun +{{ total_collected_today|floatformat:0 }} so'm
+        </span>
+    </div>
+
+    <div class="kpi">
+        <div class="kpi-label">Qarzdorlar</div>
+        <div class="kpi-value">{{ debtors_count }}</div>
+        <span class="kpi-chip dark">
+            Kutilmoqda: {{ pending_amount|floatformat:0 }} so'm
+        </span>
+    </div>
+
+</div>
+
+<!-- ═══ 2-QATOR: TALABALAR + BINOLAR ═══ -->
+<div class="dash-two">
+
+    <!-- Oxirgi talabalar -->
+    <div class="panel">
+        <div class="panel-head">
+            <span class="ph-title">Oxirgi qo'shilgan talabalar</span>
+            <a href="{% url 'students:student_list' %}" class="ph-link">Barchasini ko'rish →</a>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="stu-tbl">
+                <thead>
+                    <tr>
+                        <th>Talaba</th>
+                        <th>Xona</th>
+                        <th>Guruh</th>
+                        <th>Kirgan sana</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in recent_students %}
+                    <tr>
+                        <td>
+                            <div class="stu-full">{{ s.full_name }}</div>
+                            <div class="stu-id">{{ s.student_id }}</div>
+                        </td>
+                        <td>
+                            {% if s.room %}
+                            <span class="room-pill">
+                                {{ s.room.floor.building.name|truncatechars:7 }} · {{ s.room.number }}-xona
+                            </span>
+                            {% else %}<span style="color:var(--gray);font-size:.8rem;">—</span>{% endif %}
+                        </td>
+                        <td class="entry-date">{{ s.group|default:"—" }}</td>
+                        <td class="entry-date">{{ s.check_in_date|date:"d.m.Y" }}</td>
+                        <td style="text-align:right;padding-right:20px;">
+                            <a href="{% url 'students:student_detail' s.pk %}" class="view-btn" title="Ko'rish">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="dash-empty">Talabalar mavjud emas</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Binolar bandligi -->
+    <div class="panel">
+        <div class="panel-head">
+            <span class="ph-title">Binolar bandligi</span>
+            <a href="{% url 'buildings:building_list' %}" class="ph-link">Ko'rish →</a>
+        </div>
+        {% for bd in buildings_data %}
+        <div class="bld-item">
+            <div class="bld-top">
+                <span class="bld-name">{{ bd.building.name }}</span>
+                <span class="bld-pct">{{ bd.rate }}%</span>
+            </div>
+            <div class="bld-bar">
+                <div class="bld-fill {% if bd.rate >= 90 %}hi{% endif %}" style="width:{{ bd.rate }}%;"></div>
+            </div>
+            <div class="bld-meta">
+                <span>{{ bd.occupied }} talaba</span>
+                <span>{{ bd.free }} bo'sh joy</span>
+            </div>
+        </div>
+        {% empty %}
+        <div class="dash-empty">Binolar topilmadi</div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- ═══ 3-QATOR: XONA HOLATI + MOLIYA + BINO STAT ═══ -->
+<div class="dash-three">
+
+    <!-- Xona holati -->
+    <div class="panel">
+        <div class="panel-head">
+            <span class="ph-title">Xona holati</span>
+            <a href="{% url 'buildings:room_list' %}" class="ph-link">Ko'rish →</a>
+        </div>
+        {% for rs in rooms_by_status %}
+        <div class="status-row">
+            <span class="s-dot {{ rs.status }}"></span>
+            <span class="s-name">
+                {% if rs.status == 'available' %}Bo'sh
+                {% elif rs.status == 'partial' %}Qisman to'lgan
+                {% elif rs.status == 'full' %}To'liq band
+                {% elif rs.status == 'maintenance' %}Ta'mirda
+                {% else %}{{ rs.status }}{% endif %}
+            </span>
+            <span class="s-num">{{ rs.count }}</span>
+        </div>
+        {% empty %}
+        <div class="dash-empty">Xonalar topilmadi</div>
+        {% endfor %}
+
+        <!-- Jami -->
+        <div class="status-row" style="border-top:1.5px solid var(--border);background:#FAFAFE;">
+            <span class="s-dot" style="background:var(--dark);"></span>
+            <span class="s-name" style="font-weight:800;">Jami xonalar</span>
+            <span class="s-num" style="color:var(--p);">{{ total_rooms }}</span>
+        </div>
+    </div>
+
+    <!-- Moliyaviy ko'rsatkichlar -->
+    <div class="panel">
+        <div class="panel-head">
+            <span class="ph-title">Moliyaviy ko'rsatkichlar</span>
+            <a href="{% url 'finance:dashboard' %}" class="ph-link">Ko'rish →</a>
+        </div>
+        <div class="mini-stat">
+            <span class="ms-label">Bu oy tushum</span>
+            <span class="ms-value purple">{{ total_collected_month|floatformat:0 }}</span>
+        </div>
+        <div class="mini-stat">
+            <span class="ms-label">Bugungi tushum</span>
+            <span class="ms-value">{{ total_collected_today|floatformat:0 }}</span>
+        </div>
+        <div class="mini-stat">
+            <span class="ms-label">Kutilayotgan to'lovlar</span>
+            <span class="ms-value orange">{{ pending_amount|floatformat:0 }}</span>
+        </div>
+        <div class="mini-stat">
+            <span class="ms-label">Qarzdorlar soni</span>
+            <span class="ms-value">{{ debtors_count }} ta</span>
+        </div>
+        <div style="padding:14px 22px;">
+            <a href="{% url 'finance:debtor_list' %}" style="
+                display:block;text-align:center;padding:9px;
+                background:var(--accent10);color:var(--accent);
+                border-radius:10px;font-weight:700;font-size:.8rem;
+                text-decoration:none;transition:background .15s;
+            " onmouseover="this.style.background='var(--accent)';this.style.color='#fff';"
+               onmouseout="this.style.background='var(--accent10)';this.style.color='var(--accent)';">
+                Qarzdorlar ro'yxati →
+            </a>
+        </div>
+    </div>
+
+    <!-- Umumiy statistika -->
+    <div class="panel">
+        <div class="panel-head">
+            <span class="ph-title">Umumiy statistika</span>
+        </div>
+        <div class="mini-stat">
+            <span class="ms-label">Jami binolar</span>
+            <span class="ms-value">{{ total_buildings }}</span>
+        </div>
+        <div class="mini-stat">
+            <span class="ms-label">Jami xonalar</span>
+            <span class="ms-value">{{ total_rooms }}</span>
+        </div>
+        <div class="mini-stat">
+            <span class="ms-label">Umumiy sig'im</span>
+            <span class="ms-value">{{ total_capacity }}</span>
+        </div>
+        <div class="mini-stat">
+            <span class="ms-label">Band o'rinlar</span>
+            <span class="ms-value purple">{{ occupied_beds }}</span>
+        </div>
+        <div class="mini-stat">
+            <span class="ms-label">Bo'sh o'rinlar</span>
+            <span class="ms-value">{{ free_beds }}</span>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

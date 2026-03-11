@@ -1,0 +1,16 @@
+[Unit]
+Description=Yotoqxona Web - Gunicorn Daemon
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/yotoqxona
+ExecStart=/var/www/yotoqxona/venv/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/yotoqxona.sock \
+          config.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

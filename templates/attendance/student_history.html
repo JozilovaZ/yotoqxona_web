@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold">{{ student.get_full_name }}</h2>
+            <p class="text-muted">{{ month_name }} {{ year }} yildagi davomat tarixi</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <form method="get" class="d-flex gap-2">
+                <select name="month" class="form-select">
+                    {% for m in 123456789101112|make_list %}
+                        <option value="{{ forloop.counter }}" {% if month == forloop.counter %}selected{% endif %}>{{ forloop.counter }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-outline-primary">O'tish</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row row-cols-2 row-cols-md-7 g-2 mb-4">
+        {% for day in days %}
+        <div class="col">
+            <div class="card h-100 text-center border-0 shadow-sm
+                {% if day.attendance.status == 'present' %}bg-success-subtle
+                {% elif day.attendance.status == 'absent' %}bg-danger-subtle
+                {% elif day.attendance.status == 'late' %}bg-warning-subtle
+                {% endif %}">
+                <div class="card-body py-3">
+                    <div class="small fw-bold">{{ day.date|date:"d" }}</div>
+                    <div class="small text-muted">{{ day.date|date:"D" }}</div>
+                    <div class="mt-2">
+                        {% if day.attendance %}
+                            <i class="fas
+                                {% if day.attendance.status == 'present' %}fa-check text-success
+                                {% elif day.attendance.status == 'absent' %}fa-times text-danger
+                                {% elif day.attendance.status == 'late' %}fa-clock text-warning
+                                {% endif %}"></i>
+                        {% else %}
+                            <span class="text-muted small">-</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="p-3 border rounded bg-white shadow-sm">
+                <div class="text-muted small">Kelgan kunlari</div>
+                <div class="h4 mb-0 text-success">{{ present_days }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 border rounded bg-white shadow-sm">
+                <div class="text-muted small">Kelmagan kunlari</div>
+                <div class="h4 mb-0 text-danger">{{ absent_days }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

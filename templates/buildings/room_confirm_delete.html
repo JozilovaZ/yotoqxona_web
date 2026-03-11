@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Xonani o'chirishni tasdiqlash{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4 p-md-5 text-center">
+
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-triangle fa-4x text-danger animate__animated animate__pulse animate__infinite"></i>
+                    </div>
+
+                    <h3 class="fw-bold text-dark mb-3">Xonani o'chirish</h3>
+
+                    <p class="text-muted mb-4">
+                        Siz haqiqatdan ham <strong>{{ object.floor.building.name }}</strong> binosi,
+                        <strong>{{ object.floor.number }}-qavatdagi</strong>
+                        <span class="badge bg-danger fs-6">{{ object.number }}-xonani</span>
+                        o'chirmoqchimisiz?
+                    </p>
+
+                    <div class="alert alert-warning border-0 small mb-4">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Diqqat: Xonani o'chirish unga biriktirilgan barcha tarixiy ma'lumotlarga ta'sir qilishi mumkin.
+                        Agar xonada talabalar bo'lsa, avval ularni ko'chirishingiz tavsiya etiladi.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg fw-bold shadow-sm">
+                                <i class="fas fa-trash-alt me-2"></i> Ha, o'chirilsin
+                            </button>
+                            <a href="{% url 'buildings:room_detail' object.pk %}" class="btn btn-light btn-lg border">
+                                Yo'q, qaytish
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="{% url 'buildings:building_detail' object.floor.building.pk %}" class="text-muted text-decoration-none small">
+                    <i class="fas fa-arrow-left me-1"></i> Bino detallariga qaytish
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Tasdiqlash sahifasi uchun maxsus stil */
+    .card {
+        border-top: 5px solid #dc3545 !important; /* Yuqori qismi qizil chiziq */
+    }
+    .animate__pulse {
+        animation-duration: 2s;
+    }
+</style>
+{% endblock %}

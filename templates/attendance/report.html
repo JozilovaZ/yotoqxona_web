@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Oylik Davomat Hisoboti</h2>
+        <div class="text-muted">{{ month_name }} / {{ year }}</div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle border-top">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-3">#</th>
+                        <th>Talaba</th>
+                        <th>Xona</th>
+                        <th>Jami kunlar</th>
+                        <th class="text-success">Kelgan</th>
+                        <th class="text-danger">Kelmagan</th>
+                        <th class="text-warning">Kechikkan</th>
+                        <th>Foiz (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in student_stats %}
+                    <tr>
+                        <td class="ps-3">{{ forloop.counter }}</td>
+                        <td><strong>{{ stat.student.get_full_name }}</strong></td>
+                        <td>{{ stat.student.room.number }}</td>
+                        <td>{{ stat.total }}</td>
+                        <td class="text-success">{{ stat.present }}</td>
+                        <td class="text-danger">{{ stat.absent }}</td>
+                        <td class="text-warning">{{ stat.late }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 10px;">
+                                    <div class="progress-bar {% if stat.rate > 80 %}bg-success{% elif stat.rate > 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                                         role="progressbar" style="width: {{ stat.rate }}%"></div>
+                                </div>
+                                <span class="fw-bold small">{{ stat.rate }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

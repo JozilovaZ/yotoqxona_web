@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'buildings:building_list' %}">Binolar</a></li>
+                <li class="breadcrumb-item active">{{ room.floor.building.name }} / {{ room.number }}-xona</li>
+            </ol>
+        </nav>
+        <div>
+            <a href="{% url 'buildings:room_edit' room.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Tahrirlash
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Xona ma'lumotlari</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Raqami:</span>
+                            <span class="fw-bold">{{ room.number }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Qavat:</span>
+                            <span>{{ room.floor.number }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Sig'imi:</span>
+                            <span>{{ room.students.count }} / {{ room.capacity }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Holati:</span>
+                            <span class="badge {% if room.status == 'available' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ room.get_status_display }}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted">Narxi:</span>
+                            <span class="text-primary fw-bold">{{ room.price_per_month }} so'm</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Xonadagi talabalar</h5>
+                    <a href="{% url 'students:student_create' %}?room={{ room.pk }}" class="btn btn-sm btn-outline-success">+ Talaba qo'shish</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>F.I.SH</th>
+                                <th>Telefon</th>
+                                <th>Guruh</th>
+                                <th>Amal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.first_name }} {{ student.last_name }}</td>
+                                <td>{{ student.phone }}</td>
+                                <td>
+                                    {% if student.has_paid %}
+                                        <span class="badge bg-success">To'langan</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Qarzdor</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'students:student_detail' student.pk %}" class="btn btn-sm btn-info text-white">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">Hozircha bu xonada talabalar yo'q</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Xona inventarlari</h5>
+                </div>
+                <div class="card-body">
+                    {% if inventory %}
+                        <ul class="list-group list-group-flush">
+                            {% for item in inventory %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>{{ item.item.name }}</span>
+                                <span class="badge bg-secondary">{{ item.quantity }} ta</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-center text-muted mb-0">Inventarlar biriktirilmagan</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

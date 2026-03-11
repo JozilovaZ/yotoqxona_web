@@ -1,7 +1,7 @@
 from django import forms
 from .models import Attendance
-from apps.students.models import Student
-from apps.buildings.models import Building, Floor
+from students.models import Student
+from buildings.models import Building, Floor
 
 
 class AttendanceForm(forms.ModelForm):

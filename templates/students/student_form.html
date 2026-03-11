@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-person-plus me-2"></i>
+                        {% if object %}Talaba ma'lumotlarini tahrirlash{% else %}Yangi talaba qo'shish{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="studentForm" novalidate>
+                        {% csrf_token %}
+
+                        {# Formaning asosiy qismi (ism, familiya va h.k.) #}
+                        <div class="row g-3">
+                            {% for field in form %}
+                                {% if field.name not in 'building,floor,room' %}
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="text-danger small">{{ field.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <hr class="my-4">
+                        <h6 class="text-muted mb-3">Joylashtirish ma'lumotlari</h6>
+
+                        {# Bino, Etaj va Xona ketma-ketligi - eng oxirida #}
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">{{ form.building.label }}</label>
+                                {{ form.building }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">{{ form.floor.label }}</label>
+                                {{ form.floor }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">{{ form.room.label }}</label>
+                                {{ form.room }}
+                                {% if form.room.errors %}
+                                    <div class="text-danger small">{{ form.room.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary px-4">Saqlash</button>
+                            <a href="{% url 'students:student_list' %}" class="btn btn-outline-secondary">Bekor qilish</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buildingSelect = document.getElementById('id_building');
+    const floorSelect = document.getElementById('id_floor');
+    const roomSelect = document.getElementById('id_room');
+
+    // 1. Bino o'zgarganda qavatlarni yuklash
+    buildingSelect.addEventListener('change', function() {
+        const buildingId = this.value;
+        floorSelect.innerHTML = '<option value="">---------</option>';
+        roomSelect.innerHTML = '<option value="">---------</option>';
+
+        if (buildingId) {
+            fetch(`/buildings/api/floors/${buildingId}/`)
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(floor => {
+                        const option = new Option(`${floor.number}-qavat`, floor.id);
+                        floorSelect.add(option);
+                    });
+                })
+                .catch(err => console.error("Qavat yuklashda xato:", err));
+        }
+    });
+
+    // 2. Qavat o'zgarganda FAQAT SHU QAVAT xonalarini yuklash
+    floorSelect.addEventListener('change', function() {
+        const floorId = this.value;
+        roomSelect.innerHTML = '<option value="">---------</option>';
+
+        if (floorId) {
+            fetch(`/buildings/api/rooms/${floorId}/`)
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(room => {
+                        // Faqat xona raqami ko'rinadi (shartingizga ko'ra)
+                        const option = new Option(`${room.number}-xona`, room.id);
+                        roomSelect.add(option);
+                    });
+                })
+                .catch(err => console.error("Xona yuklashda xato:", err));
+        }
+    });
+});
+</script>
+{% endblock %}

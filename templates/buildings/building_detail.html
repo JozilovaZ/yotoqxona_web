@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'buildings:building_list' %}">Binolar</a></li>
+            <li class="breadcrumb-item active">{{ building.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center p-4">
+            <div>
+                <h2 class="fw-bold mb-1">{{ building.name }}</h2>
+                <p class="text-muted mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ building.address }}</p>
+            </div>
+            <a href="{% url 'buildings:floor_create' building.pk %}" class="btn btn-success shadow-sm">
+                <i class="fas fa-plus"></i> Yangi etaj qo'shish
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for floor in floors %}
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">{{ floor.number }}-qavat</h5>
+                    <div>
+                        <a href="{% url 'buildings:room_create' floor.pk %}" class="btn btn-sm btn-outline-primary">+ Xona qo'shish</a>
+                        <a href="{% url 'buildings:floor_update' floor.pk %}" class="btn btn-sm btn-link text-warning p-0 mx-2"><i class="fas fa-edit"></i></a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-3">
+                        {% for room in floor.rooms.all %}
+                        <a href="{% url 'buildings:room_detail' room.pk %}" class="text-decoration-none">
+                            <div class="card border shadow-none text-center p-2" style="width: 80px;">
+                                <div class="fw-bold {% if room.status == 'available' %}text-success{% else %}text-danger{% endif %}">{{ room.number }}</div>
+                                <div class="small text-muted">{{ room.students.count }}/{{ room.capacity }}</div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

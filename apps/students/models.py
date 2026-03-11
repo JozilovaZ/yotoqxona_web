@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
+from django.apps import apps  # Modelni xavfsiz chaqirish uchun
 from dateutil.relativedelta import relativedelta
+import datetime
 
 
 class Student(models.Model):
@@ -58,6 +60,7 @@ class Student(models.Model):
         verbose_name = "Talaba"
         verbose_name_plural = "Talabalar"
         ordering = ['last_name', 'first_name']
+        app_label = 'students'  # AppLabel muammosini oldini olish uchun
 
     def __str__(self):
         return f"{self.last_name} {self.first_name}"
@@ -70,30 +73,39 @@ class Student(models.Model):
         return ' '.join(parts)
 
     @property
-    def short_name(self):
-        return f"{self.last_name} {self.first_name[0]}."
-
-    @property
     def months_stayed(self):
-        """Necha oy yashagani"""
+        """Necha oy yashagani (TypeError xatosiz)"""
         if not self.check_in_date:
             return 0
+
+        # Date va Datetime farqini yo'qotish
         end_date = self.check_out_date or timezone.now().date()
-        delta = relativedelta(end_date, self.check_in_date)
+        start_date = self.check_in_date
+
+        if isinstance(start_date, datetime.datetime): start_date = start_date.date()
+        if isinstance(end_date, datetime.datetime): end_date = end_date.date()
+
+        delta = relativedelta(end_date, start_date)
         return delta.years * 12 + delta.months
 
     @property
     def days_stayed(self):
-        """Necha kun yashagani"""
+        """Necha kun yashagani (TypeError xatosiz)"""
         if not self.check_in_date:
             return 0
+
         end_date = self.check_out_date or timezone.now().date()
-        return (end_date - self.check_in_date).days
+        start_date = self.check_in_date
+
+        if isinstance(start_date, datetime.datetime): start_date = start_date.date()
+        if isinstance(end_date, datetime.datetime): end_date = end_date.date()
+
+        return (end_date - start_date).days
 
     @property
     def total_paid(self):
-        """Jami to'langan summa"""
-        from apps.finance.models import Payment
+        """Jami to'langan summa (Circular import xatosiz)"""
+        Payment = apps.get_model('finance', 'Payment')
         return Payment.objects.filter(
             student=self,
             status='completed'
@@ -101,8 +113,8 @@ class Student(models.Model):
 
     @property
     def total_debt(self):
-        """Jami qarzdorlik"""
-        from apps.finance.models import Invoice
+        """Jami qarzdorlik (Circular import xatosiz)"""
+        Invoice = apps.get_model('finance', 'Invoice')
         invoices = Invoice.objects.filter(student=self)
         total_invoiced = invoices.aggregate(total=models.Sum('amount'))['total'] or 0
         return max(0, total_invoiced - self.total_paid)
@@ -111,70 +123,24 @@ class Student(models.Model):
     def has_debt(self):
         return self.total_debt > 0
 
-    def transfer_to_room(self, new_room):
-        """Talabani boshqa xonaga ko'chirish"""
-        old_room = self.room
-
-        # Transfer tarixini saqlash
-        if old_room:
-            RoomTransfer.objects.create(
-                student=self,
-                from_room=old_room,
-                to_room=new_room,
-                reason="Ko'chirish"
-            )
-
-        self.room = new_room
-        self.save()
-
-        # Xonalar statusini yangilash
-        if old_room:
-            old_room.update_status()
-        if new_room:
-            new_room.update_status()
-
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Xona statusini yangilash
+        # Xona statusini yangilash (Faqat xona mavjud bo'lsa)
         if self.room:
             self.room.update_status()
 
 
+# RoomTransfer modeli o'zgarishsiz qolishi mumkin,
+# lekin 'accounts.User' va 'buildings.Room' string ko'rinishida chaqirilgani to'g'ri.
 class RoomTransfer(models.Model):
-    """Talabani xonadan xonaga ko'chirish tarixi"""
-    student = models.ForeignKey(
-        Student,
-        on_delete=models.CASCADE,
-        related_name='transfers',
-        verbose_name="Talaba"
-    )
-    from_room = models.ForeignKey(
-        'buildings.Room',
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='transfers_from',
-        verbose_name="Qayerdan"
-    )
-    to_room = models.ForeignKey(
-        'buildings.Room',
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='transfers_to',
-        verbose_name="Qayerga"
-    )
-    reason = models.TextField(blank=True, verbose_name="Sabab")
-    transferred_at = models.DateTimeField(auto_now_add=True, verbose_name="Ko'chirilgan vaqt")
-    transferred_by = models.ForeignKey(
-        'accounts.User',
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name="Kim tomonidan"
-    )
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='transfers')
+    from_room = models.ForeignKey('buildings.Room', on_delete=models.SET_NULL, null=True, related_name='transfers_from')
+    to_room = models.ForeignKey('buildings.Room', on_delete=models.SET_NULL, null=True, related_name='transfers_to')
+    reason = models.TextField(blank=True)
+    transferred_at = models.DateTimeField(auto_now_add=True)
+    transferred_by = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True)
 
     class Meta:
         verbose_name = "Xona ko'chirish"
         verbose_name_plural = "Xona ko'chirishlar"
         ordering = ['-transferred_at']
-
-    def __str__(self):
-        return f"{self.student} - {self.from_room} -> {self.to_room}"

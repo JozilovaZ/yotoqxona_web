@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block page_title %}To'lovlar{% endblock %}
+{% block page_sub %}<p class="page-sub">{{ selected_month_name }} oyi bo'yicha to'lov holati</p>{% endblock %}
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <a href="{% url 'finance:payment_create' %}" class="btn btn-primary btn-sm px-3">
+        <i class="fas fa-plus me-1"></i> To'lov qabul qilish
+    </a>
+    <a href="{% url 'finance:invoice_bulk' %}" class="btn btn-dark btn-sm px-3">
+        <i class="fas fa-file-invoice me-1"></i> Ommaviy hisob
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .fin-kpi { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+    @media(max-width:900px){ .fin-kpi{ grid-template-columns:repeat(2,1fr); } }
+
+    .fkpi {
+        background:#fff; border:1px solid var(--border);
+        border-radius:14px; padding:18px 20px;
+    }
+    .fkpi-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--gray); margin-bottom:6px; }
+    .fkpi-value { font-size:1.6rem; font-weight:900; color:var(--dark); letter-spacing:-1px; line-height:1.1; }
+    .fkpi-value.purple { color:var(--p); }
+    .fkpi-sub { font-size:0.75rem; color:var(--gray); margin-top:6px; }
+
+    .filter-bar {
+        background:#fff; border:1px solid var(--border);
+        border-radius:14px; padding:16px 20px; margin-bottom:20px;
+    }
+
+    .fin-table-wrap {
+        background:#fff; border:1px solid var(--border);
+        border-radius:14px; overflow:hidden;
+    }
+    .fin-floor-head {
+        padding:12px 20px;
+        background:#fafafb; border-bottom:1px solid var(--border);
+        font-size:0.8rem; font-weight:700;
+        display:flex; align-items:center; gap:10px;
+    }
+    .fin-floor-badge {
+        background:var(--p); color:#fff;
+        border-radius:8px; padding:3px 10px;
+        font-size:0.72rem; font-weight:700;
+    }
+
+    .fin-tbl { width:100%; border-collapse:collapse; }
+    .fin-tbl thead th {
+        padding:10px 16px; font-size:0.7rem; font-weight:700;
+        text-transform:uppercase; letter-spacing:0.5px; color:var(--gray);
+        background:#f5f5f7; border-bottom:1px solid var(--border);
+    }
+    .fin-tbl tbody td {
+        padding:12px 16px; font-size:0.85rem;
+        border-bottom:1px solid #f5f5f7; vertical-align:middle;
+    }
+    .fin-tbl tbody tr:last-child td { border-bottom:none; }
+    .fin-tbl tbody tr:hover td { background:#fafafb; }
+
+    .room-cell {
+        background:#fafafb !important;
+        font-size:1.1rem; font-weight:800; color:var(--dark);
+        text-align:center; border-right:1px solid var(--border) !important;
+        vertical-align:middle !important;
+    }
+
+    .stu-link { color:var(--dark); text-decoration:none; font-weight:700; }
+    .stu-link:hover { color:var(--p); }
+    .stu-hint { font-size:0.7rem; color:var(--gray); }
+
+    .paid-badge {
+        display:inline-flex; align-items:center; gap:6px;
+        background:var(--p10); color:var(--p);
+        border-radius:8px; padding:4px 12px;
+        font-size:0.8rem; font-weight:700;
+    }
+    .unpaid-badge {
+        display:inline-flex; align-items:center; gap:6px;
+        background:rgba(0,0,0,0.05); color:var(--gray);
+        border-radius:8px; padding:4px 12px;
+        font-size:0.8rem; font-weight:600;
+    }
+
+    .empty-fin { padding:60px 20px; text-align:center; color:var(--gray); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- KPI -->
+<div class="fin-kpi">
+    <div class="fkpi">
+        <div class="fkpi-label">Bugungi tushum</div>
+        <div class="fkpi-value purple">{{ today_payments|floatformat:0 }}</div>
+        <div class="fkpi-sub">so'm</div>
+    </div>
+    <div class="fkpi">
+        <div class="fkpi-label">{{ selected_month_name }} oyi</div>
+        <div class="fkpi-value">{{ month_payments|floatformat:0 }}</div>
+        <div class="fkpi-sub">so'm</div>
+    </div>
+    <div class="fkpi">
+        <div class="fkpi-label">Kutilayotgan</div>
+        <div class="fkpi-value">{{ pending_invoices|floatformat:0 }}</div>
+        <div class="fkpi-sub">so'm</div>
+    </div>
+    <div class="fkpi">
+        <div class="fkpi-label">Muddati o'tgan</div>
+        <div class="fkpi-value">{{ overdue_invoices }}</div>
+        <div class="fkpi-sub">ta hisob-faktura</div>
+    </div>
+</div>
+
+<!-- FILTR -->
+<div class="filter-bar">
+    <form method="GET" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted ps-3">
+                    <i class="fas fa-search" style="font-size:0.8rem;"></i>
+                </span>
+                <input type="text" name="search" class="form-control border-start-0"
+                       placeholder="Ism yoki familiya..." value="{{ search_query }}"
+                       style="border-radius:0 10px 10px 0;">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select name="month" class="form-select" onchange="this.form.submit()">
+                {% for m_num, m_name in months_range %}
+                <option value="{{ m_num }}" {% if selected_month == m_num %}selected{% endif %}>{{ m_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-filter me-1"></i> Filtrlash
+            </button>
+        </div>
+        <div class="col-md-2">
+            <a href="?" class="btn btn-outline-secondary w-100" style="border-radius:10px;">Tozalash</a>
+        </div>
+    </form>
+</div>
+
+<!-- JADVAL -->
+{% if floors_data %}
+    {% for floor_info in floors_data %}
+    <div class="fin-table-wrap mb-4">
+        <div class="fin-floor-head">
+            <span class="fin-floor-badge">{{ floor_info.floor.number }}-QAVAT</span>
+            <span style="color:var(--dark);font-weight:700;">{{ floor_info.floor.building.name }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="fin-tbl">
+                <thead>
+                    <tr>
+                        <th style="width:90px;">Xona</th>
+                        <th>Talaba</th>
+                        <th>To'langan summa</th>
+                        <th>Holat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in floor_info.rooms %}
+                        {% for s_data in room.students %}
+                        <tr>
+                            {% if forloop.first %}
+                            <td rowspan="{{ room.rowspan }}" class="room-cell">
+                                {{ room.number }}
+                            </td>
+                            {% endif %}
+                            <td>
+                                <a href="{% url 'finance:payment_create' %}?student={{ s_data.obj.id }}&reference={{ selected_month_name }}"
+                                   class="stu-link">{{ s_data.obj.last_name }} {{ s_data.obj.first_name }}</a>
+                                <div class="stu-hint">To'lov qilish uchun bosing</div>
+                            </td>
+                            <td>
+                                {% if s_data.payment %}
+                                <strong style="color:var(--p);">{{ s_data.payment.amount|floatformat:0 }} so'm</strong>
+                                {% else %}
+                                <span style="color:var(--gray);">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if s_data.payment %}
+                                <span class="paid-badge"><i class="fas fa-check" style="font-size:0.65rem;"></i> To'langan</span>
+                                {% else %}
+                                <span class="unpaid-badge">To'lanmagan</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="fin-table-wrap">
+    <div class="empty-fin">
+        <i class="fas fa-search" style="font-size:2rem;color:var(--border);display:block;margin-bottom:12px;"></i>
+        Ma'lumot topilmadi
+        <br>
+        <a href="?" class="btn btn-primary btn-sm mt-3">Barchasini ko'rsatish</a>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

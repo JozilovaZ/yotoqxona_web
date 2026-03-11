@@ -1,8 +1,8 @@
 from django import forms
 from django.utils import timezone
 from .models import Invoice, Payment
-from apps.students.models import Student
-from apps.buildings.models import Building, Floor
+from students.models import Student
+from buildings.models import Building, Floor
 
 
 class InvoiceForm(forms.ModelForm):
@@ -27,6 +27,22 @@ class InvoiceForm(forms.ModelForm):
 
 
 class PaymentForm(forms.ModelForm):
+    # Oylar ro'yxati
+    MONTH_CHOICES = [
+        ('', '--- Oyni tanlang ---'),
+        ('Yanvar', 'Yanvar'), ('Fevral', 'Fevral'), ('Mart', 'Mart'),
+        ('Aprel', 'Aprel'), ('May', 'May'), ('Iyun', 'Iyun'),
+        ('Iyul', 'Iyul'), ('Avgust', 'Avgust'), ('Sentabr', 'Sentabr'),
+        ('Oktabr', 'Oktabr'), ('Noyabr', 'Noyabr'), ('Dekabr', 'Dekabr'),
+    ]
+
+    # Referens maydonini oylar tanlashga o'zgartiramiz
+    reference = forms.ChoiceField(
+        choices=MONTH_CHOICES,
+        label="Qaysi oy uchun",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
     class Meta:
         model = Payment
         fields = ['student', 'invoice', 'amount', 'payment_method', 'payment_date', 'reference', 'notes']
@@ -35,8 +51,11 @@ class PaymentForm(forms.ModelForm):
             'invoice': forms.Select(attrs={'class': 'form-select'}),
             'amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '1000'}),
             'payment_method': forms.Select(attrs={'class': 'form-select'}),
-            'payment_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'reference': forms.TextInput(attrs={'class': 'form-control'}),
+            'payment_date': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local',
+                'value': timezone.now().strftime('%Y-%m-%dT%H:%M')  # Hozirgi vaqtni avtomatik qo'yish
+            }),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
 
@@ -45,7 +64,11 @@ class PaymentForm(forms.ModelForm):
         self.fields['student'].queryset = Student.objects.filter(is_active=True)
         self.fields['invoice'].required = False
 
-        # Agar student tanlangan bo'lsa
+        # Hozirgi oyni avtomatik tanlab qo'yish
+        current_month = ["", "Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun",
+                         "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"][timezone.now().month]
+        self.fields['reference'].initial = current_month
+
         if 'student' in self.data:
             try:
                 student_id = int(self.data.get('student'))

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block page_title %}Davomat{% endblock %}
+{% block page_sub %}<p class="page-sub">Kunlik davomat nazorati</p>{% endblock %}
+{% block page_actions %}
+<a href="{% url 'attendance:mark' %}" class="btn btn-primary btn-sm px-3">
+    <i class="fas fa-calendar-check me-1"></i> Davomat belgilash
+</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .att-kpi { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px; }
+    @media(max-width:900px){ .att-kpi{ grid-template-columns:repeat(3,1fr); } }
+    @media(max-width:600px){ .att-kpi{ grid-template-columns:repeat(2,1fr); } }
+
+    .akpi {
+        background:#fff; border:1px solid var(--border);
+        border-radius:14px; padding:18px 16px; text-align:center;
+    }
+    .akpi-num { font-size:2rem; font-weight:900; letter-spacing:-1px; line-height:1; margin-bottom:4px; }
+    .akpi-num.present { color:var(--p); }
+    .akpi-num.absent  { color:var(--dark); }
+    .akpi-num.late    { color:#6b7280; }
+    .akpi-num.excused { color:rgba(92,0,211,0.5); }
+    .akpi-num.unmarked{ color:rgba(0,0,0,0.3); }
+    .akpi-lbl { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--gray); }
+
+    .att-grid { display:grid; grid-template-columns:2fr 1fr; gap:20px; }
+    @media(max-width:900px){ .att-grid{ grid-template-columns:1fr; } }
+
+    .att-panel {
+        background:#fff; border:1px solid var(--border); border-radius:14px; overflow:hidden;
+    }
+    .att-panel-head {
+        padding:14px 18px; border-bottom:1px solid var(--border);
+        font-size:0.875rem; font-weight:700;
+    }
+
+    .week-tbl { width:100%; border-collapse:collapse; }
+    .week-tbl thead th {
+        padding:9px 16px; font-size:0.7rem; font-weight:700;
+        text-transform:uppercase; color:var(--gray);
+        background:#fafafb; border-bottom:1px solid var(--border);
+    }
+    .week-tbl tbody td {
+        padding:12px 16px; font-size:0.85rem;
+        border-bottom:1px solid #f5f5f7; vertical-align:middle;
+    }
+    .week-tbl tbody tr:last-child td { border-bottom:none; }
+
+    .w-present { color:var(--p); font-weight:700; }
+    .w-absent  { color:var(--dark); font-weight:700; }
+
+    .mini-bar { height:5px; background:#f0f0f2; border-radius:99px; overflow:hidden; width:100px; }
+    .mini-fill { height:100%; background:var(--p); border-radius:99px; }
+
+    .bld-link {
+        display:flex; align-items:center; justify-content:space-between;
+        padding:13px 18px; border-bottom:1px solid #f5f5f7;
+        text-decoration:none; color:var(--dark); font-size:0.875rem; font-weight:600;
+        transition:0.15s;
+    }
+    .bld-link:last-child { border-bottom:none; }
+    .bld-link:hover { background:#fafafb; color:var(--p); }
+    .bld-link i { color:var(--gray); font-size:0.7rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- KPI -->
+<div class="att-kpi">
+    <div class="akpi">
+        <div class="akpi-num present">{{ present_count }}</div>
+        <div class="akpi-lbl">Kelgan</div>
+    </div>
+    <div class="akpi">
+        <div class="akpi-num absent">{{ absent_count }}</div>
+        <div class="akpi-lbl">Kelmagan</div>
+    </div>
+    <div class="akpi">
+        <div class="akpi-num late">{{ late_count }}</div>
+        <div class="akpi-lbl">Kechikkan</div>
+    </div>
+    <div class="akpi">
+        <div class="akpi-num excused">{{ excused_count }}</div>
+        <div class="akpi-lbl">Sababli</div>
+    </div>
+    <div class="akpi">
+        <div class="akpi-num unmarked">{{ unmarked_count }}</div>
+        <div class="akpi-lbl">Belgilanmagan</div>
+    </div>
+</div>
+
+<div class="att-grid">
+    <!-- Haftalik statistika -->
+    <div class="att-panel">
+        <div class="att-panel-head">
+            <i class="fas fa-chart-bar me-2" style="color:var(--p);"></i> Haftalik davomat statistikasi
+        </div>
+        <div class="table-responsive">
+            <table class="week-tbl">
+                <thead>
+                    <tr>
+                        <th>Sana</th>
+                        <th>Kelgan</th>
+                        <th>Kelmagan</th>
+                        <th>Ko'rsatkich</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in week_stats %}
+                    <tr>
+                        <td style="font-weight:600;">{{ stat.date|date:"l, d-M" }}</td>
+                        <td class="w-present">{{ stat.present }}</td>
+                        <td class="w-absent">{{ stat.absent }}</td>
+                        <td>
+                            <div class="mini-bar">
+                                <div class="mini-fill" style="width:{% if stat.present %}{{ stat.present }}%{% else %}0%{% endif %};"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Binolar -->
+    <div class="att-panel">
+        <div class="att-panel-head">
+            <i class="fas fa-building me-2" style="color:var(--p);"></i> Bino bo'yicha ko'rish
+        </div>
+        {% for building in buildings %}
+        <a href="{% url 'attendance:daily' %}?building={{ building.id }}" class="bld-link">
+            {{ building.name }}
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% empty %}
+        <div style="padding:30px;text-align:center;color:var(--gray);font-size:0.85rem;">Binolar topilmadi</div>
+        {% endfor %}
+
+        <div style="padding:14px 18px;border-top:1px solid var(--border);">
+            <a href="{% url 'attendance:report' %}" class="btn btn-primary btn-sm w-100">
+                <i class="fas fa-file-chart-bar me-1"></i> To'liq hisobot
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
