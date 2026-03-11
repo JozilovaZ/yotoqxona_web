@@ -17,7 +17,7 @@ if [ -d "/var/www/yotoqxona/.git" ]; then
     git pull origin main
 else
     echo "Cloning repo..."
-    git clone https://github.com/davronovuz/yotoqxona_web.git /var/www/yotoqxona
+    git clone https://github.com/JozilovaZ/yotoqxona_web.git /var/www/yotoqxona
 fi
 
 cd /var/www/yotoqxona
