@@ -3,89 +3,194 @@
 {% block page_title %}To'lovlar{% endblock %}
 {% block page_sub %}<p class="page-sub">{{ selected_month_name }} oyi bo'yicha to'lov holati</p>{% endblock %}
 {% block page_actions %}
-<div class="d-flex gap-2">
+<div style="display:flex;gap:8px;">
     <a href="{% url 'finance:payment_create' %}" class="btn btn-primary btn-sm px-3">
-        <i class="fas fa-plus me-1"></i> To'lov qabul qilish
+        <i class="fas fa-plus me-1"></i> To'lov qabul
     </a>
-    <a href="{% url 'finance:invoice_bulk' %}" class="btn btn-dark btn-sm px-3">
-        <i class="fas fa-file-invoice me-1"></i> Ommaviy hisob
+    <a href="{% url 'finance:invoice_bulk' %}" style="
+        display:inline-flex;align-items:center;gap:6px;
+        padding:7px 14px;border-radius:10px;
+        border:1.5px solid var(--border);background:#fff;
+        color:var(--dark);font-size:.82rem;font-weight:700;
+        text-decoration:none;transition:all .15s;
+    " onmouseover="this.style.borderColor='var(--p)';this.style.color='var(--p)';"
+       onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dark)';">
+        <i class="fas fa-file-invoice"></i> Ommaviy hisob
     </a>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    .fin-kpi { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
-    @media(max-width:900px){ .fin-kpi{ grid-template-columns:repeat(2,1fr); } }
 
-    .fkpi {
-        background:#fff; border:1px solid var(--border);
-        border-radius:14px; padding:18px 20px;
-    }
-    .fkpi-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--gray); margin-bottom:6px; }
-    .fkpi-value { font-size:1.6rem; font-weight:900; color:var(--dark); letter-spacing:-1px; line-height:1.1; }
-    .fkpi-value.purple { color:var(--p); }
-    .fkpi-sub { font-size:0.75rem; color:var(--gray); margin-top:6px; }
+/* ══ KPI QATOR ══ */
+.fin-kpi {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+@media(max-width:900px){ .fin-kpi{ grid-template-columns: repeat(2,1fr); } }
+@media(max-width:500px){ .fin-kpi{ grid-template-columns: 1fr; } }
 
-    .filter-bar {
-        background:#fff; border:1px solid var(--border);
-        border-radius:14px; padding:16px 20px; margin-bottom:20px;
-    }
+.fkpi {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 18px 14px;
+    position: relative; overflow: hidden;
+    transition: box-shadow .2s, transform .18s;
+}
+.fkpi:hover { box-shadow: 0 6px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
+.fkpi::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--fc, var(--p)); border-radius: 16px 16px 0 0;
+}
+.fkpi-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.fkpi-icon {
+    width: 40px; height: 40px; border-radius: 11px;
+    background: var(--fi, rgba(92,0,211,.08));
+    color: var(--fc, var(--p));
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem;
+}
+.fkpi-label { font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--gray); margin-bottom: 5px; }
+.fkpi-value { font-size: 1.55rem; font-weight: 900; color: var(--dark); letter-spacing: -1px; line-height: 1.1; }
+.fkpi-value .unit { font-size: .78rem; font-weight: 600; letter-spacing: 0; color: var(--gray); }
 
-    .fin-table-wrap {
-        background:#fff; border:1px solid var(--border);
-        border-radius:14px; overflow:hidden;
-    }
-    .fin-floor-head {
-        padding:12px 20px;
-        background:#fafafb; border-bottom:1px solid var(--border);
-        font-size:0.8rem; font-weight:700;
-        display:flex; align-items:center; gap:10px;
-    }
-    .fin-floor-badge {
-        background:var(--p); color:#fff;
-        border-radius:8px; padding:3px 10px;
-        font-size:0.72rem; font-weight:700;
-    }
+/* ══ FILTR ══ */
+.filter-bar {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+}
+.filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 200px 130px 110px;
+    gap: 10px;
+    align-items: center;
+}
+@media(max-width:800px){ .filter-grid{ grid-template-columns: 1fr 1fr; } }
+@media(max-width:500px){ .filter-grid{ grid-template-columns: 1fr; } }
 
-    .fin-tbl { width:100%; border-collapse:collapse; }
-    .fin-tbl thead th {
-        padding:10px 16px; font-size:0.7rem; font-weight:700;
-        text-transform:uppercase; letter-spacing:0.5px; color:var(--gray);
-        background:#f5f5f7; border-bottom:1px solid var(--border);
-    }
-    .fin-tbl tbody td {
-        padding:12px 16px; font-size:0.85rem;
-        border-bottom:1px solid #f5f5f7; vertical-align:middle;
-    }
-    .fin-tbl tbody tr:last-child td { border-bottom:none; }
-    .fin-tbl tbody tr:hover td { background:#fafafb; }
+.search-wrap { position: relative; }
+.search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray); font-size: .78rem; pointer-events: none; }
+.search-wrap input { padding-left: 34px !important; }
 
-    .room-cell {
-        background:#fafafb !important;
-        font-size:1.1rem; font-weight:800; color:var(--dark);
-        text-align:center; border-right:1px solid var(--border) !important;
-        vertical-align:middle !important;
-    }
+/* ══ QAVAT PANEL ══ */
+.fin-block {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+.fin-block-head {
+    padding: 12px 18px;
+    background: #FAFAFE;
+    border-bottom: 1.5px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+}
+.fin-floor-badge {
+    background: var(--dark); color: #fff;
+    border-radius: 8px; padding: 4px 12px;
+    font-size: .72rem; font-weight: 800;
+    letter-spacing: .5px;
+}
+.fin-bname {
+    font-size: .875rem; font-weight: 700; color: var(--dark);
+}
+.fin-block-head-right {
+    margin-left: auto;
+    font-size: .72rem; color: var(--gray); font-weight: 600;
+}
 
-    .stu-link { color:var(--dark); text-decoration:none; font-weight:700; }
-    .stu-link:hover { color:var(--p); }
-    .stu-hint { font-size:0.7rem; color:var(--gray); }
+/* ══ JADVAL ══ */
+.fin-tbl { width: 100%; border-collapse: collapse; }
+.fin-tbl thead th {
+    padding: 9px 16px; font-size: .67rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--gray); background: #FAFAFE;
+    border-bottom: 1.5px solid var(--border);
+}
+.fin-tbl tbody td {
+    padding: 12px 16px; font-size: .855rem;
+    border-bottom: 1px solid #F5F3FA; vertical-align: middle;
+}
+.fin-tbl tbody tr:last-child td { border-bottom: none; }
+.fin-tbl tbody tr:hover td { background: #FAFAFE; }
 
-    .paid-badge {
-        display:inline-flex; align-items:center; gap:6px;
-        background:var(--p10); color:var(--p);
-        border-radius:8px; padding:4px 12px;
-        font-size:0.8rem; font-weight:700;
-    }
-    .unpaid-badge {
-        display:inline-flex; align-items:center; gap:6px;
-        background:rgba(0,0,0,0.05); color:var(--gray);
-        border-radius:8px; padding:4px 12px;
-        font-size:0.8rem; font-weight:600;
-    }
+.room-cell {
+    background: #FAFAFE !important;
+    text-align: center; vertical-align: middle !important;
+    border-right: 1.5px solid var(--border) !important;
+    min-width: 70px;
+}
+.room-num { font-size: 1.1rem; font-weight: 900; color: var(--dark); }
+.room-sub { font-size: .6rem; font-weight: 600; color: var(--gray); }
 
-    .empty-fin { padding:60px 20px; text-align:center; color:var(--gray); }
+.stu-link-wrap { display: flex; align-items: center; gap: 10px; }
+.stu-av-sm {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--p); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .65rem; font-weight: 800; flex-shrink: 0;
+}
+.stu-link { color: var(--dark); text-decoration: none; font-weight: 700; font-size: .875rem; }
+.stu-link:hover { color: var(--p); }
+.pay-hint { font-size: .7rem; color: var(--p); margin-top: 1px; font-weight: 600; }
+
+.amount-val { font-weight: 800; color: #059669; font-size: .9rem; }
+
+.paid-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(5,150,105,.1); color: #059669;
+    border-radius: 7px; padding: 4px 10px;
+    font-size: .71rem; font-weight: 700;
+}
+.unpaid-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(156,163,175,.1); color: #6B7280;
+    border-radius: 7px; padding: 4px 10px;
+    font-size: .71rem; font-weight: 600;
+}
+.debt-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(217,119,6,.1); color: #D97706;
+    border-radius: 7px; padding: 4px 10px;
+    font-size: .71rem; font-weight: 700;
+}
+
+.empty-fin {
+    padding: 60px 20px; text-align: center; color: var(--gray);
+}
+.empty-fin i { font-size: 2rem; color: #D1C9E8; display: block; margin-bottom: 10px; }
+
+/* ══ HAVOLALAR ROW ══ */
+.quick-links {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 18px;
+}
+@media(max-width:700px){ .quick-links{ grid-template-columns: 1fr; } }
+
+.qlink {
+    background: #fff; border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 14px 16px;
+    text-decoration: none; color: var(--dark);
+    display: flex; align-items: center; gap: 12px;
+    transition: all .15s; font-weight: 700; font-size: .875rem;
+}
+.qlink:hover { border-color: var(--p); color: var(--p); transform: translateY(-1px); }
+.qlink-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--p10); color: var(--p);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .85rem; flex-shrink: 0;
+}
+
 </style>
 {% endblock %}
 
@@ -93,75 +198,102 @@
 
 <!-- KPI -->
 <div class="fin-kpi">
-    <div class="fkpi">
-        <div class="fkpi-label">Bugungi tushum</div>
-        <div class="fkpi-value purple">{{ today_payments|floatformat:0 }}</div>
-        <div class="fkpi-sub">so'm</div>
+    <div class="fkpi" style="--fc:#059669;--fi:rgba(5,150,105,.08);">
+        <div class="fkpi-top">
+            <div>
+                <div class="fkpi-label">Bugungi tushum</div>
+                <div class="fkpi-value">{{ today_payments|floatformat:0 }}<span class="unit"> so'm</span></div>
+            </div>
+            <div class="fkpi-icon"><i class="fas fa-money-bill-wave"></i></div>
+        </div>
     </div>
-    <div class="fkpi">
-        <div class="fkpi-label">{{ selected_month_name }} oyi</div>
-        <div class="fkpi-value">{{ month_payments|floatformat:0 }}</div>
-        <div class="fkpi-sub">so'm</div>
+    <div class="fkpi" style="--fc:var(--p);--fi:rgba(92,0,211,.08);">
+        <div class="fkpi-top">
+            <div>
+                <div class="fkpi-label">{{ selected_month_name }} oyi</div>
+                <div class="fkpi-value">{{ month_payments|floatformat:0 }}<span class="unit"> so'm</span></div>
+            </div>
+            <div class="fkpi-icon"><i class="fas fa-chart-line"></i></div>
+        </div>
     </div>
-    <div class="fkpi">
-        <div class="fkpi-label">Kutilayotgan</div>
-        <div class="fkpi-value">{{ pending_invoices|floatformat:0 }}</div>
-        <div class="fkpi-sub">so'm</div>
+    <div class="fkpi" style="--fc:#D97706;--fi:rgba(217,119,6,.08);">
+        <div class="fkpi-top">
+            <div>
+                <div class="fkpi-label">Kutilayotgan</div>
+                <div class="fkpi-value">{{ pending_invoices|floatformat:0 }}<span class="unit"> so'm</span></div>
+            </div>
+            <div class="fkpi-icon"><i class="fas fa-clock"></i></div>
+        </div>
     </div>
-    <div class="fkpi">
-        <div class="fkpi-label">Muddati o'tgan</div>
-        <div class="fkpi-value">{{ overdue_invoices }}</div>
-        <div class="fkpi-sub">ta hisob-faktura</div>
+    <div class="fkpi" style="--fc:#EF4444;--fi:rgba(239,68,68,.08);">
+        <div class="fkpi-top">
+            <div>
+                <div class="fkpi-label">Muddati o'tgan</div>
+                <div class="fkpi-value">{{ overdue_invoices }}<span class="unit"> ta</span></div>
+            </div>
+            <div class="fkpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+        </div>
     </div>
+</div>
+
+<!-- TEZKOR HAVOLALAR -->
+<div class="quick-links">
+    <a href="{% url 'finance:invoice_list' %}" class="qlink">
+        <div class="qlink-icon"><i class="fas fa-file-invoice"></i></div>
+        Barcha hisoblar
+    </a>
+    <a href="{% url 'finance:debtor_list' %}" class="qlink">
+        <div class="qlink-icon" style="background:rgba(217,119,6,.1);color:#D97706;"><i class="fas fa-users"></i></div>
+        <span style="color:var(--dark);">Qarzdorlar ro'yxati</span>
+    </a>
+    <a href="{% url 'finance:reports' %}" class="qlink">
+        <div class="qlink-icon" style="background:rgba(5,150,105,.1);color:#059669;"><i class="fas fa-chart-bar"></i></div>
+        <span style="color:var(--dark);">Moliyaviy hisobot</span>
+    </a>
 </div>
 
 <!-- FILTR -->
 <div class="filter-bar">
-    <form method="GET" class="row g-2 align-items-center">
-        <div class="col-md-5">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0 text-muted ps-3">
-                    <i class="fas fa-search" style="font-size:0.8rem;"></i>
-                </span>
-                <input type="text" name="search" class="form-control border-start-0"
-                       placeholder="Ism yoki familiya..." value="{{ search_query }}"
-                       style="border-radius:0 10px 10px 0;">
-            </div>
+    <form method="GET" class="filter-grid">
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" name="search" class="form-control"
+                   placeholder="Ism yoki familiya..." value="{{ search_query }}">
         </div>
-        <div class="col-md-3">
-            <select name="month" class="form-select" onchange="this.form.submit()">
-                {% for m_num, m_name in months_range %}
-                <option value="{{ m_num }}" {% if selected_month == m_num %}selected{% endif %}>{{ m_name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="fas fa-filter me-1"></i> Filtrlash
-            </button>
-        </div>
-        <div class="col-md-2">
-            <a href="?" class="btn btn-outline-secondary w-100" style="border-radius:10px;">Tozalash</a>
-        </div>
+        <select name="month" class="form-select" onchange="this.form.submit()">
+            {% for m_num, m_name in months_range %}
+            <option value="{{ m_num }}" {% if selected_month == m_num %}selected{% endif %}>{{ m_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-filter me-1"></i> Saralash
+        </button>
+        <a href="?" class="btn" style="border:1.5px solid var(--border);background:#fff;font-weight:700;color:var(--dark);">
+            Tozalash
+        </a>
     </form>
 </div>
 
-<!-- JADVAL -->
+<!-- TO'LOV JADVALI -->
 {% if floors_data %}
     {% for floor_info in floors_data %}
-    <div class="fin-table-wrap mb-4">
-        <div class="fin-floor-head">
-            <span class="fin-floor-badge">{{ floor_info.floor.number }}-QAVAT</span>
-            <span style="color:var(--dark);font-weight:700;">{{ floor_info.floor.building.name }}</span>
+    <div class="fin-block">
+        <div class="fin-block-head">
+            <span class="fin-floor-badge">{{ floor_info.floor.number }}-qavat</span>
+            <span class="fin-bname">{{ floor_info.floor.building.name }}</span>
+            <span class="fin-block-head-right">
+                {% with total=floor_info.rooms|length %}{{ total }} xona{% endwith %}
+            </span>
         </div>
         <div class="table-responsive">
             <table class="fin-tbl">
                 <thead>
                     <tr>
-                        <th style="width:90px;">Xona</th>
+                        <th style="width:70px;text-align:center;">Xona</th>
                         <th>Talaba</th>
                         <th>To'langan summa</th>
                         <th>Holat</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -170,27 +302,46 @@
                         <tr>
                             {% if forloop.first %}
                             <td rowspan="{{ room.rowspan }}" class="room-cell">
-                                {{ room.number }}
+                                <div class="room-num">{{ room.number }}</div>
+                                <div class="room-sub">xona</div>
                             </td>
                             {% endif %}
                             <td>
-                                <a href="{% url 'finance:payment_create' %}?student={{ s_data.obj.id }}&reference={{ selected_month_name }}"
-                                   class="stu-link">{{ s_data.obj.last_name }} {{ s_data.obj.first_name }}</a>
-                                <div class="stu-hint">To'lov qilish uchun bosing</div>
+                                <div class="stu-link-wrap">
+                                    <div class="stu-av-sm">
+                                        {{ s_data.obj.first_name|first|upper }}{{ s_data.obj.last_name|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="stu-link">{{ s_data.obj.last_name }} {{ s_data.obj.first_name }}</div>
+                                        <div class="pay-hint">To'lov qilish uchun bosing →</div>
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 {% if s_data.payment %}
-                                <strong style="color:var(--p);">{{ s_data.payment.amount|floatformat:0 }} so'm</strong>
+                                <span class="amount-val">{{ s_data.payment.amount|floatformat:0 }} so'm</span>
                                 {% else %}
-                                <span style="color:var(--gray);">—</span>
+                                <span style="color:var(--gray);font-size:.82rem;">—</span>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if s_data.payment %}
-                                <span class="paid-badge"><i class="fas fa-check" style="font-size:0.65rem;"></i> To'langan</span>
+                                <span class="paid-badge"><i class="fas fa-check" style="font-size:.6rem;"></i> To'langan</span>
                                 {% else %}
-                                <span class="unpaid-badge">To'lanmagan</span>
+                                <span class="unpaid-badge"><i class="fas fa-minus" style="font-size:.6rem;"></i> To'lanmagan</span>
                                 {% endif %}
+                            </td>
+                            <td style="text-align:right;padding-right:14px;">
+                                <a href="{% url 'finance:payment_create' %}?student={{ s_data.obj.id }}&reference={{ selected_month_name }}" style="
+                                    width:30px;height:30px;border-radius:8px;
+                                    border:1.5px solid var(--border);color:var(--gray);
+                                    display:inline-flex;align-items:center;justify-content:center;
+                                    text-decoration:none;font-size:.68rem;transition:all .15s;
+                                " title="To'lov qabul qilish"
+                                   onmouseover="this.style.background='var(--p)';this.style.borderColor='var(--p)';this.style.color='#fff';"
+                                   onmouseout="this.style.background='';this.style.borderColor='var(--border)';this.style.color='var(--gray)';">
+                                    <i class="fas fa-plus"></i>
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -201,12 +352,13 @@
     </div>
     {% endfor %}
 {% else %}
-<div class="fin-table-wrap">
+<div class="fin-block">
     <div class="empty-fin">
-        <i class="fas fa-search" style="font-size:2rem;color:var(--border);display:block;margin-bottom:12px;"></i>
+        <i class="fas fa-magnifying-glass"></i>
         Ma'lumot topilmadi
-        <br>
-        <a href="?" class="btn btn-primary btn-sm mt-3">Barchasini ko'rsatish</a>
+        <div style="margin-top:10px;">
+            <a href="?" class="btn btn-primary btn-sm">Barchasini ko'rsatish</a>
+        </div>
     </div>
 </div>
 {% endif %}

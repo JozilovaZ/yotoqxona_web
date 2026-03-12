@@ -26,8 +26,7 @@ urlpatterns = [
     path('inventory/', include('inventory.urls', namespace='inventory')),
 ]
 
-# Media va Static fayllar
+# Media va Static fayllar (production da nginx serve qiladi)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    # STATICFILES_DIRS[0] o'rniga settings.STATIC_ROOT dan foydalanish xavfsizroq
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

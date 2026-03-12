@@ -9,6 +9,8 @@ class User(AbstractUser):
         ADMIN = 'admin', 'Administrator'
         MANAGER = 'manager', 'Menejer'
         STAFF = 'staff', 'Xodim'
+        RESIDENT = 'resident', 'Yashayotgan talaba'
+        APPLICANT = 'applicant', 'Ariza beruvchi'
 
     role = models.CharField(
         max_length=20,
@@ -33,3 +35,15 @@ class User(AbstractUser):
     @property
     def is_manager(self):
         return self.role in [self.Role.ADMIN, self.Role.MANAGER] or self.is_superuser
+
+    @property
+    def is_staff_member(self):
+        return self.role in [self.Role.ADMIN, self.Role.MANAGER, self.Role.STAFF] or self.is_superuser
+
+    @property
+    def is_resident(self):
+        return self.role == self.Role.RESIDENT
+
+    @property
+    def is_applicant(self):
+        return self.role == self.Role.APPLICANT

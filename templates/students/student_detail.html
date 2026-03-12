@@ -1,88 +1,558 @@
 {% extends "base.html" %}
 
+{% block page_title %}{{ student.full_name }}{% endblock %}
+{% block page_sub %}<p class="page-sub">Talaba kartasi · {{ student.student_id }}</p>{% endblock %}
+{% block page_actions %}
+<div style="display:flex;gap:8px;">
+    <a href="{% url 'students:student_update' student.pk %}" style="
+        display:inline-flex;align-items:center;gap:6px;
+        padding:8px 16px;border-radius:10px;border:1.5px solid var(--border);
+        background:#fff;color:var(--dark);font-weight:700;font-size:.85rem;
+        text-decoration:none;transition:all .15s;
+    " onmouseover="this.style.borderColor='var(--p)';this.style.color='var(--p)';"
+       onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dark)';">
+        <i class="fas fa-pen"></i> Tahrirlash
+    </a>
+    <a href="{% url 'students:student_transfer' student.pk %}" class="btn-accent" style="
+        display:inline-flex;align-items:center;gap:6px;
+        padding:8px 16px;border-radius:10px;border:none;
+        background:var(--p);color:#fff;font-weight:700;font-size:.85rem;
+        text-decoration:none;transition:all .15s;
+    " onmouseover="this.style.opacity='.85';" onmouseout="this.style.opacity='1';">
+        <i class="fas fa-right-left"></i> Xona almashtirish
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* ══ PROFIL BOSH QISM ══ */
+.profile-header {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 28px 22px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+.profile-avatar {
+    width: 80px; height: 80px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, var(--p), #9061F9);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; font-weight: 900; color: #fff;
+    flex-shrink: 0; letter-spacing: -1px;
+    box-shadow: 0 8px 24px rgba(92,0,211,.25);
+}
+.profile-info { flex: 1; min-width: 0; }
+.profile-name {
+    font-size: 1.5rem; font-weight: 900;
+    color: var(--dark); letter-spacing: -.5px;
+    margin-bottom: 4px;
+}
+.profile-sub {
+    font-size: .85rem; color: var(--gray);
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.profile-sub span { display: flex; align-items: center; gap: 5px; }
+.profile-sub i { color: var(--p); font-size: .75rem; }
+
+.profile-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 99px;
+    font-size: .72rem; font-weight: 700;
+}
+.status-active   { background: rgba(5,150,105,.1); color: #059669; }
+.status-inactive { background: rgba(156,163,175,.1); color: #9CA3AF; }
+
+/* ══ STAT KARTALAR ══ */
+.stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+@media(max-width:800px){ .stat-row{ grid-template-columns: repeat(2,1fr); } }
+
+.stat-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    position: relative; overflow: hidden;
+}
+.stat-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--sc, var(--p)); border-radius: 14px 14px 0 0;
+}
+.stat-lbl { font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--gray); margin-bottom: 6px; }
+.stat-val { font-size: 1.5rem; font-weight: 900; color: var(--dark); letter-spacing: -.5px; line-height: 1; }
+.stat-val .unit { font-size: .8rem; font-weight: 600; letter-spacing: 0; }
+
+/* ══ ASOSIY 2 USTUN ══ */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 18px;
+    align-items: start;
+}
+@media(max-width:900px){ .detail-grid{ grid-template-columns: 1fr; } }
+
+/* ══ PANEL ══ */
+.d-panel {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+}
+.d-panel-head {
+    padding: 13px 18px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.d-panel-title {
+    font-size: .875rem; font-weight: 800; color: var(--dark);
+    display: flex; align-items: center; gap: 7px;
+}
+.d-panel-icon {
+    width: 26px; height: 26px; border-radius: 7px;
+    background: var(--p10); color: var(--p);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem;
+}
+.d-ph-link {
+    font-size: .75rem; font-weight: 700; color: var(--p);
+    text-decoration: none; opacity: .75; transition: opacity .15s;
+}
+.d-ph-link:hover { opacity: 1; }
+
+/* ══ INFO ROWS (chap panel) ══ */
+.info-row {
+    padding: 12px 18px;
+    border-bottom: 1px solid #F5F3FA;
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 12px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-label { font-size: .75rem; color: var(--gray); font-weight: 600; flex-shrink: 0; }
+.info-val { font-size: .855rem; font-weight: 700; color: var(--dark); text-align: right; }
+
+/* ══ TAB SISTEMA ══ */
+.tab-nav {
+    display: flex; gap: 0;
+    border-bottom: 1.5px solid var(--border);
+    padding: 0 18px;
+    background: #FAFAFE;
+}
+.tab-btn {
+    padding: 12px 16px;
+    font-size: .82rem; font-weight: 700;
+    color: var(--gray); background: none;
+    border: none; border-bottom: 2px solid transparent;
+    cursor: pointer; margin-bottom: -1.5px;
+    transition: color .15s, border-color .15s;
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+}
+.tab-btn:hover { color: var(--dark); }
+.tab-btn.active { color: var(--p); border-bottom-color: var(--p); }
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ══ TO'LOVLAR JADVALI ══ */
+.p-tbl { width: 100%; border-collapse: collapse; }
+.p-tbl thead th {
+    padding: 9px 16px; font-size: .67rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--gray); background: #FAFAFE;
+    border-bottom: 1.5px solid var(--border);
+}
+.p-tbl tbody td {
+    padding: 12px 16px; font-size: .855rem;
+    border-bottom: 1px solid #F5F3FA; vertical-align: middle;
+}
+.p-tbl tbody tr:last-child td { border-bottom: none; }
+.p-tbl tbody tr:hover td { background: #FAFAFE; }
+
+.paid-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(5,150,105,.1); color: #059669;
+    border-radius: 7px; padding: 3px 9px;
+    font-size: .71rem; font-weight: 700;
+}
+.pending-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(217,119,6,.1); color: #D97706;
+    border-radius: 7px; padding: 3px 9px;
+    font-size: .71rem; font-weight: 700;
+}
+
+/* ══ KO'CHIRISH ROW ══ */
+.transfer-row {
+    padding: 14px 18px;
+    border-bottom: 1px solid #F5F3FA;
+    display: flex; align-items: flex-start; gap: 14px;
+}
+.transfer-row:last-child { border-bottom: none; }
+.tr-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--p10); color: var(--p);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .85rem; flex-shrink: 0;
+}
+.tr-body { flex: 1; }
+.tr-rooms { font-size: .875rem; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
+.tr-meta  { font-size: .72rem; color: var(--gray); }
+
+/* ══ XAVFLI ZONA ══ */
+.danger-zone {
+    margin-top: 8px;
+    background: #fff;
+    border: 1.5px solid #FEE2E2;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.dz-text { font-size: .82rem; color: #7F1D1D; font-weight: 600; }
+.dz-sub  { font-size: .72rem; color: #9CA3AF; margin-top: 2px; }
+
+.empty-tab {
+    padding: 50px 20px; text-align: center;
+    font-size: .875rem; color: var(--gray);
+}
+.empty-tab i { font-size: 1.8rem; color: #D1C9E8; display: block; margin-bottom: 10px; }
+
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row g-4">
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm text-center p-4 mb-4">
-                <div class="mb-3">
-                    <i class="fas fa-user-circle fa-5x text-secondary"></i>
-                </div>
-                <h4 class="fw-bold mb-1">{{ student.get_full_name }}</h4>
-                <p class="text-muted">{{ student.group }} guruhi talabasi</p>
 
-                <div class="d-grid gap-2 mt-3">
-                    <a href="{% url 'students:student_transfer' student.pk %}" class="btn btn-warning fw-bold">
-                        <i class="fas fa-exchange-alt me-1"></i> Xonani almashtirish
-                    </a>
-                    <a href="{% url 'students:student_checkout' student.pk %}" class="btn btn-outline-danger">
-                        <i class="fas fa-door-open me-1"></i> Talabani chiqarish
-                    </a>
-                </div>
-            </div>
-
-            <div class="card border-0 shadow-sm p-3">
-                <h6 class="fw-bold border-bottom pb-2">Aloqa ma'lumotlari</h6>
-                <div class="small mb-2"><strong>ID:</strong> {{ student.student_id }}</div>
-                <div class="small mb-2"><strong>Tel:</strong> {{ student.phone }}</div>
-                <div class="small mb-2"><strong>Manzil:</strong> {{ student.address|default:"Kiritilmagan" }}</div>
-            </div>
-        </div>
-
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <ul class="nav nav-tabs card-header-tabs" id="studentTab" role="tablist">
-                        <li class="nav-item">
-                            <button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#payments">To'lovlar</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#transfers">Ko'chishlar</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#attendance">Davomat</button>
-                        </li>
-                    </ul>
-                </div>
-                <div class="card-body tab-content">
-                    <div class="tab-pane fade show active" id="payments">
-                        <table class="table table-sm">
-                            <thead><tr><th>Sana</th><th>Summa</th><th>Holat</th></tr></thead>
-                            <tbody>
-                                {% for payment in payments %}
-                                <tr>
-                                    <td>{{ payment.payment_date|date:"d.m.Y" }}</td>
-                                    <td class="text-success fw-bold">{{ payment.amount }}</td>
-                                    <td><span class="badge bg-success">{{ payment.status }}</span></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="tab-pane fade" id="transfers">
-                        <div class="list-group list-group-flush">
-                            {% for tr in transfers %}
-                            <div class="list-group-item px-0">
-                                <div class="small fw-bold">{{ tr.from_room.number }} → {{ tr.to_room.number }}</div>
-                                <div class="text-muted smaller">{{ tr.transferred_at|date:"d.m.Y" }} - Sabab: {{ tr.reason }}</div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="attendance">
-                        <div class="d-flex flex-wrap gap-1">
-                            {% for att in attendances %}
-                            <span class="badge {% if att.status == 'present' %}bg-success{% else %}bg-danger{% endif %}" title="{{ att.date }}">
-                                {{ att.date|date:"d" }}
-                            </span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- ═══ PROFIL BOSH QISM ═══ -->
+<div class="profile-header">
+    <div class="profile-avatar">
+        {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
+    </div>
+    <div class="profile-info">
+        <div class="profile-name">{{ student.full_name }}</div>
+        <div class="profile-sub">
+            {% if student.faculty %}
+            <span><i class="fas fa-university"></i> {{ student.faculty }}</span>
+            {% endif %}
+            {% if student.group %}
+            <span><i class="fas fa-layer-group"></i> {{ student.group }}</span>
+            {% endif %}
+            {% if student.course %}
+            <span><i class="fas fa-graduation-cap"></i> {{ student.course }}-kurs</span>
+            {% endif %}
+            {% if student.room %}
+            <span><i class="fas fa-door-open"></i>
+                {{ student.room.floor.building.name }} · {{ student.room.number }}-xona
+            </span>
+            {% endif %}
         </div>
     </div>
+    <div>
+        <span class="profile-status {% if student.is_active %}status-active{% else %}status-inactive{% endif %}">
+            <span style="width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+            {% if student.is_active %}Faol{% else %}Faol emas{% endif %}
+        </span>
+    </div>
 </div>
+
+<!-- ═══ STAT KARTALAR ═══ -->
+<div class="stat-row">
+    <div class="stat-card" style="--sc:#0891B2;">
+        <div class="stat-lbl">Qolgan vaqt</div>
+        <div class="stat-val">{{ student.months_stayed|default:"0" }}<span class="unit"> oy</span></div>
+    </div>
+    <div class="stat-card" style="--sc:#059669;">
+        <div class="stat-lbl">Jami to'langan</div>
+        <div class="stat-val" style="font-size:1.15rem;">{{ student.total_paid|default:"0"|floatformat:0 }}<span class="unit"> so'm</span></div>
+    </div>
+    <div class="stat-card" style="--sc:{% if student.has_debt %}#D97706{% else %}#059669{% endif %};">
+        <div class="stat-lbl">Qarz holati</div>
+        <div class="stat-val" style="font-size:1.1rem;color:{% if student.has_debt %}#D97706{% else %}#059669{% endif %};">
+            {% if student.has_debt %}{{ student.total_debt|default:"0"|floatformat:0 }} so'm{% else %}Qarzdor emas{% endif %}
+        </div>
+    </div>
+    <div class="stat-card" style="--sc:var(--p);">
+        <div class="stat-lbl">Kirgan sana</div>
+        <div class="stat-val" style="font-size:1.1rem;">{{ student.check_in_date|date:"d.m.Y"|default:"—" }}</div>
+    </div>
+</div>
+
+<!-- ═══ ASOSIY 2 USTUN ═══ -->
+<div class="detail-grid">
+
+    <!-- CHAP: Ma'lumotlar -->
+    <div>
+        <div class="d-panel" style="margin-bottom:12px;">
+            <div class="d-panel-head">
+                <span class="d-panel-title">
+                    <span class="d-panel-icon"><i class="fas fa-id-card"></i></span>
+                    Shaxsiy ma'lumotlar
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Talaba ID</span>
+                <span class="info-val" style="color:var(--p);">{{ student.student_id }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Jinsi</span>
+                <span class="info-val">{{ student.get_gender_display|default:"—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tug'ilgan sana</span>
+                <span class="info-val">{{ student.birth_date|date:"d.m.Y"|default:"—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Telefon</span>
+                <span class="info-val">
+                    <a href="tel:{{ student.phone }}" style="color:var(--dark);text-decoration:none;">{{ student.phone }}</a>
+                </span>
+            </div>
+            {% if student.email %}
+            <div class="info-row">
+                <span class="info-label">E-mail</span>
+                <span class="info-val" style="font-size:.78rem;">{{ student.email }}</span>
+            </div>
+            {% endif %}
+            {% if student.emergency_contact %}
+            <div class="info-row">
+                <span class="info-label">Bog'lanish</span>
+                <span class="info-val" style="font-size:.78rem;">{{ student.emergency_contact }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if student.room %}
+        <div class="d-panel" style="margin-bottom:12px;">
+            <div class="d-panel-head">
+                <span class="d-panel-title">
+                    <span class="d-panel-icon" style="background:rgba(8,145,178,.1);color:#0891B2;">
+                        <i class="fas fa-door-open"></i>
+                    </span>
+                    Xona ma'lumotlari
+                </span>
+                <a href="{% url 'buildings:room_detail' student.room.pk %}" class="d-ph-link">Ko'rish →</a>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Bino</span>
+                <span class="info-val">{{ student.room.floor.building.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Qavat</span>
+                <span class="info-val">{{ student.room.floor.number }}-qavat</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Xona</span>
+                <span class="info-val">{{ student.room.number }}-xona</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tur</span>
+                <span class="info-val">{{ student.room.get_room_type_display|default:"—" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Oylik to'lov</span>
+                <span class="info-val" style="color:#059669;">{{ student.room.monthly_price|floatformat:0|default:"—" }} so'm</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Xavfli zona -->
+        <div class="danger-zone">
+            <div>
+                <div class="dz-text">Talabani chiqarish</div>
+                <div class="dz-sub">Bu amalni bekor qilib bo'lmaydi</div>
+            </div>
+            <a href="{% url 'students:student_checkout' student.pk %}" style="
+                padding:8px 14px;border-radius:9px;
+                background:#FEF2F2;color:#DC2626;
+                font-size:.78rem;font-weight:700;
+                text-decoration:none;border:1.5px solid #FEE2E2;
+                transition:all .15s;white-space:nowrap;
+                display:inline-block;
+            " onmouseover="this.style.background='#DC2626';this.style.color='#fff';"
+               onmouseout="this.style.background='#FEF2F2';this.style.color='#DC2626';">
+                <i class="fas fa-door-open me-1"></i> Chiqarish
+            </a>
+        </div>
+    </div>
+
+    <!-- O'NG: Tab paneli -->
+    <div class="d-panel">
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('payments', this)">
+                <i class="fas fa-money-bill-wave"></i> To'lovlar
+            </button>
+            <button class="tab-btn" onclick="switchTab('invoices', this)">
+                <i class="fas fa-file-invoice"></i> Hisoblar
+            </button>
+            <button class="tab-btn" onclick="switchTab('transfers', this)">
+                <i class="fas fa-right-left"></i> Ko'chirishlar
+            </button>
+        </div>
+
+        <!-- TO'LOVLAR -->
+        <div class="tab-pane active" id="tab-payments">
+            {% if payments %}
+            <div class="table-responsive">
+                <table class="p-tbl">
+                    <thead>
+                        <tr>
+                            <th>Sana</th>
+                            <th>Summa</th>
+                            <th>Usul</th>
+                            <th>Holat</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pay in payments %}
+                        <tr>
+                            <td style="font-weight:600;color:var(--dark);">{{ pay.payment_date|date:"d.m.Y" }}</td>
+                            <td style="font-weight:800;color:#059669;">{{ pay.amount|floatformat:0 }} so'm</td>
+                            <td style="font-size:.78rem;color:var(--gray);">{{ pay.get_payment_method_display|default:"—" }}</td>
+                            <td>
+                                {% if pay.status == 'completed' %}
+                                <span class="paid-badge"><i class="fas fa-check" style="font-size:.6rem;"></i> To'langan</span>
+                                {% else %}
+                                <span class="pending-badge"><i class="fas fa-clock" style="font-size:.6rem;"></i> {{ pay.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align:right;padding-right:14px;">
+                                <a href="{% url 'finance:payment_detail' pay.pk %}" style="
+                                    width:28px;height:28px;border-radius:7px;
+                                    border:1.5px solid var(--border);color:var(--gray);
+                                    display:inline-flex;align-items:center;justify-content:center;
+                                    text-decoration:none;font-size:.65rem;transition:all .15s;
+                                " onmouseover="this.style.background='var(--p)';this.style.borderColor='var(--p)';this.style.color='#fff';"
+                                   onmouseout="this.style.background='';this.style.borderColor='var(--border)';this.style.color='var(--gray)';">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-tab">
+                <i class="fas fa-receipt"></i>
+                To'lovlar mavjud emas
+            </div>
+            {% endif %}
+            <div style="padding:12px 18px;border-top:1.5px solid var(--border);background:#FAFAFE;">
+                <a href="{% url 'finance:payment_create' %}?student={{ student.pk }}" style="
+                    display:inline-flex;align-items:center;gap:6px;
+                    padding:8px 16px;border-radius:9px;
+                    background:var(--p);color:#fff;font-weight:700;
+                    font-size:.8rem;text-decoration:none;transition:opacity .15s;
+                " onmouseover="this.style.opacity='.85';" onmouseout="this.style.opacity='1';">
+                    <i class="fas fa-plus"></i> To'lov qabul qilish
+                </a>
+            </div>
+        </div>
+
+        <!-- HISOBLAR -->
+        <div class="tab-pane" id="tab-invoices">
+            {% if invoices %}
+            <div class="table-responsive">
+                <table class="p-tbl">
+                    <thead>
+                        <tr>
+                            <th>Muddati</th>
+                            <th>Miqdor</span></th>
+                            <th>Turi</th>
+                            <th>Holat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in invoices %}
+                        <tr>
+                            <td style="font-weight:600;color:var(--dark);">{{ inv.due_date|date:"d.m.Y" }}</td>
+                            <td style="font-weight:800;color:var(--dark);">{{ inv.amount|floatformat:0 }} so'm</td>
+                            <td style="font-size:.78rem;color:var(--gray);">{{ inv.get_invoice_type_display|default:"—" }}</td>
+                            <td>
+                                {% if inv.status == 'paid' %}
+                                <span class="paid-badge"><i class="fas fa-check" style="font-size:.6rem;"></i> To'langan</span>
+                                {% elif inv.status == 'overdue' %}
+                                <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(239,68,68,.1);color:#EF4444;border-radius:7px;padding:3px 9px;font-size:.71rem;font-weight:700;">
+                                    <i class="fas fa-triangle-exclamation" style="font-size:.6rem;"></i> Muddati o'tgan
+                                </span>
+                                {% else %}
+                                <span class="pending-badge"><i class="fas fa-clock" style="font-size:.6rem;"></i> Kutilmoqda</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-tab">
+                <i class="fas fa-file-invoice"></i>
+                Hisoblar mavjud emas
+            </div>
+            {% endif %}
+            <div style="padding:12px 18px;border-top:1.5px solid var(--border);background:#FAFAFE;">
+                <a href="{% url 'finance:invoice_create' %}?student={{ student.pk }}" style="
+                    display:inline-flex;align-items:center;gap:6px;
+                    padding:8px 16px;border-radius:9px;
+                    background:var(--p);color:#fff;font-weight:700;
+                    font-size:.8rem;text-decoration:none;transition:opacity .15s;
+                " onmouseover="this.style.opacity='.85';" onmouseout="this.style.opacity='1';">
+                    <i class="fas fa-plus"></i> Yangi hisob
+                </a>
+            </div>
+        </div>
+
+        <!-- KO'CHIRISHLAR -->
+        <div class="tab-pane" id="tab-transfers">
+            {% if transfers %}
+            {% for tr in transfers %}
+            <div class="transfer-row">
+                <div class="tr-icon"><i class="fas fa-right-left"></i></div>
+                <div class="tr-body">
+                    <div class="tr-rooms">
+                        {{ tr.from_room.number }}-xona
+                        <i class="fas fa-arrow-right" style="font-size:.65rem;color:var(--gray);margin:0 6px;"></i>
+                        {{ tr.to_room.number }}-xona
+                    </div>
+                    <div class="tr-meta">
+                        {{ tr.transferred_at|date:"d.m.Y" }}
+                        {% if tr.reason %} · {{ tr.reason }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-tab">
+                <i class="fas fa-right-left"></i>
+                Ko'chirishlar yo'q
+            </div>
+            {% endif %}
+        </div>
+
+    </div><!-- /d-panel -->
+
+</div><!-- /detail-grid -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
 {% endblock %}

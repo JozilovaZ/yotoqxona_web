@@ -10,112 +10,188 @@
 
 {% block extra_css %}
 <style>
-    .filter-bar {
-        background:#fff; border:1px solid var(--border);
-        border-radius:14px; padding:16px 20px; margin-bottom:20px;
-    }
 
-    .floor-label {
-        display:flex; align-items:center; gap:10px;
-        margin: 28px 0 10px;
-    }
-    .floor-badge-main {
-        background:var(--dark); color:#fff;
-        border-radius:9px; padding:5px 14px;
-        font-size:0.78rem; font-weight:800; letter-spacing:0.5px;
-    }
-    .floor-bname { font-size:0.95rem; font-weight:700; color:var(--dark); }
+/* ══ FILTER BAR ══ */
+.filter-bar {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+.filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 220px 120px;
+    gap: 12px;
+    align-items: center;
+}
+@media(max-width:750px){ .filter-grid{ grid-template-columns: 1fr; } }
 
-    .stu-panel {
-        background:#fff; border:1px solid var(--border);
-        border-radius:14px; overflow:hidden; margin-bottom:6px;
-    }
+.search-wrap {
+    position: relative;
+}
+.search-wrap .search-icon {
+    position: absolute; left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray); font-size: .8rem; pointer-events: none;
+}
+.search-wrap input {
+    padding-left: 36px !important;
+}
 
-    .stu-tbl { width:100%; border-collapse:collapse; }
-    .stu-tbl thead th {
-        padding:10px 18px; font-size:0.7rem; font-weight:700;
-        text-transform:uppercase; letter-spacing:0.5px; color:var(--gray);
-        background:#fafafb; border-bottom:1px solid var(--border);
-    }
-    .stu-tbl tbody td {
-        padding:14px 18px; font-size:0.85rem;
-        border-bottom:1px solid #f5f5f7; vertical-align:middle;
-    }
-    .stu-tbl tbody tr:last-child td { border-bottom:none; }
-    .stu-tbl tbody tr:hover td { background:#fafafb; }
+/* ══ QAVAT SARLAVHASI ══ */
+.floor-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0 10px;
+}
+.floor-badge {
+    background: var(--dark);
+    color: #fff;
+    border-radius: 9px;
+    padding: 5px 14px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}
+.floor-bname {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--dark);
+}
+.floor-divider {
+    flex: 1;
+    height: 1.5px;
+    background: var(--border);
+    border-radius: 99px;
+}
+.floor-count {
+    font-size: .72rem;
+    color: var(--gray);
+    font-weight: 600;
+}
 
-    .room-cell {
-        background:#fafafb !important;
-        text-align:center; vertical-align:middle !important;
-        border-right:1px solid var(--border) !important;
-        font-weight:800; font-size:1.05rem; color:var(--dark);
-        min-width:80px;
-    }
-    .room-cell .room-sub { font-size:0.65rem; font-weight:500; color:var(--gray); margin-top:2px; }
+/* ══ JADVAL PANELI ══ */
+.stu-panel {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
 
-    .stu-name { font-weight:700; color:var(--dark); font-size:0.9rem; }
-    .stu-date { font-size:0.72rem; color:var(--gray); margin-top:2px; }
+.stu-tbl { width: 100%; border-collapse: collapse; }
+.stu-tbl thead th {
+    padding: 10px 16px;
+    font-size: 0.67rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--gray); background: #FAFAFE;
+    border-bottom: 1.5px solid var(--border);
+}
+.stu-tbl tbody td {
+    padding: 13px 16px; font-size: 0.85rem;
+    border-bottom: 1px solid #F5F3FA;
+    vertical-align: middle;
+}
+.stu-tbl tbody tr:last-child td { border-bottom: none; }
+.stu-tbl tbody tr:hover td { background: #FAFAFE; }
 
-    .id-chip {
-        background:var(--p10); color:var(--p);
-        border-radius:7px; padding:3px 9px;
-        font-size:0.72rem; font-weight:700;
-    }
-    .group-txt { font-size:0.8rem; color:var(--gray); margin-top:3px; }
+/* Xona ustuni */
+.room-cell {
+    background: #FAFAFE !important;
+    text-align: center;
+    vertical-align: middle !important;
+    border-right: 1.5px solid var(--border) !important;
+    min-width: 78px;
+}
+.room-num { font-size: 1.1rem; font-weight: 900; color: var(--dark); line-height: 1; }
+.room-sub { font-size: 0.6rem; font-weight: 600; color: var(--gray); letter-spacing: .5px; margin-top: 2px; }
 
-    .act-btn {
-        width:32px; height:32px; border-radius:8px;
-        border:1px solid var(--border); background:#fff;
-        display:inline-flex; align-items:center; justify-content:center;
-        color:var(--gray); text-decoration:none; transition:0.15s;
-        font-size:0.75rem;
-    }
-    .act-btn:hover { background:var(--p); border-color:var(--p); color:#fff; }
+/* Talaba cell */
+.stu-cell { display: flex; align-items: center; gap: 10px; }
+.stu-av {
+    width: 36px; height: 36px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .73rem; font-weight: 800; color: #fff;
+    flex-shrink: 0; letter-spacing: .2px;
+}
+.av-1 { background: #7C3AED; }
+.av-2 { background: #2563EB; }
+.av-3 { background: #0891B2; }
+.av-4 { background: #059669; }
+.av-5 { background: #D97706; }
 
-    .empty-panel {
-        background:#fff; border:1px solid var(--border); border-radius:14px;
-        padding:60px 20px; text-align:center; color:var(--gray);
-    }
-    .empty-panel i { font-size:2.5rem; color:var(--border); display:block; margin-bottom:12px; }
+.stu-name  { font-weight: 700; color: var(--dark); font-size: .9rem; }
+.stu-sdate { font-size: .7rem; color: var(--gray); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+
+/* ID chip */
+.id-chip {
+    display: inline-block;
+    background: var(--p10); color: var(--p);
+    border-radius: 7px; padding: 3px 9px;
+    font-size: .71rem; font-weight: 700;
+    margin-bottom: 3px;
+}
+.group-txt { font-size: .75rem; color: var(--gray); }
+
+/* Telefon */
+.phone-txt { font-size: .85rem; font-weight: 600; color: var(--dark); }
+
+/* Action tugmalar */
+.act-grp { display: flex; gap: 6px; justify-content: flex-end; }
+.act-btn {
+    width: 32px; height: 32px; border-radius: 9px;
+    border: 1.5px solid var(--border); background: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--gray); text-decoration: none;
+    font-size: .72rem; transition: all .15s;
+}
+.act-btn:hover { background: var(--p); border-color: var(--p); color: #fff; }
+.act-btn.del:hover { background: #EF4444; border-color: #EF4444; color: #fff; }
+
+/* BO'SH HOLAT */
+.empty-panel {
+    background: #fff; border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 70px 20px;
+    text-align: center;
+}
+.empty-panel i { font-size: 2.5rem; color: #D1C9E8; display: block; margin-bottom: 14px; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- FILTR -->
+<!-- FILTER -->
 <div class="filter-bar">
-    <form method="get" class="row g-2 align-items-center">
-        <div class="col-md-5">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0 text-muted ps-3">
-                    <i class="fas fa-search" style="font-size:0.8rem;"></i>
-                </span>
-                <input type="text" name="search" class="form-control border-start-0"
-                       placeholder="Ism, ID yoki telefon..." value="{{ request.GET.search }}"
-                       style="border-radius:0 10px 10px 0;">
-            </div>
+    <form method="get" class="filter-grid">
+        <div class="search-wrap">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="search" class="form-control"
+                   placeholder="Ism, ID yoki telefon..."
+                   value="{{ request.GET.search }}">
         </div>
-        <div class="col-md-4">
-            <select name="building" class="form-select">
-                <option value="">Barcha binolar</option>
-                {% for b in buildings %}
-                <option value="{{ b.id }}" {% if request.GET.building == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-dark w-100">
-                <i class="fas fa-filter me-1"></i> Saralash
-            </button>
-        </div>
+        <select name="building" class="form-select">
+            <option value="">Barcha binolar</option>
+            {% for b in buildings %}
+            <option value="{{ b.id }}" {% if request.GET.building == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-dark" style="white-space:nowrap;">
+            <i class="fas fa-filter me-1"></i> Saralash
+        </button>
     </form>
 </div>
 
-<!-- TALABALAR JADVALI -->
+<!-- TALABALAR JADVALI (qavat bo'yicha) -->
 {% for item in floor_data %}
-<div class="floor-label">
-    <span class="floor-badge-main">{{ item.floor.number }}-QAVAT</span>
+
+<div class="floor-header">
+    <span class="floor-badge">{{ item.floor.number }}-qavat</span>
     <span class="floor-bname">{{ item.floor.building.name }}</span>
+    <div class="floor-divider"></div>
+    <span class="floor-count">{{ item.students|length }} talaba</span>
 </div>
 
 <div class="stu-panel">
@@ -123,40 +199,58 @@
         <table class="stu-tbl">
             <thead>
                 <tr>
-                    <th style="width:85px;">Xona</th>
+                    <th style="width:78px;text-align:center;">Xona</th>
                     <th>Talaba</th>
                     <th>ID / Guruh</th>
                     <th>Telefon</th>
-                    <th class="text-end">Amallar</th>
+                    <th style="text-align:right;padding-right:18px;">Amallar</th>
                 </tr>
             </thead>
             <tbody>
                 {% regroup item.students by room as room_list %}
-                {% for room in room_list %}
-                    {% for student in room.list %}
+                {% for room_group in room_list %}
+                    {% for student in room_group.list %}
                     <tr>
                         {% if forloop.first %}
-                        <td rowspan="{{ room.list|length }}" class="room-cell">
-                            {{ room.grouper.number }}
-                            <div class="room-sub">XONA</div>
+                        <td rowspan="{{ room_group.list|length }}" class="room-cell">
+                            <div class="room-num">{{ room_group.grouper.number }}</div>
+                            <div class="room-sub">xona</div>
                         </td>
                         {% endif %}
+
                         <td>
-                            <div class="stu-name">{{ student.last_name }} {{ student.first_name }}</div>
-                            <div class="stu-date"><i class="far fa-calendar-alt me-1"></i>{{ student.check_in_date|date:"d.m.Y" }}</div>
+                            <div class="stu-cell">
+                                <div class="stu-av av-{% cycle '1' '2' '3' '4' '5' %}">
+                                    {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="stu-name">{{ student.last_name }} {{ student.first_name }}</div>
+                                    <div class="stu-sdate">
+                                        <i class="far fa-calendar-alt"></i>
+                                        {{ student.check_in_date|date:"d.m.Y" }}
+                                    </div>
+                                </div>
+                            </div>
                         </td>
+
                         <td>
                             <div class="id-chip">{{ student.student_id }}</div>
-                            <div class="group-txt">{{ student.group }}</div>
+                            <div class="group-txt">{{ student.group|default:"—" }}</div>
                         </td>
-                        <td style="font-size:0.85rem;font-weight:600;color:var(--dark);">{{ student.phone }}</td>
-                        <td class="text-end" style="padding-right:18px;">
-                            <a href="{% url 'students:student_detail' student.pk %}" class="act-btn me-1" title="Ko'rish">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{% url 'students:student_update' student.pk %}" class="act-btn" title="Tahrirlash">
-                                <i class="fas fa-pen"></i>
-                            </a>
+
+                        <td>
+                            <div class="phone-txt">{{ student.phone }}</div>
+                        </td>
+
+                        <td style="padding-right:16px;">
+                            <div class="act-grp">
+                                <a href="{% url 'students:student_detail' student.pk %}" class="act-btn" title="Ko'rish">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'students:student_update' student.pk %}" class="act-btn" title="Tahrirlash">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -165,12 +259,17 @@
         </table>
     </div>
 </div>
+
 {% empty %}
 <div class="empty-panel">
     <i class="fas fa-users-slash"></i>
-    <div style="font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:6px;">Talabalar topilmadi</div>
-    <div style="font-size:0.85rem;">Qidiruv parametrlarini o'zgartirib ko'ring yoki yangi talaba qo'shing.</div>
-    <a href="{% url 'students:student_create' %}" class="btn btn-primary btn-sm mt-3">Talaba qo'shish</a>
+    <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:6px;">Talabalar topilmadi</div>
+    <div style="font-size:0.85rem;color:var(--gray);margin-bottom:20px;">
+        Qidiruv parametrlarini o'zgartirib ko'ring yoki yangi talaba qo'shing.
+    </div>
+    <a href="{% url 'students:student_create' %}" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus me-1"></i> Talaba qo'shish
+    </a>
 </div>
 {% endfor %}
 

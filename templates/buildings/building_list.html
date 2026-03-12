@@ -10,66 +10,121 @@
 
 {% block extra_css %}
 <style>
-    .bld-grid {
-        display:grid;
-        grid-template-columns:repeat(3,1fr);
-        gap:18px;
-    }
-    @media(max-width:1100px){ .bld-grid{ grid-template-columns:repeat(2,1fr); } }
-    @media(max-width:650px){  .bld-grid{ grid-template-columns:1fr; } }
+.bld-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+@media(max-width:1100px){ .bld-grid{ grid-template-columns: repeat(2,1fr); } }
+@media(max-width:650px) { .bld-grid{ grid-template-columns: 1fr; } }
 
-    .bld-card {
-        background:#fff; border:1px solid var(--border);
-        border-radius:16px; padding:24px;
-        transition:all 0.2s; position:relative;
-    }
-    .bld-card:hover {
-        box-shadow:0 8px 28px rgba(92,0,211,0.08);
-        border-color:var(--p);
-    }
+/* ── KARTA ── */
+.bld-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: box-shadow .2s, transform .18s;
+}
+.bld-card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,.09);
+    transform: translateY(-3px);
+}
 
-    .bld-card-icon {
-        width:52px; height:52px; border-radius:14px;
-        background:var(--p10); color:var(--p);
-        display:flex; align-items:center; justify-content:center;
-        font-size:1.2rem; margin-bottom:16px;
-    }
+/* ── BOSH QISM ── */
+.bld-head {
+    padding: 22px 22px 18px;
+    background: linear-gradient(135deg, #f8f6ff 0%, #eee8fb 100%);
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+.bld-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: var(--p);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.15rem; flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(92,0,211,.25);
+}
+.bld-title {
+    font-size: 1.05rem; font-weight: 800;
+    color: var(--dark); letter-spacing: -.3px; margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bld-addr {
+    font-size: .75rem; color: var(--gray);
+    display: flex; align-items: center; gap: 5px;
+}
+.bld-active-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #10B981; flex-shrink: 0;
+}
+.bld-active-dot.off { background: #9CA3AF; }
 
-    .bld-card-name { font-size:1.1rem; font-weight:800; color:var(--dark); margin-bottom:4px; }
-    .bld-card-addr { font-size:0.8rem; color:var(--gray); margin-bottom:18px; }
+/* ── KARTA TANASI ── */
+.bld-body { padding: 18px 22px; }
 
-    .bld-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
-    .bld-stat {
-        background:var(--bg); border-radius:10px; padding:10px 12px;
-        text-align:center;
-    }
-    .bld-stat-num { font-size:1.3rem; font-weight:900; color:var(--dark); letter-spacing:-0.5px; }
-    .bld-stat-lbl { font-size:0.65rem; font-weight:700; text-transform:uppercase; color:var(--gray); letter-spacing:0.5px; }
+.bld-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 18px;
+}
+.bld-stat {
+    background: var(--bg); border-radius: 12px;
+    padding: 10px 8px; text-align: center;
+}
+.bld-stat-num {
+    font-size: 1.4rem; font-weight: 900;
+    color: var(--dark); letter-spacing: -.5px;
+    line-height: 1; margin-bottom: 3px;
+}
+.bld-stat-lbl {
+    font-size: .63rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px; color: var(--gray);
+}
 
-    .bld-occ-bar { height:5px; background:#f0f0f2; border-radius:99px; overflow:hidden; margin-bottom:6px; }
-    .bld-occ-fill { height:100%; background:var(--p); border-radius:99px; }
+/* ── BANDLIK ── */
+.occ-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 7px;
+}
+.occ-title { font-size: .75rem; font-weight: 700; color: var(--gray); }
+.occ-pct   { font-size: .82rem; font-weight: 900; }
+.occ-bar   { height: 8px; background: #EDE8F8; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+.occ-fill  { height: 100%; border-radius: 99px; transition: width .7s cubic-bezier(.25,.8,.25,1); }
+.occ-meta  {
+    display: flex; justify-content: space-between;
+    font-size: .69rem; color: var(--gray); margin-bottom: 18px;
+}
 
-    .bld-occ-info { font-size:0.72rem; color:var(--gray); display:flex; justify-content:space-between; margin-bottom:16px; }
+/* ── HARAKATLAR ── */
+.bld-actions { display: flex; gap: 8px; }
+.bld-btn-main {
+    flex: 1; padding: 10px;
+    border-radius: 11px; border: none;
+    background: var(--dark); color: #fff;
+    font-size: .82rem; font-weight: 700;
+    text-align: center; text-decoration: none;
+    display: block; transition: all .15s;
+}
+.bld-btn-main:hover { background: var(--p); color: #fff; }
 
-    .bld-actions { display:flex; gap:8px; }
-    .bld-btn-main {
-        flex:1; background:var(--dark); color:#fff;
-        border:none; border-radius:10px; padding:9px;
-        font-size:0.8rem; font-weight:700; text-align:center;
-        text-decoration:none; transition:0.15s; display:block;
-    }
-    .bld-btn-main:hover { background:var(--p); color:#fff; }
+.bld-btn-ico {
+    width: 40px; height: 40px; border-radius: 11px;
+    border: 1.5px solid var(--border); background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gray); text-decoration: none;
+    font-size: .78rem; flex-shrink: 0; transition: all .15s;
+}
+.bld-btn-ico:hover { background: var(--p); border-color: var(--p); color: #fff; }
 
-    .bld-btn-edit {
-        width:36px; height:36px; border-radius:10px;
-        border:1px solid var(--border); background:#fff;
-        display:flex; align-items:center; justify-content:center;
-        color:var(--gray); text-decoration:none; transition:0.15s; flex-shrink:0;
-        font-size:0.75rem;
-    }
-    .bld-btn-edit:hover { background:var(--p); border-color:var(--p); color:#fff; }
-
-    .empty-wrap { background:#fff; border:1px solid var(--border); border-radius:16px; padding:80px 20px; text-align:center; }
+/* ── BO'SH ── */
+.empty-bld {
+    background: #fff; border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 80px 20px; text-align: center;
+    grid-column: 1 / -1;
+}
 </style>
 {% endblock %}
 
@@ -78,49 +133,96 @@
 <div class="bld-grid">
     {% for building in buildings %}
     <div class="bld-card">
-        <div class="bld-card-icon"><i class="fas fa-building"></i></div>
-        <div class="bld-card-name">{{ building.name }}</div>
-        <div class="bld-card-addr">
-            <i class="fas fa-map-marker-alt me-1" style="color:var(--p);"></i>
-            {{ building.address|default:"Manzil kiritilmagan" }}
-        </div>
 
-        <div class="bld-stats">
-            <div class="bld-stat">
-                <div class="bld-stat-num">{{ building.total_floors }}</div>
-                <div class="bld-stat-lbl">Qavatlar</div>
-            </div>
-            <div class="bld-stat">
-                <div class="bld-stat-num">{{ building.total_rooms }}</div>
-                <div class="bld-stat-lbl">Xonalar</div>
+        <div class="bld-head">
+            <div class="bld-icon"><i class="fas fa-building"></i></div>
+            <div style="flex:1;min-width:0;">
+                <div class="bld-title">{{ building.name }}</div>
+                <div class="bld-addr">
+                    <span class="bld-active-dot {% if not building.is_active %}off{% endif %}"></span>
+                    {{ building.address|default:"Manzil kiritilmagan" }}
+                </div>
             </div>
         </div>
 
-        {% with cap=building.total_capacity occ=building.occupied_beds %}
-        <div class="bld-occ-bar">
-            <div class="bld-occ-fill" style="width:{% if cap and cap > 0 %}{% widthratio occ cap 100 %}{% else %}0{% endif %}%;"></div>
-        </div>
-        <div class="bld-occ-info">
-            <span>{{ occ }} band</span>
-            <span>{{ cap }} jami joy</span>
-        </div>
-        {% endwith %}
+        <div class="bld-body">
 
-        <div class="bld-actions">
-            <a href="{% url 'buildings:building_detail' building.pk %}" class="bld-btn-main">
-                Batafsil <i class="fas fa-arrow-right ms-1" style="font-size:0.65rem;"></i>
-            </a>
-            <a href="{% url 'buildings:building_update' building.pk %}" class="bld-btn-edit" title="Tahrirlash">
-                <i class="fas fa-pen"></i>
-            </a>
+            <div class="bld-stats">
+                <div class="bld-stat">
+                    <div class="bld-stat-num">{{ building.total_floors }}</div>
+                    <div class="bld-stat-lbl">Qavat</div>
+                </div>
+                <div class="bld-stat">
+                    <div class="bld-stat-num">{{ building.total_rooms }}</div>
+                    <div class="bld-stat-lbl">Xona</div>
+                </div>
+                <div class="bld-stat">
+                    <div class="bld-stat-num">{{ building.total_capacity|default:"0" }}</div>
+                    <div class="bld-stat-lbl">Joy</div>
+                </div>
+            </div>
+
+            {% with cap=building.total_capacity occ=building.occupied_beds %}
+            {% if cap and cap > 0 %}
+                {% widthratio occ cap 100 as pct %}
+                <div class="occ-row">
+                    <span class="occ-title">Bandlik</span>
+                    <span class="occ-pct bld-pct-{{ building.pk }}">{{ pct }}%</span>
+                </div>
+                <div class="occ-bar">
+                    <div class="occ-fill bld-fill-{{ building.pk }}" style="width:{{ pct }}%;background:linear-gradient(90deg,var(--p),#9061F9);"></div>
+                </div>
+                <div class="occ-meta">
+                    <span>{{ occ }} band</span>
+                    <span>{{ cap }} jami joy</span>
+                </div>
+                <script>
+                (function(){
+                    var p = {{ pct }};
+                    var fill = document.querySelector('.bld-fill-{{ building.pk }}');
+                    var pctEl = document.querySelector('.bld-pct-{{ building.pk }}');
+                    if(p >= 85){
+                        fill.style.background = 'linear-gradient(90deg,#D97706,#F59E0B)';
+                        pctEl.style.color = '#D97706';
+                    } else if(p >= 60){
+                        fill.style.background = 'linear-gradient(90deg,var(--p),#9061F9)';
+                        pctEl.style.color = 'var(--p)';
+                    } else {
+                        fill.style.background = 'linear-gradient(90deg,#059669,#34D399)';
+                        pctEl.style.color = '#059669';
+                    }
+                })();
+                </script>
+            {% else %}
+                <div class="occ-row">
+                    <span class="occ-title">Bandlik</span>
+                    <span class="occ-pct" style="color:#9CA3AF;">—</span>
+                </div>
+                <div class="occ-bar"><div class="occ-fill" style="width:0%;"></div></div>
+                <div class="occ-meta"><span>Ma'lumot yo'q</span></div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="bld-actions">
+                <a href="{% url 'buildings:building_detail' building.pk %}" class="bld-btn-main">
+                    Batafsil <i class="fas fa-arrow-right ms-1" style="font-size:.65rem;"></i>
+                </a>
+                <a href="{% url 'buildings:building_update' building.pk %}" class="bld-btn-ico" title="Tahrirlash">
+                    <i class="fas fa-pen"></i>
+                </a>
+            </div>
+
         </div>
     </div>
+
     {% empty %}
-    <div class="empty-wrap" style="grid-column:1/-1;">
-        <i class="fas fa-city" style="font-size:3rem;color:var(--border);display:block;margin-bottom:16px;"></i>
-        <div style="font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:6px;">Binolar topilmadi</div>
-        <div style="font-size:0.85rem;color:var(--gray);margin-bottom:20px;">Hozircha hech qanday bino qo'shilmagan</div>
-        <a href="{% url 'buildings:building_create' %}" class="btn btn-primary">Bino qo'shish</a>
+    <div class="empty-bld">
+        <i class="fas fa-city" style="font-size:2.5rem;color:#D1C9E8;display:block;margin-bottom:14px;"></i>
+        <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:6px;">Binolar topilmadi</div>
+        <div style="font-size:.85rem;color:var(--gray);margin-bottom:20px;">Hozircha hech qanday bino qo'shilmagan</div>
+        <a href="{% url 'buildings:building_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Bino qo'shish
+        </a>
     </div>
     {% endfor %}
 </div>

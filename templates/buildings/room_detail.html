@@ -1,120 +1,371 @@
 {% extends "base.html" %}
 
+{% block page_title %}{{ room.number }}-xona{% endblock %}
+{% block page_sub %}<p class="page-sub">{{ room.floor.building.name }} · {{ room.floor.number }}-qavat</p>{% endblock %}
+{% block page_actions %}
+<div style="display:flex;gap:8px;">
+    <a href="{% url 'buildings:building_detail' room.floor.building.pk %}" style="
+        display:inline-flex;align-items:center;gap:6px;
+        padding:8px 14px;border-radius:10px;
+        border:1.5px solid var(--border);background:#fff;
+        color:var(--dark);font-size:.82rem;font-weight:700;
+        text-decoration:none;transition:all .15s;
+    " onmouseover="this.style.borderColor='var(--p)';this.style.color='var(--p)';"
+       onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dark)';">
+        <i class="fas fa-chevron-left" style="font-size:.7rem;"></i> Bino
+    </a>
+    <a href="{% url 'buildings:room_edit' room.pk %}" style="
+        display:inline-flex;align-items:center;gap:6px;
+        padding:8px 16px;border-radius:10px;
+        background:var(--p);color:#fff;
+        font-size:.82rem;font-weight:700;
+        text-decoration:none;transition:opacity .15s;
+    " onmouseover="this.style.opacity='.85';" onmouseout="this.style.opacity='1';">
+        <i class="fas fa-pen"></i> Tahrirlash
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* ══ XONA INFO ══ */
+.room-top {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+    align-items: start;
+}
+@media(max-width:780px){ .room-top{ grid-template-columns: 1fr; } }
+
+.room-info-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+/* Room header */
+.room-card-head {
+    background: linear-gradient(135deg, #f3f0ff, #e8e1fb);
+    padding: 24px 20px;
+    text-align: center;
+    border-bottom: 1.5px solid var(--border);
+}
+.room-number-big {
+    font-size: 3rem; font-weight: 900;
+    color: var(--p); letter-spacing: -2px;
+    line-height: 1;
+}
+.room-number-sub {
+    font-size: .75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--gray); margin-top: 4px;
+}
+
+/* Status pill */
+.room-status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 99px;
+    font-size: .72rem; font-weight: 700;
+    margin-top: 10px;
+}
+.rs-available   { background: rgba(5,150,105,.1); color: #059669; }
+.rs-partial     { background: rgba(92,0,211,.1); color: var(--p); }
+.rs-full        { background: rgba(217,119,6,.1); color: #D97706; }
+.rs-maintenance { background: rgba(156,163,175,.1); color: #9CA3AF; }
+
+/* Info rows */
+.room-info-row {
+    padding: 11px 18px;
+    border-bottom: 1px solid #F5F3FA;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.room-info-row:last-child { border-bottom: none; }
+.ri-label { font-size: .75rem; color: var(--gray); font-weight: 600; }
+.ri-val   { font-size: .875rem; font-weight: 700; color: var(--dark); }
+
+/* Occupancy bar */
+.occ-bar-wrap { padding: 14px 18px 16px; border-top: 1.5px solid var(--border); }
+.occ-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.occ-lbl { font-size: .72rem; font-weight: 700; color: var(--gray); }
+.occ-num { font-size: .82rem; font-weight: 800; color: var(--p); }
+.occ-bar { height: 8px; background: #EDE8F8; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+.occ-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--p), #9061F9); transition: width .6s; }
+.occ-meta { display: flex; justify-content: space-between; font-size: .69rem; color: var(--gray); }
+
+/* ══ TALABALAR PANELI ══ */
+.detail-panel {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+.dp-head {
+    padding: 13px 18px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.dp-title {
+    font-size: .875rem; font-weight: 800; color: var(--dark);
+    display: flex; align-items: center; gap: 8px;
+}
+.dp-icon {
+    width: 26px; height: 26px; border-radius: 7px;
+    background: var(--p10); color: var(--p);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem;
+}
+
+/* ══ TALABALAR JADVALI ══ */
+.stu-tbl { width: 100%; border-collapse: collapse; }
+.stu-tbl thead th {
+    padding: 9px 16px; font-size: .67rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--gray); background: #FAFAFE;
+    border-bottom: 1.5px solid var(--border);
+}
+.stu-tbl tbody td {
+    padding: 12px 16px; font-size: .855rem;
+    border-bottom: 1px solid #F5F3FA; vertical-align: middle;
+}
+.stu-tbl tbody tr:last-child td { border-bottom: none; }
+.stu-tbl tbody tr:hover td { background: #FAFAFE; }
+
+.stu-cell { display: flex; align-items: center; gap: 10px; }
+.stu-av {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 800; color: #fff;
+    flex-shrink: 0;
+}
+.av-1{background:#7C3AED;} .av-2{background:#2563EB;}
+.av-3{background:#0891B2;} .av-4{background:#059669;} .av-5{background:#D97706;}
+
+.stu-name { font-weight: 700; color: var(--dark); font-size: .875rem; }
+.stu-group { font-size: .72rem; color: var(--gray); margin-top: 1px; }
+
+.stu-eye-btn {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1.5px solid var(--border); color: var(--gray);
+    display: inline-flex; align-items: center; justify-content: center;
+    text-decoration: none; font-size: .68rem; transition: all .15s;
+}
+.stu-eye-btn:hover { background: var(--p); border-color: var(--p); color: #fff; }
+
+/* ══ INVENTAR ══ */
+.inv-item {
+    padding: 12px 18px;
+    border-bottom: 1px solid #F5F3FA;
+    display: flex; align-items: center; gap: 12px;
+}
+.inv-item:last-child { border-bottom: none; }
+.inv-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: var(--bg); color: var(--gray);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .82rem; flex-shrink: 0;
+}
+.inv-name { font-size: .875rem; font-weight: 700; color: var(--dark); }
+.inv-meta { font-size: .72rem; color: var(--gray); margin-top: 1px; }
+.inv-qty {
+    margin-left: auto; flex-shrink: 0;
+    background: var(--p10); color: var(--p);
+    border-radius: 7px; padding: 3px 9px;
+    font-size: .72rem; font-weight: 700;
+}
+
+/* Condition colors */
+.cond-new  { background: rgba(5,150,105,.1); color: #059669; }
+.cond-good { background: rgba(92,0,211,.08); color: var(--p); }
+.cond-fair { background: rgba(217,119,6,.1); color: #D97706; }
+.cond-poor { background: rgba(239,68,68,.1); color: #EF4444; }
+
+.empty-room { padding: 40px 20px; text-align: center; color: var(--gray); font-size: .875rem; }
+.empty-room i { font-size: 1.8rem; color: #D1C9E8; display: block; margin-bottom: 10px; }
+
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'buildings:building_list' %}">Binolar</a></li>
-                <li class="breadcrumb-item active">{{ room.floor.building.name }} / {{ room.number }}-xona</li>
-            </ol>
-        </nav>
-        <div>
-            <a href="{% url 'buildings:room_edit' room.pk %}" class="btn btn-warning">
-                <i class="fas fa-edit"></i> Tahrirlash
+
+<!-- ═══ XONA BOSH QISM ═══ -->
+<div class="room-top">
+
+    <!-- Chap: Xona ma'lumotlari -->
+    <div class="room-info-card">
+        <div class="room-card-head">
+            <div class="room-number-big">{{ room.number }}</div>
+            <div class="room-number-sub">xona raqami</div>
+            <div>
+                <span class="room-status-pill
+                    {% if room.status == 'available' %}rs-available
+                    {% elif room.status == 'partial' %}rs-partial
+                    {% elif room.status == 'full' %}rs-full
+                    {% else %}rs-maintenance{% endif %}">
+                    <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span>
+                    {{ room.get_status_display }}
+                </span>
+            </div>
+        </div>
+
+        <div class="room-info-row">
+            <span class="ri-label">Bino</span>
+            <span class="ri-val">{{ room.floor.building.name }}</span>
+        </div>
+        <div class="room-info-row">
+            <span class="ri-label">Qavat</span>
+            <span class="ri-val">{{ room.floor.number }}-qavat</span>
+        </div>
+        <div class="room-info-row">
+            <span class="ri-label">Xona turi</span>
+            <span class="ri-val">{{ room.get_room_type_display }}</span>
+        </div>
+        <div class="room-info-row">
+            <span class="ri-label">Sig'im</span>
+            <span class="ri-val">{{ room.capacity }} o'rin</span>
+        </div>
+        <div class="room-info-row">
+            <span class="ri-label">Oylik to'lov</span>
+            <span class="ri-val" style="color:#059669;">{{ room.monthly_price|floatformat:0|default:"—" }} so'm</span>
+        </div>
+
+        <!-- Bandlik visual -->
+        <div class="occ-bar-wrap">
+            <div class="occ-top">
+                <span class="occ-lbl">Bandlik</span>
+                <span class="occ-num">{{ room.current_occupancy }}/{{ room.capacity }}</span>
+            </div>
+            <div class="occ-bar">
+                <div class="occ-fill" style="width:{{ room.occupancy_percentage }}%;"></div>
+            </div>
+            <div class="occ-meta">
+                <span>{{ room.current_occupancy }} band</span>
+                <span>{{ room.available_beds }} bo'sh</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- O'ng: Talabalar -->
+    <div class="detail-panel">
+        <div class="dp-head">
+            <span class="dp-title">
+                <span class="dp-icon"><i class="fas fa-users"></i></span>
+                Xonadagi talabalar
+            </span>
+            <a href="{% url 'students:student_create' %}?room={{ room.pk }}" style="
+                display:inline-flex;align-items:center;gap:5px;
+                padding:6px 12px;border-radius:8px;
+                background:var(--p10);color:var(--p);
+                font-size:.78rem;font-weight:700;text-decoration:none;
+                transition:all .15s;
+            " onmouseover="this.style.background='var(--p)';this.style.color='#fff';"
+               onmouseout="this.style.background='var(--p10)';this.style.color='var(--p)';">
+                <i class="fas fa-plus" style="font-size:.65rem;"></i> Talaba qo'shish
             </a>
         </div>
+
+        {% if students %}
+        <table class="stu-tbl">
+            <thead>
+                <tr>
+                    <th>Talaba</th>
+                    <th>Telefon</th>
+                    <th>Guruh</th>
+                    <th>To'lov</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>
+                        <div class="stu-cell">
+                            <div class="stu-av av-{% cycle '1' '2' '3' '4' '5' %}">
+                                {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
+                            </div>
+                            <div>
+                                <div class="stu-name">{{ student.last_name }} {{ student.first_name }}</div>
+                                <div class="stu-group">{{ student.student_id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:.82rem;font-weight:600;color:var(--dark);">{{ student.phone }}</td>
+                    <td style="font-size:.82rem;color:var(--gray);">{{ student.group|default:"—" }}</td>
+                    <td>
+                        {% if student.has_debt %}
+                        <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(217,119,6,.1);color:#D97706;border-radius:7px;padding:3px 9px;font-size:.71rem;font-weight:700;">
+                            <i class="fas fa-clock" style="font-size:.6rem;"></i> Qarzdor
+                        </span>
+                        {% else %}
+                        <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(5,150,105,.1);color:#059669;border-radius:7px;padding:3px 9px;font-size:.71rem;font-weight:700;">
+                            <i class="fas fa-check" style="font-size:.6rem;"></i> To'langan
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:right;padding-right:14px;">
+                        <a href="{% url 'students:student_detail' student.pk %}" class="stu-eye-btn" title="Ko'rish">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-room">
+            <i class="fas fa-bed"></i>
+            Bu xona bo'sh
+        </div>
+        {% endif %}
     </div>
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Xona ma'lumotlari</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Raqami:</span>
-                            <span class="fw-bold">{{ room.number }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Qavat:</span>
-                            <span>{{ room.floor.number }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Sig'imi:</span>
-                            <span>{{ room.students.count }} / {{ room.capacity }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Holati:</span>
-                            <span class="badge {% if room.status == 'available' %}bg-success{% else %}bg-danger{% endif %}">
-                                {{ room.get_status_display }}
-                            </span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span class="text-muted">Narxi:</span>
-                            <span class="text-primary fw-bold">{{ room.price_per_month }} so'm</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Xonadagi talabalar</h5>
-                    <a href="{% url 'students:student_create' %}?room={{ room.pk }}" class="btn btn-sm btn-outline-success">+ Talaba qo'shish</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>F.I.SH</th>
-                                <th>Telefon</th>
-                                <th>Guruh</th>
-                                <th>Amal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for student in students %}
-                            <tr>
-                                <td>{{ student.first_name }} {{ student.last_name }}</td>
-                                <td>{{ student.phone }}</td>
-                                <td>
-                                    {% if student.has_paid %}
-                                        <span class="badge bg-success">To'langan</span>
-                                    {% else %}
-                                        <span class="badge bg-danger">Qarzdor</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'students:student_detail' student.pk %}" class="btn btn-sm btn-info text-white">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-4 text-muted">Hozircha bu xonada talabalar yo'q</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold">Xona inventarlari</h5>
-                </div>
-                <div class="card-body">
-                    {% if inventory %}
-                        <ul class="list-group list-group-flush">
-                            {% for item in inventory %}
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span>{{ item.item.name }}</span>
-                                <span class="badge bg-secondary">{{ item.quantity }} ta</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-center text-muted mb-0">Inventarlar biriktirilmagan</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
+
+<!-- ═══ INVENTAR ═══ -->
+<div class="detail-panel">
+    <div class="dp-head">
+        <span class="dp-title">
+            <span class="dp-icon" style="background:rgba(8,145,178,.1);color:#0891B2;"><i class="fas fa-box"></i></span>
+            Xona inventarlari
+        </span>
+        <a href="{% url 'inventory:room_inventory' room.pk %}" style="
+            font-size:.75rem;font-weight:700;color:var(--p);
+            text-decoration:none;opacity:.75;transition:opacity .15s;
+        " onmouseover="this.style.opacity=1;" onmouseout="this.style.opacity=.75;">
+            Batafsil →
+        </a>
+    </div>
+
+    {% if inventory %}
+        {% for item in inventory %}
+        <div class="inv-item">
+            <div class="inv-icon">
+                <i class="fas fa-cube"></i>
+            </div>
+            <div>
+                <div class="inv-name">{{ item.item.name }}</div>
+                <div class="inv-meta">
+                    {{ item.get_condition_display }}
+                    {% if item.serial_number %}· {{ item.serial_number }}{% endif %}
+                </div>
+            </div>
+            <span class="inv-qty
+                {% if item.condition == 'new' %}cond-new
+                {% elif item.condition == 'good' %}cond-good
+                {% elif item.condition == 'fair' %}cond-fair
+                {% else %}cond-poor{% endif %}">
+                {{ item.quantity }} ta
+            </span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-room">
+            <i class="fas fa-box-open"></i>
+            Inventarlar biriktirilmagan
+        </div>
+    {% endif %}
+</div>
+
 {% endblock %}
