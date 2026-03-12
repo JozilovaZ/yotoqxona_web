@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, T
 from django.views import View
 from django.urls import reverse_lazy
 from .models import User
-from .forms import LoginForm, UserForm, ProfileForm
+from .forms import LoginForm, UserForm, ProfileForm, RegistrationForm
 
 
 class LoginView(View):
@@ -31,6 +31,25 @@ class LoginView(View):
                 return redirect('dashboard')
             else:
                 messages.error(request, 'Login yoki parol noto\'g\'ri')
+        return render(request, self.template_name, {'form': form})
+
+
+class RegisterView(View):
+    template_name = 'accounts/register.html'
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('dashboard')
+        form = RegistrationForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'Ro\'yxatdan muvaffaqiyatli o\'tdingiz, {user.get_full_name() or user.username}!')
+            return redirect('dashboard')
         return render(request, self.template_name, {'form': form})
 
 

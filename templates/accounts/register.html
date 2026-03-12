@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    body { background: var(--dark) !important; }
+    .main-wrap { padding: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+
+    .login-card {
+        display: grid;
+        grid-template-columns: 420px 420px;
+        background: #fff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 32px 80px rgba(0,0,0,.4);
+    }
+    @media(max-width:860px){ .login-card{ grid-template-columns:1fr; max-width:440px; } }
+
+    .lp-left {
+        background: var(--p);
+        padding: 50px 44px;
+        display: flex; flex-direction: column; justify-content: space-between;
+        position: relative; overflow: hidden;
+    }
+    @media(max-width:860px){ .lp-left{ display:none; } }
+
+    .lp-left::before {
+        content: '';
+        position: absolute; bottom: -80px; right: -80px;
+        width: 260px; height: 260px; border-radius: 50%;
+        background: rgba(255,255,255,.06);
+    }
+    .lp-left::after {
+        content: '';
+        position: absolute; top: -50px; left: -50px;
+        width: 200px; height: 200px; border-radius: 50%;
+        background: rgba(0,0,0,.08);
+    }
+
+    .lp-brand { position: relative; z-index: 1; }
+    .lp-logo {
+        display: inline-flex; align-items: center; gap: 10px; margin-bottom: 42px;
+    }
+    .lp-logo-svg { width: 40px; height: 40px; }
+    .lp-logo-name { font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: -.5px; }
+
+    .lp-headline {
+        font-size: 1.75rem; font-weight: 900; color: #fff;
+        line-height: 1.25; letter-spacing: -.5px; margin-bottom: 16px;
+    }
+    .lp-desc {
+        font-size: .875rem; color: rgba(255,255,255,.65);
+        line-height: 1.7; margin-bottom: 40px;
+    }
+
+    .lp-pills { display: flex; flex-wrap: wrap; gap: 8px; position: relative; z-index: 1; }
+    .lp-pill {
+        background: rgba(255,255,255,.12);
+        color: rgba(255,255,255,.85);
+        border-radius: 99px; padding: 6px 14px;
+        font-size: .75rem; font-weight: 600;
+    }
+
+    .lp-footer {
+        position: relative; z-index: 1;
+        font-size: .72rem; color: rgba(255,255,255,.4);
+    }
+
+    .lp-right {
+        padding: 40px 44px;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+
+    .lp-title {
+        font-size: 1.5rem; font-weight: 900;
+        color: var(--dark); letter-spacing: -.6px; margin-bottom: 6px;
+    }
+    .lp-subtitle {
+        font-size: .855rem; color: var(--gray);
+        margin-bottom: 28px; line-height: 1.5;
+    }
+
+    .f-group { margin-bottom: 14px; }
+    .f-label {
+        display: block;
+        font-size: .72rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .8px;
+        color: var(--dark); margin-bottom: 5px;
+    }
+    .f-input {
+        width: 100%; padding: 11px 15px;
+        border: 1.5px solid var(--border); border-radius: 11px;
+        font-size: .88rem; font-family: 'Inter', sans-serif;
+        color: var(--dark); background: #fff;
+        transition: border-color .15s, box-shadow .15s;
+        outline: none;
+    }
+    .f-input:focus {
+        border-color: var(--p);
+        box-shadow: 0 0 0 3px var(--p10);
+    }
+    .f-error {
+        font-size: .75rem; color: var(--accent);
+        font-weight: 600; margin-top: 4px;
+    }
+
+    .f-alert {
+        background: var(--accent10); border: 1.5px solid rgba(255,85,0,.2);
+        border-radius: 10px; padding: 11px 15px;
+        font-size: .82rem; color: var(--accent); font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .f-submit {
+        width: 100%; padding: 13px;
+        background: var(--p); border: none; color: #fff;
+        border-radius: 11px; font-size: .9rem; font-weight: 700;
+        font-family: 'Inter', sans-serif; cursor: pointer;
+        transition: opacity .15s; margin-top: 6px;
+        letter-spacing: -.2px;
+    }
+    .f-submit:hover { opacity: .87; }
+    .f-submit:active { transform: scale(.99); }
+
+    .f-link {
+        text-align: center; margin-top: 16px;
+        font-size: .84rem; color: var(--gray);
+    }
+    .f-link a {
+        color: var(--p); font-weight: 700; text-decoration: none;
+    }
+    .f-link a:hover { text-decoration: underline; }
+
+    .f-row {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    @media(max-width:500px){ .f-row{ grid-template-columns:1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-card">
+
+    <!-- CHAP PANEL -->
+    <div class="lp-left">
+        <div class="lp-brand">
+            <div class="lp-logo">
+                <svg class="lp-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="11" fill="rgba(255,255,255,0.15)"/>
+                    <path d="M8 30V12L16 22.5L20 16L24 22.5L32 12V30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="lp-logo-name">Makon</span>
+            </div>
+
+            <h2 class="lp-headline">Yotoqxonaga<br>ariza bering</h2>
+            <p class="lp-desc">
+                Ro'yxatdan o'ting va yotoqxonaga joylashish uchun
+                ariza yuboring. Jarayon tez va qulay.
+            </p>
+
+            <div class="lp-pills">
+                <span class="lp-pill">Tez ro'yxatdan o'tish</span>
+                <span class="lp-pill">Online ariza</span>
+                <span class="lp-pill">Qulay boshqaruv</span>
+            </div>
+        </div>
+
+        <div class="lp-footer">&copy; 2025 Makon &middot; Barcha huquqlar himoyalangan</div>
+    </div>
+
+    <!-- O'NG PANEL -->
+    <div class="lp-right">
+        <div class="lp-title">Ro'yxatdan o'tish</div>
+        <p class="lp-subtitle">Ma'lumotlaringizni kiriting</p>
+
+        {% if messages %}
+            {% for msg in messages %}
+            <div class="f-alert">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="f-row">
+                <div class="f-group">
+                    <label class="f-label">Ism</label>
+                    <input class="f-input" type="text" name="first_name" placeholder="Ism"
+                        value="{{ form.first_name.value|default:'' }}">
+                    {% if form.first_name.errors %}
+                    <div class="f-error">{{ form.first_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="f-group">
+                    <label class="f-label">Familiya</label>
+                    <input class="f-input" type="text" name="last_name" placeholder="Familiya"
+                        value="{{ form.last_name.value|default:'' }}">
+                    {% if form.last_name.errors %}
+                    <div class="f-error">{{ form.last_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="f-group">
+                <label class="f-label">Login</label>
+                <input class="f-input" type="text" name="username" placeholder="Foydalanuvchi nomi"
+                    value="{{ form.username.value|default:'' }}" autocomplete="username">
+                {% if form.username.errors %}
+                <div class="f-error">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="f-row">
+                <div class="f-group">
+                    <label class="f-label">Email</label>
+                    <input class="f-input" type="email" name="email" placeholder="Email"
+                        value="{{ form.email.value|default:'' }}">
+                    {% if form.email.errors %}
+                    <div class="f-error">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="f-group">
+                    <label class="f-label">Telefon</label>
+                    <input class="f-input" type="text" name="phone" placeholder="+998 90 123 45 67"
+                        value="{{ form.phone.value|default:'' }}">
+                    {% if form.phone.errors %}
+                    <div class="f-error">{{ form.phone.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="f-row">
+                <div class="f-group">
+                    <label class="f-label">Parol</label>
+                    <input class="f-input" type="password" name="password1" placeholder="Parol"
+                        autocomplete="new-password">
+                    {% if form.password1.errors %}
+                    <div class="f-error">{{ form.password1.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="f-group">
+                    <label class="f-label">Parol (qayta)</label>
+                    <input class="f-input" type="password" name="password2" placeholder="Parolni tasdiqlang"
+                        autocomplete="new-password">
+                    {% if form.password2.errors %}
+                    <div class="f-error">{{ form.password2.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <button type="submit" class="f-submit">Ro'yxatdan o'tish</button>
+        </form>
+
+        <div class="f-link">
+            Akkauntingiz bormi? <a href="{% url 'accounts:login' %}">Tizimga kiring</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

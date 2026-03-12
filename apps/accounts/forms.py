@@ -39,6 +39,31 @@ class UserForm(UserCreationForm):
         self.fields['password2'].widget.attrs['class'] = 'form-control'
 
 
+class RegistrationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'password1', 'password2']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Login'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ism'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Familiya'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Telefon raqam'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Parol'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Parolni tasdiqlang'})
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.role = User.APPLICANT
+        if commit:
+            user.save()
+        return user
+
+
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
