@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Ariza ko'rib chiqish #{{ application.pk }}{% endblock %}
+{% block header %}Ariza ko'rib chiqish{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <!-- Talaba ma'lumotlari -->
+        <div class="card p-4 mb-4">
+            <h6 class="fw-bold mb-3">Talaba ma'lumotlari</h6>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <small class="text-muted">Familiya</small>
+                    <div class="fw-bold">{{ application.last_name }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Ism</small>
+                    <div class="fw-bold">{{ application.first_name }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Otasining ismi</small>
+                    <div class="fw-bold">{{ application.middle_name|default:"—" }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Telefon</small>
+                    <div class="fw-600">{{ application.phone }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Talaba ID</small>
+                    <div class="fw-600">{{ application.student_id }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Kurs</small>
+                    <div class="fw-600">{{ application.course }}-kurs</div>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted">Fakultet</small>
+                    <div class="fw-600">{{ application.faculty|default:"—" }}</div>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted">Guruh</small>
+                    <div class="fw-600">{{ application.group|default:"—" }}</div>
+                </div>
+            </div>
+
+            {% if application.message %}
+            <hr>
+            <h6 class="fw-bold mb-2">Talaba xabari</h6>
+            <p class="mb-0">{{ application.message }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Xona ma'lumotlari -->
+        <div class="card p-4 mb-4">
+            <h6 class="fw-bold mb-3">Tanlangan xona</h6>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <small class="text-muted">Bino</small>
+                    <div class="fw-bold">{{ application.room.floor.building.name }}</div>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Etaj</small>
+                    <div class="fw-bold">{{ application.room.floor.number }}-etaj</div>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Xona</small>
+                    <div class="fw-bold">{{ application.room.number }}-xona</div>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Bo'sh joy</small>
+                    <div class="fw-bold" style="color:var(--p);">{{ application.room.available_beds }} ta</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Turi</small>
+                    <div class="fw-600">{{ application.room.get_room_type_display }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Sig'imi</small>
+                    <div class="fw-600">{{ application.room.capacity }} kishilik</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Narxi</small>
+                    <div class="fw-bold">{{ application.room.monthly_price|floatformat:0 }} so'm/oy</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Harakat formasi -->
+        {% if application.status != 'approved' and application.status != 'rejected' %}
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3">Qaror qabul qilish</h6>
+
+            {% if application.status == 'payment_required' and not application.payment_confirmed %}
+            <!-- To'lovni tasdiqlash -->
+            <div class="alert" style="background:#fff3cd;color:#856404;border:1px solid #ffeaa7;">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                To'lov kutilmoqda: <strong>{{ application.payment_amount|floatformat:0 }} so'm</strong>
+            </div>
+            <form method="post" action="{% url 'applications:confirm_payment' application.pk %}" class="mb-3">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-accent">
+                    <i class="fas fa-check me-1"></i> To'lovni tasdiqlash
+                </button>
+            </form>
+            <hr>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-600">Harakat</label>
+                        {{ form.action }}
+                    </div>
+                    <div class="col-md-6" id="paymentField" style="display:none;">
+                        <label class="form-label fw-600">To'lov summasi</label>
+                        {{ form.payment_amount }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-600">Izoh</label>
+                        {{ form.admin_note }}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-accent mt-3">
+                    <i class="fas fa-gavel me-1"></i> Qaror berish
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Holat -->
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3">Ariza holati</h6>
+            <div class="mb-3">
+                {% if application.status == 'pending' %}
+                    <span class="badge" style="background:#fd7e14;font-size:0.85rem;padding:8px 16px;">Kutilmoqda</span>
+                {% elif application.status == 'payment_required' %}
+                    <span class="badge" style="background:#dc3545;font-size:0.85rem;padding:8px 16px;">To'lov kutilmoqda</span>
+                {% elif application.status == 'paid' %}
+                    <span class="badge" style="background:#0d6efd;font-size:0.85rem;padding:8px 16px;">To'lov qilindi</span>
+                {% elif application.status == 'approved' %}
+                    <span class="badge" style="background:#198754;font-size:0.85rem;padding:8px 16px;">Tasdiqlandi</span>
+                {% elif application.status == 'rejected' %}
+                    <span class="badge" style="background:#000;font-size:0.85rem;padding:8px 16px;">Rad etildi</span>
+                {% endif %}
+            </div>
+
+            <div class="d-flex flex-column gap-2" style="font-size:0.85rem;">
+                <div>
+                    <small class="text-muted">Topshirilgan:</small>
+                    <div class="fw-600">{{ application.created_at|date:"d.m.Y H:i" }}</div>
+                </div>
+                {% if application.reviewed_at %}
+                <div>
+                    <small class="text-muted">Ko'rib chiqilgan:</small>
+                    <div class="fw-600">{{ application.reviewed_at|date:"d.m.Y H:i" }}</div>
+                </div>
+                <div>
+                    <small class="text-muted">Kim tomonidan:</small>
+                    <div class="fw-600">{{ application.reviewed_by }}</div>
+                </div>
+                {% endif %}
+                {% if application.payment_amount %}
+                <div>
+                    <small class="text-muted">To'lov summasi:</small>
+                    <div class="fw-bold">{{ application.payment_amount|floatformat:0 }} so'm</div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if application.admin_note %}
+            <hr>
+            <h6 class="fw-bold mb-2">Izoh</h6>
+            <p class="mb-0" style="font-size:0.85rem;">{{ application.admin_note }}</p>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'applications:admin_list' %}" class="btn btn-outline-primary mt-3 w-100">
+            <i class="fas fa-arrow-left me-1"></i> Ortga
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const actionSelect = document.querySelector('[name="action"]');
+const paymentField = document.getElementById('paymentField');
+
+function togglePayment() {
+    paymentField.style.display = actionSelect.value === 'payment_required' ? 'block' : 'none';
+}
+actionSelect.addEventListener('change', togglePayment);
+togglePayment();
+</script>
+{% endblock %}

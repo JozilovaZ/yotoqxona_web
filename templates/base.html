@@ -10,17 +10,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ─── UZUM MARKET RANG PALITRASI ─── */
+        /* ─── RANG PALITRASI ─── */
         :root {
-            --p:       #5C00D3;          /* Uzum purple   */
-            --p10:     rgba(92,0,211,.07);
-            --p20:     rgba(92,0,211,.15);
-            --err:     #DC2626;          /* Error red     */
-            --err10:   rgba(220,38,38,.08);
-            --dark:    #12002A;          /* Uzum near-black */
-            --gray:    #7A7A8C;
-            --border:  #E8E4F0;
-            --bg:      #F7F5FC;
+            --p:       #7000FF;
+            --p10:     rgba(112,0,255,.07);
+            --p20:     rgba(112,0,255,.15);
+            --err:     #000;
+            --err10:   rgba(0,0,0,.08);
+            --dark:    #000;
+            --gray:    #000;
+            --border:  #D0D3D9;
+            --bg:      #FFFFFF;
             --nav-h:   62px;
         }
 
@@ -39,7 +39,7 @@
         .topnav {
             position: sticky; top: 0; z-index: 999;
             height: var(--nav-h);
-            background: #2D1B69;
+            background: #000;
             display: flex; align-items: center;
             padding: 0 32px;
             gap: 0;
@@ -209,23 +209,23 @@
         .tbl thead th {
             padding: 11px 18px; font-size: 0.7rem; font-weight: 700;
             text-transform: uppercase; letter-spacing: .7px;
-            color: var(--gray); background: #FAFAFE;
+            color: var(--gray); background: #FFFFFF;
             border-bottom: 1.5px solid var(--border);
         }
         .tbl tbody td {
             padding: 14px 18px; font-size: 0.875rem;
-            border-bottom: 1px solid #F0EDF8;
+            border-bottom: 1px solid #D0D3D9;
         }
         .tbl tbody tr:last-child td { border-bottom: none; }
-        .tbl tbody tr:hover td { background: #FAFAFE; }
+        .tbl tbody tr:hover td { background: #FFFFFF; }
 
         /* Alerts */
         .alert-stack { position: fixed; bottom: 20px; right: 20px; z-index: 9999; min-width: 280px; }
         .alert { border: none; border-radius: 12px; font-size: .875rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
-        .alert-success { background: var(--p); color: #fff; }
-        .alert-danger, .alert-error { background: var(--err); color: #fff; }
+        .alert-success { background: #7000FF; color: #fff; }
+        .alert-danger, .alert-error { background: #000; color: #fff; }
         .alert-info { background: var(--p10); color: var(--p); border: 1px solid var(--p20); }
-        .alert-warning { background: #fff3cd; color: #856404; }
+        .alert-warning { background: #D0D3D9; color: #000; }
         .btn-close { filter: invert(1); }
         .alert-info .btn-close { filter: none; }
 
@@ -237,7 +237,7 @@
             .nav-links.open {
                 display: flex; flex-direction: column; gap: 4px;
                 position: fixed; top: var(--nav-h); left: 0; right: 0;
-                background: #2D1B69; padding: 16px 20px;
+                background: #000; padding: 16px 20px;
                 border-bottom: 1px solid rgba(255,255,255,.08);
                 z-index: 998;
             }
@@ -257,7 +257,7 @@
         <!-- Geometric M logo -->
         <div class="brand-logo">
             <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="34" height="34" rx="9" fill="#5C00D3"/>
+                <rect width="34" height="34" rx="9" fill="#7000FF"/>
                 <path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </div>
@@ -268,6 +268,8 @@
     </a>
 
     <ul class="nav-links" id="navLinks">
+        {% if user.is_staff_member %}
+        <!-- ADMIN / XODIM MENYU -->
         <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
             <a href="{% url 'dashboard' %}">Bosh sahifa</a>
         </li>
@@ -286,9 +288,27 @@
         <li class="{% if 'inventory' in request.path %}active{% endif %}">
             <a href="{% url 'inventory:dashboard' %}">Inventar</a>
         </li>
+        <li class="{% if 'applications' in request.path %}active{% endif %}">
+            <a href="{% url 'applications:admin_list' %}">Arizalar</a>
+        </li>
+        <li class="{% if 'announcements' in request.path %}active{% endif %}">
+            <a href="{% url 'announcements:list' %}">E'lonlar</a>
+        </li>
         {% if user.is_admin %}
         <li class="{% if 'accounts' in request.path %}active{% endif %}">
             <a href="{% url 'accounts:user_list' %}">Xodimlar</a>
+        </li>
+        {% endif %}
+        {% else %}
+        <!-- TALABA / ARIZA BERUVCHI MENYU -->
+        <li class="{% if 'rooms' in request.path %}active{% endif %}">
+            <a href="{% url 'applications:available_rooms' %}">Bo'sh xonalar</a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'my_applications' or request.resolver_match.url_name == 'detail' %}active{% endif %}">
+            <a href="{% url 'applications:my_applications' %}">Arizalarim</a>
+        </li>
+        <li class="{% if 'announcements' in request.path %}active{% endif %}">
+            <a href="{% url 'announcements:list' %}">E'lonlar</a>
         </li>
         {% endif %}
     </ul>

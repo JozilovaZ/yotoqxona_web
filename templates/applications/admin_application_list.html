@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Arizalar boshqaruvi{% endblock %}
+{% block header %}Arizalar boshqaruvi{% endblock %}
+{% block page_sub %}<p class="page-sub">Talabalardan kelgan arizalar</p>{% endblock %}
+
+{% block content %}
+<!-- Statistikalar -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <div style="font-size:1.5rem;font-weight:900;color:#fd7e14;">{{ pending_count }}</div>
+            <small class="text-muted fw-600">Kutilmoqda</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <div style="font-size:1.5rem;font-weight:900;color:#0d6efd;">{{ paid_count }}</div>
+            <small class="text-muted fw-600">To'lov qilindi</small>
+        </div>
+    </div>
+</div>
+
+<!-- Filter -->
+<div class="d-flex gap-2 mb-4 flex-wrap">
+    <a href="{% url 'applications:admin_list' %}" class="btn btn-sm {% if not status_filter %}btn-dark{% else %}btn-outline-primary{% endif %}">
+        Hammasi
+    </a>
+    {% for value, label in status_choices %}
+    <a href="?status={{ value }}" class="btn btn-sm {% if status_filter == value %}btn-dark{% else %}btn-outline-primary{% endif %}">
+        {{ label }}
+    </a>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <table class="tbl">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Talaba</th>
+                <th>Talaba ID</th>
+                <th>Xona</th>
+                <th>Sana</th>
+                <th>Holat</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    <span class="fw-bold">{{ app.last_name }} {{ app.first_name }}</span>
+                    <br><small class="text-muted">{{ app.phone }}</small>
+                </td>
+                <td>{{ app.student_id }}</td>
+                <td>
+                    <small>{{ app.room.floor.building.name }}</small><br>
+                    <span class="fw-600">{{ app.room.floor.number }}-etaj, {{ app.room.number }}-xona</span>
+                </td>
+                <td>{{ app.created_at|date:"d.m.Y" }}</td>
+                <td>
+                    {% if app.status == 'pending' %}
+                        <span class="badge" style="background:#fd7e14;">Kutilmoqda</span>
+                    {% elif app.status == 'payment_required' %}
+                        <span class="badge" style="background:#dc3545;">To'lov kutilmoqda</span>
+                    {% elif app.status == 'paid' %}
+                        <span class="badge" style="background:#0d6efd;">To'lov qilindi</span>
+                    {% elif app.status == 'approved' %}
+                        <span class="badge" style="background:#198754;">Tasdiqlandi</span>
+                    {% elif app.status == 'rejected' %}
+                        <span class="badge" style="background:#000;">Rad etildi</span>
+                    {% elif app.status == 'cancelled' %}
+                        <span class="badge" style="background:#6c757d;">Bekor qilindi</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'applications:admin_review' app.pk %}" class="btn btn-sm btn-accent">
+                        Ko'rish
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">Arizalar yo'q</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

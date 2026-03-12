@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Ariza #{{ application.pk }}{% endblock %}
+{% block header %}Ariza #{{ application.pk }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card p-4">
+            <!-- Status banner -->
+            <div class="mb-4 p-3 rounded-3" style="
+                background: {% if application.status == 'approved' %}#d1e7dd{% elif application.status == 'rejected' %}#f8d7da{% elif application.status == 'payment_required' %}#fff3cd{% elif application.status == 'paid' %}#cfe2ff{% else %}#e2e3e5{% endif %};
+            ">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas {% if application.status == 'approved' %}fa-check-circle text-success{% elif application.status == 'rejected' %}fa-times-circle text-danger{% elif application.status == 'payment_required' %}fa-clock text-warning{% elif application.status == 'paid' %}fa-credit-card text-primary{% else %}fa-hourglass-half{% endif %} fa-lg"></i>
+                    <div>
+                        <strong>{{ application.get_status_display }}</strong>
+                        {% if application.status == 'payment_required' and application.payment_amount %}
+                            <br><small>To'lov summasi: <strong>{{ application.payment_amount|floatformat:0 }} so'm</strong></small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold mb-3">Shaxsiy ma'lumotlar</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <small class="text-muted">Familiya</small>
+                    <div class="fw-600">{{ application.last_name }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Ism</small>
+                    <div class="fw-600">{{ application.first_name }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Otasining ismi</small>
+                    <div class="fw-600">{{ application.middle_name|default:"—" }}</div>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted">Telefon</small>
+                    <div class="fw-600">{{ application.phone }}</div>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted">Talaba ID</small>
+                    <div class="fw-600">{{ application.student_id }}</div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold mb-3">O'quv ma'lumotlari</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <small class="text-muted">Fakultet</small>
+                    <div class="fw-600">{{ application.faculty|default:"—" }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Guruh</small>
+                    <div class="fw-600">{{ application.group|default:"—" }}</div>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Kurs</small>
+                    <div class="fw-600">{{ application.course }}</div>
+                </div>
+            </div>
+
+            {% if application.message %}
+            <h6 class="fw-bold mb-3">Xabar</h6>
+            <p>{{ application.message }}</p>
+            {% endif %}
+
+            {% if application.admin_note %}
+            <h6 class="fw-bold mb-3">Admin izohi</h6>
+            <div class="p-3 rounded-3" style="background:#f8f9fa;">
+                {{ application.admin_note }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3">Tanlangan xona</h6>
+            <div class="d-flex flex-column gap-2" style="font-size:0.875rem;">
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Bino:</span>
+                    <span class="fw-600">{{ application.room.floor.building.name }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Etaj:</span>
+                    <span class="fw-600">{{ application.room.floor.number }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Xona:</span>
+                    <span class="fw-600">{{ application.room.number }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Turi:</span>
+                    <span class="fw-600">{{ application.room.get_room_type_display }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Narxi:</span>
+                    <span class="fw-bold">{{ application.room.monthly_price|floatformat:0 }} so'm</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 mt-3">
+            <h6 class="fw-bold mb-3">Vaqtlar</h6>
+            <div class="d-flex flex-column gap-2" style="font-size:0.875rem;">
+                <div>
+                    <small class="text-muted">Topshirilgan:</small>
+                    <div class="fw-600">{{ application.created_at|date:"d.m.Y H:i" }}</div>
+                </div>
+                {% if application.reviewed_at %}
+                <div>
+                    <small class="text-muted">Ko'rib chiqilgan:</small>
+                    <div class="fw-600">{{ application.reviewed_at|date:"d.m.Y H:i" }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

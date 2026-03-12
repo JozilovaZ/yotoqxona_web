@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'finance',
     'attendance',
     'inventory',
+    'applications',
+    'announcements',
 
     #thirdy apps
 
@@ -159,6 +161,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
+LOGIN_URL = '/accounts/login/'
 
 
 

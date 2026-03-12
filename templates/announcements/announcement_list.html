@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}E'lonlar{% endblock %}
+{% block header %}E'lonlar{% endblock %}
+{% block page_sub %}<p class="page-sub">Yotoqxona ichki xabarlari va e'lonlari</p>{% endblock %}
+
+{% block page_actions %}
+{% if user.is_staff_member %}
+<a href="{% url 'announcements:create' %}" class="btn btn-accent">
+    <i class="fas fa-plus me-1"></i> Yangi e'lon
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Kategoriya filter -->
+<div class="d-flex gap-2 mb-4 flex-wrap">
+    <a href="{% url 'announcements:list' %}" class="btn btn-sm {% if not selected_category %}btn-dark{% else %}btn-outline-primary{% endif %}">
+        Hammasi
+    </a>
+    {% for value, label in categories %}
+    <a href="?category={{ value }}" class="btn btn-sm {% if selected_category == value %}btn-dark{% else %}btn-outline-primary{% endif %}">
+        {{ label }}
+    </a>
+    {% endfor %}
+</div>
+
+{% if not announcements %}
+<div class="card p-5 text-center">
+    <i class="fas fa-bullhorn fa-3x mb-3" style="color: var(--border)"></i>
+    <h5>Hozircha e'lon yo'q</h5>
+</div>
+{% else %}
+
+<div class="row g-3">
+    {% for ann in announcements %}
+    <div class="col-12">
+        <div class="card p-4" style="border-left:4px solid {{ ann.priority_color }};">
+            <div class="d-flex align-items-start justify-content-between gap-3">
+                <div class="d-flex gap-3 flex-grow-1">
+                    <div style="width:44px;height:44px;border-radius:12px;background:var(--p10);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fas {{ ann.category_icon }}" style="color:{{ ann.priority_color }};font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                            <h6 class="fw-bold mb-0">{{ ann.title }}</h6>
+                            <span class="badge" style="background:{{ ann.priority_color }};font-size:0.65rem;">
+                                {{ ann.get_priority_display }}
+                            </span>
+                            <span class="badge" style="background:var(--p10);color:var(--p);font-size:0.65rem;">
+                                {{ ann.get_category_display }}
+                            </span>
+                            {% if ann.building %}
+                            <span class="badge" style="background:#e2e3e5;color:#000;font-size:0.65rem;">
+                                {{ ann.building.name }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <p class="mb-2" style="font-size:0.875rem;color:#444;">{{ ann.content|linebreaksbr }}</p>
+                        <div class="d-flex gap-3" style="font-size:0.75rem;color:var(--gray);">
+                            <span><i class="fas fa-clock me-1"></i>{{ ann.created_at|date:"d.m.Y H:i" }}</span>
+                            {% if ann.created_by %}
+                            <span><i class="fas fa-user me-1"></i>{{ ann.created_by }}</span>
+                            {% endif %}
+                            {% if ann.expires_at %}
+                            <span><i class="fas fa-hourglass-end me-1"></i>{{ ann.expires_at|date:"d.m.Y" }}gacha</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if user.is_staff_member %}
+                <div class="d-flex gap-1">
+                    <a href="{% url 'announcements:update' ann.pk %}" class="btn btn-sm btn-outline-primary" title="Tahrirlash">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'announcements:delete' ann.pk %}" class="btn btn-sm btn-outline-primary" title="O'chirish" style="color:#dc3545!important;border-color:#dc3545!important;">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4 d-flex justify-content-center">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endif %}
+{% endblock %}

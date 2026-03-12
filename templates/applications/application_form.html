@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Ariza topshirish{% endblock %}
+{% block header %}Ariza topshirish{% endblock %}
+{% block page_sub %}<p class="page-sub">Yotoqxonaga joylashish uchun ariza to'ldiring</p>{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card p-4">
+            <form method="post" id="applicationForm">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-danger mb-4" style="background:#fff0f0;color:#dc3545;border:1px solid #fcc;">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Iltimos, xatolarni to'g'rilang:
+                    <ul class="mb-0 mt-2">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Shaxsiy ma'lumotlar -->
+                <h6 class="fw-bold mb-3"><i class="fas fa-user me-2" style="color:var(--p)"></i>Shaxsiy ma'lumotlar</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Familiya *</label>
+                        {{ form.last_name }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Ism *</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Otasining ismi</label>
+                        {{ form.middle_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-600">Telefon *</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-600">Talaba ID *</label>
+                        {{ form.student_id }}
+                    </div>
+                </div>
+
+                <!-- O'quv ma'lumotlari -->
+                <h6 class="fw-bold mb-3"><i class="fas fa-graduation-cap me-2" style="color:var(--p)"></i>O'quv ma'lumotlari</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-5">
+                        <label class="form-label fw-600">Fakultet</label>
+                        {{ form.faculty }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Guruh</label>
+                        {{ form.group }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-600">Kurs</label>
+                        {{ form.course }}
+                    </div>
+                </div>
+
+                <!-- Xona tanlash -->
+                <h6 class="fw-bold mb-3"><i class="fas fa-door-open me-2" style="color:var(--p)"></i>Xona tanlash</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Bino *</label>
+                        {{ form.building }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Etaj *</label>
+                        {{ form.floor }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Xona *</label>
+                        {{ form.room }}
+                    </div>
+                </div>
+
+                <!-- Xona ma'lumoti -->
+                <div id="roomInfo" class="card mb-4 p-3" style="background:var(--p10);border:1px solid var(--p20);display:none;">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="fas fa-info-circle" style="color:var(--p);font-size:1.2rem;"></i>
+                        <div id="roomInfoText" style="font-size:0.875rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Xabar -->
+                <h6 class="fw-bold mb-3"><i class="fas fa-comment me-2" style="color:var(--p)"></i>Qo'shimcha</h6>
+                <div class="mb-4">
+                    {{ form.message }}
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-accent">
+                        <i class="fas fa-paper-plane me-2"></i> Ariza topshirish
+                    </button>
+                    <a href="{% url 'applications:available_rooms' %}" class="btn btn-outline-primary">Bekor qilish</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const buildingSelect = document.getElementById('id_building');
+const floorSelect = document.getElementById('id_floor');
+const roomSelect = document.getElementById('id_room');
+const roomInfo = document.getElementById('roomInfo');
+const roomInfoText = document.getElementById('roomInfoText');
+
+buildingSelect.addEventListener('change', function() {
+    const buildingId = this.value;
+    floorSelect.innerHTML = '<option value="">---------</option>';
+    roomSelect.innerHTML = '<option value="">---------</option>';
+    roomInfo.style.display = 'none';
+
+    if (buildingId) {
+        fetch(`/applications/api/floors/${buildingId}/`)
+            .then(r => r.json())
+            .then(data => {
+                data.forEach(f => {
+                    floorSelect.innerHTML += `<option value="${f.id}">${f.number}-etaj</option>`;
+                });
+            });
+    }
+});
+
+floorSelect.addEventListener('change', function() {
+    const floorId = this.value;
+    roomSelect.innerHTML = '<option value="">---------</option>';
+    roomInfo.style.display = 'none';
+
+    if (floorId) {
+        fetch(`/applications/api/rooms/${floorId}/`)
+            .then(r => r.json())
+            .then(data => {
+                data.forEach(r => {
+                    roomSelect.innerHTML += `<option value="${r.id}" data-info='${JSON.stringify(r)}'>${r.number}-xona (${r.available_beds} bo'sh joy, ${r.monthly_price} so'm)</option>`;
+                });
+            });
+    }
+});
+
+roomSelect.addEventListener('change', function() {
+    const selected = this.options[this.selectedIndex];
+    if (selected.dataset.info) {
+        const info = JSON.parse(selected.dataset.info);
+        roomInfo.style.display = 'block';
+        roomInfoText.innerHTML = `
+            <strong>${info.number}-xona</strong> | Turi: ${info.room_type} |
+            Sig'imi: ${info.capacity} kishilik | Bo'sh: <strong>${info.available_beds}</strong> joy |
+            Narxi: <strong>${Number(info.monthly_price).toLocaleString()} so'm/oy</strong>
+        `;
+    } else {
+        roomInfo.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

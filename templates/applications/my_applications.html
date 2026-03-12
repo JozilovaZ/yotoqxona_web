@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Mening arizalarim{% endblock %}
+{% block header %}Mening arizalarim{% endblock %}
+{% block page_sub %}<p class="page-sub">Siz topshirgan arizalar holati</p>{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'applications:available_rooms' %}" class="btn btn-accent">
+    <i class="fas fa-plus me-1"></i> Yangi ariza
+</a>
+{% endblock %}
+
+{% block content %}
+{% if not applications %}
+<div class="card p-5 text-center">
+    <i class="fas fa-file-alt fa-3x mb-3" style="color: var(--border)"></i>
+    <h5>Hali ariza topshirmadingiz</h5>
+    <p class="text-muted mb-3">Bo'sh xonalarni ko'ring va ariza topshiring</p>
+    <a href="{% url 'applications:available_rooms' %}" class="btn btn-accent">Bo'sh xonalarni ko'rish</a>
+</div>
+{% else %}
+
+<div class="card">
+    <table class="tbl">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Xona</th>
+                <th>Sana</th>
+                <th>Holati</th>
+                <th>To'lov</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    <span class="fw-bold">{{ app.room }}</span>
+                </td>
+                <td>{{ app.created_at|date:"d.m.Y H:i" }}</td>
+                <td>
+                    {% if app.status == 'pending' %}
+                        <span class="badge" style="background:#fd7e14;">Kutilmoqda</span>
+                    {% elif app.status == 'payment_required' %}
+                        <span class="badge" style="background:#dc3545;">To'lov kutilmoqda</span>
+                    {% elif app.status == 'paid' %}
+                        <span class="badge" style="background:#0d6efd;">To'lov qilindi</span>
+                    {% elif app.status == 'approved' %}
+                        <span class="badge" style="background:#198754;">Tasdiqlandi</span>
+                    {% elif app.status == 'rejected' %}
+                        <span class="badge" style="background:#000;">Rad etildi</span>
+                    {% elif app.status == 'cancelled' %}
+                        <span class="badge" style="background:#6c757d;">Bekor qilindi</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if app.payment_amount %}
+                        {{ app.payment_amount|floatformat:0 }} so'm
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'applications:detail' app.pk %}" class="btn btn-sm btn-outline-primary">
+                        Batafsil
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

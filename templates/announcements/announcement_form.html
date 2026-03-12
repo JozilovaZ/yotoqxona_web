@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}E'lonni tahrirlash{% else %}Yangi e'lon{% endif %}{% endblock %}
+{% block header %}{% if object %}E'lonni tahrirlash{% else %}Yangi e'lon{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-danger mb-4" style="background:#fff0f0;color:#dc3545;border:1px solid #fcc;">
+                    <ul class="mb-0">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-600">Sarlavha *</label>
+                        {{ form.title }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-600">Mazmuni *</label>
+                        {{ form.content }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Kategoriya</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Muhimlik</label>
+                        {{ form.priority }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-600">Bino</label>
+                        {{ form.building }}
+                        <small class="text-muted">Bo'sh qoldiring - hammaga</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-600">Amal qilish muddati</label>
+                        {{ form.expires_at }}
+                        <small class="text-muted">Bo'sh qoldiring - cheksiz</small>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label fw-600" for="{{ form.is_active.id_for_label }}">Faol</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mt-4">
+                    <button type="submit" class="btn btn-accent">
+                        <i class="fas fa-save me-1"></i> Saqlash
+                    </button>
+                    <a href="{% url 'announcements:list' %}" class="btn btn-outline-primary">Bekor qilish</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
