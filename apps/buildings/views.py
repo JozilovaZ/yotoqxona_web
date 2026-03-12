@@ -83,16 +83,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             if context['total_students'] > 0 else 0, 1
         )
 
-        # Oxirgi talabalar
-        context['recent_students'] = Student.objects.filter(
-            is_active=True
-        ).select_related('room', 'room__floor', 'room__floor__building').order_by('-created_at')[:8]
-
-        # Oxirgi to'lovlar
-        context['recent_payments'] = Payment.objects.filter(
-            status='completed'
-        ).select_related('student').order_by('-payment_date')[:6]
-
         # Binolar bandlik ma'lumoti
         buildings = Building.objects.filter(is_active=True)
         buildings_data = []

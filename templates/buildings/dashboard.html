@@ -176,7 +176,7 @@
 ══════════════════════════════════════════════ -->
 <div class="kpi-row">
 
-    <div class="kpi" style="--kc:#5C00D3;--ki:rgba(92,0,211,.08);">
+    <div class="kpi">
         <div class="kpi-top">
             <div>
                 <div class="kpi-label" style="margin-bottom:6px;">Jami talabalar</div>
@@ -189,7 +189,7 @@
         </span>
     </div>
 
-    <div class="kpi" style="--kc:#0891B2;--ki:rgba(8,145,178,.08);">
+    <div class="kpi">
         <div class="kpi-top">
             <div>
                 <div class="kpi-label" style="margin-bottom:6px;">Bandlik darajasi</div>
@@ -197,12 +197,12 @@
             </div>
             <div class="kpi-icon"><i class="fas fa-chart-pie"></i></div>
         </div>
-        <span class="kpi-badge" style="--kc:#0891B2;--ki:rgba(8,145,178,.08);">
+        <span class="kpi-badge">
             {{ full_rooms }} to'liq &middot; {{ empty_rooms }} bo'sh xona
         </span>
     </div>
 
-    <div class="kpi" style="--kc:#059669;--ki:rgba(5,150,105,.08);">
+    <div class="kpi">
         <div class="kpi-top">
             <div>
                 <div class="kpi-label" style="margin-bottom:6px;">Bu oy tushum</div>
@@ -210,12 +210,12 @@
             </div>
             <div class="kpi-icon"><i class="fas fa-money-bill-wave"></i></div>
         </div>
-        <span class="kpi-badge" style="--kc:#059669;--ki:rgba(5,150,105,.08);">
+        <span class="kpi-badge">
             Bugun +{{ total_collected_today|floatformat:0 }} so'm
         </span>
     </div>
 
-    <div class="kpi" style="--kc:#D97706;--ki:rgba(217,119,6,.08);">
+    <div class="kpi">
         <div class="kpi-top">
             <div>
                 <div class="kpi-label" style="margin-bottom:6px;">Qarzdorlar</div>
@@ -223,7 +223,7 @@
             </div>
             <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
         </div>
-        <span class="kpi-badge" style="--kc:#D97706;--ki:rgba(217,119,6,.08);">
+        <span class="kpi-badge">
             {{ pending_amount|floatformat:0 }} so'm kutilmoqda
         </span>
     </div>
@@ -248,15 +248,12 @@
         <div class="bld-item">
             <div class="bld-top">
                 <span class="bld-name">{{ bd.building.name }}</span>
-                <span class="bld-pct" style="color:{% if bd.rate >= 85 %}#D97706{% elif bd.rate >= 60 %}var(--p){% else %}#059669{% endif %};">
+                <span class="bld-pct" style="color:var(--p);">
                     {{ bd.rate }}%
                 </span>
             </div>
             <div class="bld-bar">
-                <div class="bld-fill" style="width:{{ bd.rate }}%;
-                    background:{% if bd.rate >= 85 %}linear-gradient(90deg,#D97706,#F59E0B)
-                               {% elif bd.rate >= 60 %}linear-gradient(90deg,var(--p),#9061F9)
-                               {% else %}linear-gradient(90deg,#059669,#34D399){% endif %};"></div>
+                <div class="bld-fill" style="width:{{ bd.rate }}%;background:var(--p);"></div>
             </div>
             <div class="bld-meta">
                 <span>{{ bd.occupied }} talaba</span>
@@ -287,10 +284,10 @@
         {% for rs in rooms_by_status %}
         <div class="status-row">
             <span class="s-dot" style="background:
-                {% if rs.status == 'available' %}#10B981
-                {% elif rs.status == 'partial' %}var(--p)
-                {% elif rs.status == 'full' %}#D97706
-                {% else %}#9CA3AF{% endif %};"></span>
+                {% if rs.status == 'available' %}var(--p)
+                {% elif rs.status == 'partial' %}var(--p20)
+                {% elif rs.status == 'full' %}var(--dark)
+                {% else %}var(--gray){% endif %};"></span>
             <span class="s-name">
                 {% if rs.status == 'available' %}Bo'sh
                 {% elif rs.status == 'partial' %}Qisman to'lgan
@@ -314,7 +311,7 @@
     <div class="panel">
         <div class="panel-head">
             <span class="ph-title">
-                <span class="ph-icon" style="background:rgba(5,150,105,.1);color:#059669;"><i class="fas fa-chart-line"></i></span>
+                <span class="ph-icon"><i class="fas fa-chart-line"></i></span>
                 Moliyaviy ko'rsatkichlar
             </span>
             <a href="{% url 'finance:dashboard' %}" class="ph-link">Ko'rish →</a>
@@ -329,7 +326,7 @@
         </div>
         <div class="mini-stat">
             <span class="ms-label">Kutilayotgan to'lovlar</span>
-            <span class="ms-value" style="color:#D97706;">{{ pending_amount|floatformat:0 }}</span>
+            <span class="ms-value">{{ pending_amount|floatformat:0 }}</span>
         </div>
         <div class="mini-stat">
             <span class="ms-label">Qarzdorlar soni</span>
@@ -338,11 +335,11 @@
         <div style="padding:12px 20px;">
             <a href="{% url 'finance:debtor_list' %}" style="
                 display:block;text-align:center;padding:9px;
-                background:rgba(217,119,6,.08);color:#D97706;
+                background:var(--p10);color:var(--p);
                 border-radius:10px;font-weight:700;font-size:.8rem;
                 text-decoration:none;transition:all .15s;
-            " onmouseover="this.style.background='#D97706';this.style.color='#fff';"
-               onmouseout="this.style.background='rgba(217,119,6,.08)';this.style.color='#D97706';">
+            " onmouseover="this.style.background='var(--p)';this.style.color='#fff';"
+               onmouseout="this.style.background='var(--p10)';this.style.color='var(--p)';">
                 Qarzdorlar ro'yxatiga o'tish →
             </a>
         </div>
@@ -352,7 +349,7 @@
     <div class="panel">
         <div class="panel-head">
             <span class="ph-title">
-                <span class="ph-icon" style="background:rgba(8,145,178,.1);color:#0891B2;"><i class="fas fa-circle-info"></i></span>
+                <span class="ph-icon"><i class="fas fa-circle-info"></i></span>
                 Umumiy statistika
             </span>
         </div>
@@ -374,7 +371,7 @@
         </div>
         <div class="mini-stat">
             <span class="ms-label">Bo'sh o'rinlar</span>
-            <span class="ms-value" style="color:#059669;">{{ free_beds }}</span>
+            <span class="ms-value">{{ free_beds }}</span>
         </div>
     </div>
 
