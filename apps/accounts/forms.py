@@ -58,7 +58,7 @@ class RegistrationForm(UserCreationForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.role = User.APPLICANT
+        user.role = User.Role.APPLICANT
         if commit:
             user.save()
         return user
