@@ -44,14 +44,7 @@
     box-shadow: 0 6px 28px rgba(0,0,0,.08);
     transform: translateY(-2px);
 }
-.kpi::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--kc, var(--p));
-    border-radius: 18px 18px 0 0;
-}
+/* top line olib tashlandi */
 
 .kpi-top {
     display: flex;
@@ -121,53 +114,6 @@
     gap: 16px;
     margin-bottom: 16px;
 }
-
-/* ═══════════ TALABALAR JADVALI ═══════════ */
-.stu-tbl { width: 100%; border-collapse: collapse; }
-.stu-tbl thead th {
-    padding: 9px 16px;
-    font-size: 0.67rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .6px;
-    color: var(--gray); background: #FAFAFE;
-    border-bottom: 1.5px solid var(--border);
-}
-.stu-tbl tbody td {
-    padding: 11px 16px; font-size: 0.855rem;
-    border-bottom: 1px solid #F2EFF9; vertical-align: middle;
-}
-.stu-tbl tbody tr:last-child td { border-bottom: none; }
-.stu-tbl tbody tr:hover td { background: #FAFAFE; }
-
-.stu-cell { display: flex; align-items: center; gap: 10px; }
-.stu-av {
-    width: 34px; height: 34px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .72rem; font-weight: 800; color: #fff;
-    flex-shrink: 0; letter-spacing: .3px;
-}
-.stu-av-1 { background: #7C3AED; }
-.stu-av-2 { background: #2563EB; }
-.stu-av-3 { background: #0891B2; }
-.stu-av-4 { background: #059669; }
-.stu-av-5 { background: #D97706; }
-
-.stu-name { font-weight: 700; color: var(--dark); font-size: .875rem; }
-.stu-sid  { font-size: .69rem; color: var(--gray); margin-top: 1px; }
-
-.room-pill {
-    background: var(--p10); color: var(--p);
-    border-radius: 7px; padding: 3px 9px;
-    font-size: .71rem; font-weight: 700; white-space: nowrap;
-}
-.date-txt { font-size: .78rem; color: var(--gray); }
-
-.arrow-btn {
-    width: 28px; height: 28px; border-radius: 7px;
-    border: 1.5px solid var(--border); color: var(--gray);
-    display: inline-flex; align-items: center; justify-content: center;
-    text-decoration: none; font-size: .68rem; transition: all .15s;
-}
-.arrow-btn:hover { background: var(--p); border-color: var(--p); color: #fff; }
 
 /* ═══════════ BINOLAR ═══════════ */
 .bld-item {
@@ -287,62 +233,7 @@
 <!-- ══════════════════════════════════════════════
      2-QATOR: TALABALAR + BINOLAR
 ══════════════════════════════════════════════ -->
-<div class="dash-two">
-
-    <!-- Oxirgi talabalar -->
-    <div class="panel">
-        <div class="panel-head">
-            <span class="ph-title">
-                <span class="ph-icon"><i class="fas fa-user-graduate"></i></span>
-                Oxirgi qo'shilgan talabalar
-            </span>
-            <a href="{% url 'students:student_list' %}" class="ph-link">Barchasini ko'rish →</a>
-        </div>
-        <div style="overflow-x:auto;">
-            <table class="stu-tbl">
-                <thead>
-                    <tr>
-                        <th>Talaba</th>
-                        <th>Xona</th>
-                        <th>Guruh</th>
-                        <th>Kirgan sana</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for s in recent_students %}
-                    <tr>
-                        <td>
-                            <div class="stu-cell">
-                                <div class="stu-av stu-av-{% cycle '1' '2' '3' '4' '5' %}">
-                                    {{ s.first_name|first|upper }}{{ s.last_name|first|upper }}
-                                </div>
-                                <div>
-                                    <div class="stu-name">{{ s.full_name }}</div>
-                                    <div class="stu-sid">{{ s.student_id }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            {% if s.room %}
-                            <span class="room-pill">{{ s.room.floor.building.name|truncatechars:8 }} · {{ s.room.number }}-x</span>
-                            {% else %}<span style="color:var(--gray);font-size:.8rem;">—</span>{% endif %}
-                        </td>
-                        <td class="date-txt">{{ s.group|default:"—" }}</td>
-                        <td class="date-txt">{{ s.check_in_date|date:"d.m.Y" }}</td>
-                        <td style="text-align:right;padding-right:16px;">
-                            <a href="{% url 'students:student_detail' s.pk %}" class="arrow-btn" title="Ko'rish">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="5" class="empty-dash">Talabalar mavjud emas</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="dash-two" style="grid-template-columns:1fr;">
 
     <!-- Binolar bandligi -->
     <div class="panel">

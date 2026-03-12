@@ -184,6 +184,62 @@
     </form>
 </div>
 
+<!-- OXIRGI QO'SHILGAN TALABALAR -->
+{% if recent_students %}
+<div class="stu-panel" style="margin-bottom:24px;">
+    <div style="padding:14px 20px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:0.875rem;font-weight:800;color:var(--dark);display:flex;align-items:center;gap:8px;">
+            <span style="width:28px;height:28px;border-radius:8px;background:var(--p10);color:var(--p);display:flex;align-items:center;justify-content:center;font-size:.78rem;">
+                <i class="fas fa-user-graduate"></i>
+            </span>
+            Oxirgi qo'shilgan talabalar
+        </span>
+    </div>
+    <div class="table-responsive">
+        <table class="stu-tbl">
+            <thead>
+                <tr>
+                    <th>Talaba</th>
+                    <th>Xona</th>
+                    <th>Guruh</th>
+                    <th>Kirgan sana</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in recent_students %}
+                <tr>
+                    <td>
+                        <div class="stu-cell">
+                            <div class="stu-av av-{% cycle '1' '2' '3' '4' '5' %}">
+                                {{ s.first_name|first|upper }}{{ s.last_name|first|upper }}
+                            </div>
+                            <div>
+                                <div class="stu-name">{{ s.last_name }} {{ s.first_name }}</div>
+                                <div class="stu-sdate">{{ s.student_id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if s.room %}
+                        <span class="id-chip">{{ s.room.floor.building.name|truncatechars:8 }} · {{ s.room.number }}-x</span>
+                        {% else %}<span style="color:var(--gray);font-size:.8rem;">—</span>{% endif %}
+                    </td>
+                    <td><span class="group-txt">{{ s.group|default:"—" }}</span></td>
+                    <td><span class="group-txt">{{ s.check_in_date|date:"d.m.Y" }}</span></td>
+                    <td style="text-align:right;padding-right:16px;">
+                        <a href="{% url 'students:student_detail' s.pk %}" class="act-btn" title="Ko'rish">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
 <!-- TALABALAR JADVALI (qavat bo'yicha) -->
 {% for item in floor_data %}
 

@@ -57,6 +57,12 @@ class StudentListView(LoginRequiredMixin, ListView):
         ]
 
         context['floor_data'] = floor_data
+
+        # Oxirgi qo'shilgan talabalar
+        context['recent_students'] = Student.objects.filter(
+            is_active=True
+        ).select_related('room', 'room__floor', 'room__floor__building').order_by('-created_at')[:8]
+
         return context
 
 
