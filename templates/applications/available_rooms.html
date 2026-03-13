@@ -11,6 +11,22 @@
     <p class="dorm-hero-desc">O'zingizga mos yotoqxonani tanlang va ariza topshiring</p>
 </div>
 
+<!-- ═══ SEARCH FILTERS ═══ -->
+<div class="dorm-filters" data-aos="fade-up">
+    <div class="dorm-filter-item">
+        <i class="fas fa-search"></i>
+        <input type="text" id="filterName" placeholder="Nomi bo'yicha qidirish..." autocomplete="off">
+    </div>
+    <div class="dorm-filter-item">
+        <i class="fas fa-city"></i>
+        <input type="text" id="filterCity" placeholder="Shahar..." autocomplete="off">
+    </div>
+    <div class="dorm-filter-item">
+        <i class="fas fa-money-bill-wave"></i>
+        <input type="number" id="filterPriceMax" placeholder="Maks. narx (so'm)" autocomplete="off">
+    </div>
+</div>
+
 {% if not buildings_data %}
 <div class="card p-5 text-center">
     <i class="fas fa-building fa-3x mb-3" style="color: var(--border)"></i>
@@ -21,7 +37,7 @@
 
 <div class="dorm-grid">
     {% for bd in buildings_data %}
-    <div data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
+    <div class="dorm-grid-item" data-name="{{ bd.building.name|lower }}" data-city="{{ bd.building.city|lower }}" data-price="{{ bd.min_price|default:0 }}" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
         <a href="{% url 'applications:building_detail' bd.building.pk %}" class="text-decoration-none">
             <div class="dorm-card">
                 <div class="dorm-card-img">
@@ -88,6 +104,49 @@
         color: #888;
         font-weight: 500;
         margin: 0;
+    }
+
+    /* ═══ FILTERS ═══ */
+    .dorm-filters {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+    }
+    .dorm-filter-item {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        border: 1.5px solid #e8e8e8;
+        border-radius: 14px;
+        padding: 0 16px;
+        transition: border-color .2s, box-shadow .2s;
+    }
+    .dorm-filter-item:focus-within {
+        border-color: var(--p);
+        box-shadow: 0 0 0 3px rgba(112,0,255,.07);
+    }
+    .dorm-filter-item i {
+        color: #bbb;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+    .dorm-filter-item:focus-within i {
+        color: var(--p);
+    }
+    .dorm-filter-item input {
+        border: none;
+        outline: none;
+        background: transparent;
+        width: 100%;
+        padding: 12px 0;
+        font-size: 0.85rem;
+        font-family: 'Inter', sans-serif;
+        color: #222;
+    }
+    .dorm-filter-item input::placeholder {
+        color: #bbb;
     }
 
     /* ═══ GRID ═══ */
@@ -231,8 +290,43 @@
     }
     @media (max-width: 768px) {
         .dorm-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .dorm-filters { flex-direction: column; gap: 8px; }
         .dorm-hero-title { font-size: 1.6rem; }
         .dorm-hero { padding: 1.5rem 1rem 1rem; margin-bottom: 1.25rem; }
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var nameInput = document.getElementById('filterName');
+    var cityInput = document.getElementById('filterCity');
+    var priceInput = document.getElementById('filterPriceMax');
+    var items = document.querySelectorAll('.dorm-grid-item');
+
+    function filterCards() {
+        var name = nameInput.value.toLowerCase().trim();
+        var city = cityInput.value.toLowerCase().trim();
+        var maxPrice = parseFloat(priceInput.value) || 0;
+
+        items.forEach(function(item) {
+            var itemName = item.dataset.name || '';
+            var itemCity = item.dataset.city || '';
+            var itemPrice = parseFloat(item.dataset.price) || 0;
+
+            var show = true;
+            if (name && itemName.indexOf(name) === -1) show = false;
+            if (city && itemCity.indexOf(city) === -1) show = false;
+            if (maxPrice > 0 && itemPrice > maxPrice) show = false;
+
+            item.style.display = show ? '' : 'none';
+        });
+    }
+
+    nameInput.addEventListener('input', filterCards);
+    cityInput.addEventListener('input', filterCards);
+    priceInput.addEventListener('input', filterCards);
+})();
+</script>
 {% endblock %}
