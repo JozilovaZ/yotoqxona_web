@@ -301,8 +301,11 @@
         {% endif %}
         {% else %}
         <!-- TALABA / ARIZA BERUVCHI MENYU -->
+        <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <a href="{% url 'applications:home' %}">Bosh sahifa</a>
+        </li>
         <li class="{% if 'rooms' in request.path %}active{% endif %}">
-            <a href="{% url 'applications:available_rooms' %}">Bo'sh xonalar</a>
+            <a href="{% url 'applications:available_rooms' %}">Yotoqxonalar</a>
         </li>
         <li class="{% if request.resolver_match.url_name == 'my_applications' or request.resolver_match.url_name == 'detail' %}active{% endif %}">
             <a href="{% url 'applications:my_applications' %}">Arizalarim</a>

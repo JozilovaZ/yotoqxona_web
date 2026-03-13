@@ -19,7 +19,7 @@ def home_redirect(request):
     if request.user.is_staff_member:
         return DashboardView.as_view()(request)
     # Talaba / Ariza beruvchi
-    return redirect('applications:available_rooms')
+    return redirect('applications:home')
 
 
 urlpatterns = [
