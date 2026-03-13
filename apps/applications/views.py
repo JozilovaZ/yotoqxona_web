@@ -91,17 +91,26 @@ class BuildingDetailForApplicantView(DetailView):
         ctx = super().get_context_data(**kwargs)
         building = self.object
         floors_data = []
+        total_capacity = 0
+        total_available = 0
         for floor in building.floors.filter(is_active=True).order_by('number'):
-            rooms = floor.rooms.filter(
-                is_active=True,
-                status__in=['available', 'partial']
-            ).order_by('number')
-            if rooms.exists():
+            rooms = list(floor.rooms.filter(is_active=True).order_by('number'))
+            if rooms:
+                floor_capacity = sum(r.capacity for r in rooms)
+                floor_available = sum(r.available_beds for r in rooms)
+                total_capacity += floor_capacity
+                total_available += floor_available
                 floors_data.append({
                     'floor': floor,
                     'rooms': rooms,
+                    'total_rooms': len(rooms),
+                    'capacity': floor_capacity,
+                    'available': floor_available,
                 })
         ctx['floors_data'] = floors_data
+        ctx['total_capacity'] = total_capacity
+        ctx['total_available'] = total_available
+        ctx['total_rooms'] = sum(fd['total_rooms'] for fd in floors_data)
         return ctx
 
 
