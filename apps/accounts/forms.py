@@ -8,7 +8,7 @@ class LoginForm(forms.Form):
         max_length=150,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Login',
+            'placeholder': 'Telefon raqam yoki login',
             'autofocus': True
         })
     )
@@ -39,6 +39,90 @@ class UserForm(UserCreationForm):
         self.fields['password2'].widget.attrs['class'] = 'form-control'
 
 
+class PhoneRegistrationForm(forms.Form):
+    """Telefon raqam bilan ro'yxatdan o'tish"""
+    phone = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '+998 90 123 45 67',
+            'autofocus': True
+        }),
+        label='Telefon raqam'
+    )
+    first_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ism'
+        }),
+        label='Ism'
+    )
+    last_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Familiya'
+        }),
+        label='Familiya'
+    )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Parol'
+        }),
+        label='Parol'
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Parolni tasdiqlang'
+        }),
+        label='Parol (qayta)'
+    )
+
+    def clean_phone(self):
+        phone = self.cleaned_data['phone'].strip().replace(' ', '').replace('-', '')
+        if not phone.startswith('+998') and not phone.startswith('998'):
+            if phone.startswith('9') and len(phone) == 9:
+                phone = '+998' + phone
+            elif phone.startswith('0'):
+                phone = '+998' + phone[1:]
+            else:
+                raise forms.ValidationError("Telefon raqam noto'g'ri formatda")
+        if not phone.startswith('+'):
+            phone = '+' + phone
+        # Tekshirish - faqat raqamlar
+        digits = phone.replace('+', '')
+        if not digits.isdigit() or len(digits) != 12:
+            raise forms.ValidationError("Telefon raqam 12 ta raqamdan iborat bo'lishi kerak (+998XXXXXXXXX)")
+        # Mavjudligini tekshirish
+        if User.objects.filter(phone=phone).exists():
+            raise forms.ValidationError("Bu telefon raqam allaqachon ro'yxatdan o'tgan")
+        return phone
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('password1')
+        p2 = cleaned.get('password2')
+        if p1 and p2 and p1 != p2:
+            self.add_error('password2', "Parollar bir xil emas")
+        return cleaned
+
+    def save(self):
+        phone = self.cleaned_data['phone']
+        user = User.objects.create_user(
+            username=phone,
+            password=self.cleaned_data['password1'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            phone=phone,
+            role=User.Role.APPLICANT,
+        )
+        return user
+
+
+# Legacy form - keep for backwards compatibility
 class RegistrationForm(UserCreationForm):
     class Meta:
         model = User

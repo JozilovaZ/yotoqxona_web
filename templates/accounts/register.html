@@ -3,11 +3,13 @@
 {% block extra_css %}
 <style>
     body { background: var(--dark) !important; }
+    .topnav-wrap { display: none; }
     .main-wrap { padding: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .page-header { display: none; }
 
     .login-card {
         display: grid;
-        grid-template-columns: 420px 420px;
+        grid-template-columns: 400px 440px;
         background: #fff;
         border-radius: 24px;
         overflow: hidden;
@@ -17,7 +19,7 @@
 
     .lp-left {
         background: var(--p);
-        padding: 50px 44px;
+        padding: 50px 40px;
         display: flex; flex-direction: column; justify-content: space-between;
         position: relative; overflow: hidden;
     }
@@ -49,35 +51,77 @@
     }
     .lp-desc {
         font-size: .875rem; color: rgba(255,255,255,.65);
-        line-height: 1.7; margin-bottom: 40px;
+        line-height: 1.7; margin-bottom: 32px;
     }
 
-    .lp-pills { display: flex; flex-wrap: wrap; gap: 8px; position: relative; z-index: 1; }
-    .lp-pill {
+    /* Telegram bot info */
+    .tg-info {
         background: rgba(255,255,255,.12);
-        color: rgba(255,255,255,.85);
-        border-radius: 99px; padding: 6px 14px;
-        font-size: .75rem; font-weight: 600;
+        border-radius: 16px;
+        padding: 20px;
+        position: relative; z-index: 1;
+    }
+    .tg-info-title {
+        font-size: .85rem; font-weight: 700; color: #fff;
+        margin-bottom: 10px;
+    }
+    .tg-step {
+        display: flex; align-items: flex-start; gap: 10px;
+        margin-bottom: 8px;
+    }
+    .tg-step-num {
+        width: 22px; height: 22px; border-radius: 50%;
+        background: rgba(255,255,255,.2);
+        color: #fff; font-size: .7rem; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 1px;
+    }
+    .tg-step-text {
+        font-size: .8rem; color: rgba(255,255,255,.75); line-height: 1.5;
     }
 
     .lp-footer {
         position: relative; z-index: 1;
         font-size: .72rem; color: rgba(255,255,255,.4);
+        margin-top: 24px;
     }
 
     .lp-right {
-        padding: 40px 44px;
+        padding: 40px 40px;
         display: flex; flex-direction: column; justify-content: center;
     }
 
     .lp-title {
         font-size: 1.5rem; font-weight: 900;
-        color: var(--dark); letter-spacing: -.6px; margin-bottom: 6px;
+        color: var(--dark); letter-spacing: -.6px; margin-bottom: 4px;
     }
     .lp-subtitle {
-        font-size: .855rem; color: var(--gray);
-        margin-bottom: 28px; line-height: 1.5;
+        font-size: .85rem; color: #888;
+        margin-bottom: 24px; line-height: 1.5;
     }
+
+    /* Telegram button */
+    .tg-btn {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        width: 100%; padding: 13px;
+        background: #0088cc; border: none; color: #fff;
+        border-radius: 12px; font-size: .9rem; font-weight: 700;
+        font-family: 'Inter', sans-serif; cursor: pointer;
+        text-decoration: none;
+        transition: opacity .15s;
+        margin-bottom: 20px;
+    }
+    .tg-btn:hover { opacity: .88; color: #fff; }
+    .tg-btn i { font-size: 1.2rem; }
+
+    .divider {
+        display: flex; align-items: center; gap: 12px;
+        margin-bottom: 20px;
+    }
+    .divider::before, .divider::after {
+        content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .divider span { font-size: .75rem; color: #aaa; font-weight: 600; }
 
     .f-group { margin-bottom: 14px; }
     .f-label {
@@ -99,41 +143,37 @@
         box-shadow: 0 0 0 3px var(--p10);
     }
     .f-error {
-        font-size: .75rem; color: var(--err);
+        font-size: .75rem; color: #dc3545;
         font-weight: 600; margin-top: 4px;
     }
-
     .f-alert {
         background: var(--err10); border: 1.5px solid rgba(220,38,38,.2);
         border-radius: 10px; padding: 11px 15px;
         font-size: .82rem; color: var(--err); font-weight: 600;
         margin-bottom: 16px;
     }
-
     .f-submit {
         width: 100%; padding: 13px;
         background: var(--p); border: none; color: #fff;
         border-radius: 11px; font-size: .9rem; font-weight: 700;
         font-family: 'Inter', sans-serif; cursor: pointer;
         transition: opacity .15s; margin-top: 6px;
-        letter-spacing: -.2px;
     }
     .f-submit:hover { opacity: .87; }
-    .f-submit:active { transform: scale(.99); }
-
-    .f-link {
-        text-align: center; margin-top: 16px;
-        font-size: .84rem; color: var(--gray);
-    }
-    .f-link a {
-        color: var(--p); font-weight: 700; text-decoration: none;
-    }
-    .f-link a:hover { text-decoration: underline; }
 
     .f-row {
         display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
     }
     @media(max-width:500px){ .f-row{ grid-template-columns:1fr; } }
+
+    .f-link {
+        text-align: center; margin-top: 16px;
+        font-size: .84rem; color: #888;
+    }
+    .f-link a {
+        color: var(--p); font-weight: 700; text-decoration: none;
+    }
+    .f-link a:hover { text-decoration: underline; }
 </style>
 {% endblock %}
 
@@ -151,16 +191,25 @@
                 <span class="lp-logo-name">Makon</span>
             </div>
 
-            <h2 class="lp-headline">Yotoqxonaga<br>ariza bering</h2>
+            <h2 class="lp-headline">Telefon raqamingiz<br>bilan ro'yxatdan o'ting</h2>
             <p class="lp-desc">
-                Ro'yxatdan o'ting va yotoqxonaga joylashish uchun
-                ariza yuboring. Jarayon tez va qulay.
+                30 soniyada ro'yxatdan o'ting va yotoqxonaga joylashish uchun ariza yuboring.
             </p>
 
-            <div class="lp-pills">
-                <span class="lp-pill">Tez ro'yxatdan o'tish</span>
-                <span class="lp-pill">Online ariza</span>
-                <span class="lp-pill">Qulay boshqaruv</span>
+            <div class="tg-info">
+                <div class="tg-info-title"><i class="fab fa-telegram me-2"></i>Telegram bot orqali:</div>
+                <div class="tg-step">
+                    <div class="tg-step-num">1</div>
+                    <div class="tg-step-text">Telegram botimizga yozing</div>
+                </div>
+                <div class="tg-step">
+                    <div class="tg-step-num">2</div>
+                    <div class="tg-step-text">Bot sizga telefon raqamingizni tasdiqlaydi</div>
+                </div>
+                <div class="tg-step">
+                    <div class="tg-step-num">3</div>
+                    <div class="tg-step-text">Shu raqam bilan saytda ro'yxatdan o'ting</div>
+                </div>
             </div>
         </div>
 
@@ -170,7 +219,15 @@
     <!-- O'NG PANEL -->
     <div class="lp-right">
         <div class="lp-title">Ro'yxatdan o'tish</div>
-        <p class="lp-subtitle">Ma'lumotlaringizni kiriting</p>
+        <p class="lp-subtitle">Telefon raqamingiz bilan 30 soniyada</p>
+
+        <!-- Telegram bot link -->
+        <a href="https://t.me/makon_yotoqxona_bot" target="_blank" class="tg-btn">
+            <i class="fab fa-telegram"></i>
+            Telegram bot orqali ro'yxatdan o'tish
+        </a>
+
+        <div class="divider"><span>yoki to'g'ridan-to'g'ri</span></div>
 
         {% if messages %}
             {% for msg in messages %}
@@ -180,6 +237,15 @@
 
         <form method="post" novalidate>
             {% csrf_token %}
+
+            <div class="f-group">
+                <label class="f-label">Telefon raqam</label>
+                <input class="f-input" type="tel" name="phone" placeholder="+998 90 123 45 67"
+                    value="{{ form.phone.value|default:'' }}">
+                {% if form.phone.errors %}
+                <div class="f-error">{{ form.phone.errors.0 }}</div>
+                {% endif %}
+            </div>
 
             <div class="f-row">
                 <div class="f-group">
@@ -196,34 +262,6 @@
                         value="{{ form.last_name.value|default:'' }}">
                     {% if form.last_name.errors %}
                     <div class="f-error">{{ form.last_name.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="f-group">
-                <label class="f-label">Login</label>
-                <input class="f-input" type="text" name="username" placeholder="Foydalanuvchi nomi"
-                    value="{{ form.username.value|default:'' }}" autocomplete="username">
-                {% if form.username.errors %}
-                <div class="f-error">{{ form.username.errors.0 }}</div>
-                {% endif %}
-            </div>
-
-            <div class="f-row">
-                <div class="f-group">
-                    <label class="f-label">Email</label>
-                    <input class="f-input" type="email" name="email" placeholder="Email"
-                        value="{{ form.email.value|default:'' }}">
-                    {% if form.email.errors %}
-                    <div class="f-error">{{ form.email.errors.0 }}</div>
-                    {% endif %}
-                </div>
-                <div class="f-group">
-                    <label class="f-label">Telefon</label>
-                    <input class="f-input" type="text" name="phone" placeholder="+998 90 123 45 67"
-                        value="{{ form.phone.value|default:'' }}">
-                    {% if form.phone.errors %}
-                    <div class="f-error">{{ form.phone.errors.0 }}</div>
                     {% endif %}
                 </div>
             </div>

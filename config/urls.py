@@ -15,7 +15,7 @@ from buildings.views import DashboardView
 def home_redirect(request):
     """Foydalanuvchi roliga qarab yo'naltirish"""
     if not request.user.is_authenticated:
-        return redirect('accounts:login')
+        return redirect('applications:home')
     if request.user.is_staff_member:
         return DashboardView.as_view()(request)
     # Talaba / Ariza beruvchi
@@ -27,7 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Dashboard (Bosh sahifa) - rolga qarab
-    path('', login_required(home_redirect), name='dashboard'),
+    path('', home_redirect, name='dashboard'),
 
     # Barcha include'lardan 'apps.' prefiksini olib tashlaymiz
     path('accounts/', include('accounts.urls', namespace='accounts')),

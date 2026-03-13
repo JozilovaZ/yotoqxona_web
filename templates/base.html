@@ -34,15 +34,25 @@
         }
 
         /* ═══════════════════════════════
-           TOPNAV
+           TOPNAV — floating pill
         ═══════════════════════════════ */
-        .topnav {
+        .topnav-wrap {
             position: sticky; top: 0; z-index: 999;
+            padding: 10px 16px 0;
+        }
+        .topnav {
+            max-width: 1300px;
+            margin: 0 auto;
             height: var(--nav-h);
-            background: #000;
+            background: rgba(0,0,0,.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 100px;
             display: flex; align-items: center;
-            padding: 0 32px;
+            padding: 0 10px 0 24px;
             gap: 0;
+            box-shadow: 0 4px 24px rgba(0,0,0,.18);
         }
 
         /* BRAND */
@@ -79,7 +89,7 @@
         }
         .nav-links li a {
             display: block; padding: 7px 15px;
-            border-radius: 8px;
+            border-radius: 100px;
             font-size: 0.85rem; font-weight: 600;
             color: rgba(255,255,255,.55);
             text-decoration: none;
@@ -93,6 +103,7 @@
         .nav-links li.active a {
             color: #fff;
             background: var(--p);
+            border-radius: 100px;
         }
 
         /* NAV RIGHT */
@@ -118,6 +129,23 @@
             font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,.8);
         }
         .u-arrow { color: rgba(255,255,255,.35); font-size: 0.6rem; }
+
+        /* AUTH BUTTONS (for guests) */
+        .nav-auth-btn {
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.82rem; font-weight: 600;
+            color: rgba(255,255,255,.7);
+            text-decoration: none;
+            transition: color .15s, background .15s;
+        }
+        .nav-auth-btn:hover { color: #fff; }
+        .nav-auth-primary {
+            background: var(--p);
+            color: #fff !important;
+            padding: 6px 18px;
+        }
+        .nav-auth-primary:hover { opacity: .88; }
 
         /* DROPDOWN */
         .dropdown-menu {
@@ -233,12 +261,18 @@
         .mob-toggle { display: none; background: none; border: none; color: rgba(255,255,255,.7); font-size: 1.1rem; cursor: pointer; }
 
         @media (max-width: 1024px) {
+            .topnav-wrap { padding: 8px 10px 0; }
+            .topnav { border-radius: 20px; padding: 0 8px 0 16px; }
             .nav-links { display: none; }
             .nav-links.open {
                 display: flex; flex-direction: column; gap: 4px;
-                position: fixed; top: var(--nav-h); left: 0; right: 0;
-                background: #000; padding: 16px 20px;
-                border-bottom: 1px solid rgba(255,255,255,.08);
+                position: fixed; top: 78px; left: 10px; right: 10px;
+                background: rgba(0,0,0,.92);
+                backdrop-filter: blur(20px);
+                padding: 16px 20px;
+                border-radius: 20px;
+                border: 1px solid rgba(255,255,255,.08);
+                box-shadow: 0 8px 32px rgba(0,0,0,.3);
                 z-index: 998;
             }
             .mob-toggle { display: block; margin-right: 12px; }
@@ -249,12 +283,11 @@
 </head>
 <body>
 
-{% if user.is_authenticated %}
+<div class="topnav-wrap">
 <nav class="topnav">
     <button class="mob-toggle" id="mobBtn"><i class="fas fa-bars"></i></button>
 
     <a class="nav-brand" href="{% url 'dashboard' %}">
-        <!-- Geometric M logo -->
         <div class="brand-logo">
             <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="34" height="34" rx="9" fill="#7000FF"/>
@@ -268,7 +301,7 @@
     </a>
 
     <ul class="nav-links" id="navLinks">
-        {% if user.is_staff_member %}
+        {% if user.is_authenticated and user.is_staff_member %}
         <!-- ADMIN / XODIM MENYU -->
         <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
             <a href="{% url 'dashboard' %}">Bosh sahifa</a>
@@ -299,7 +332,8 @@
             <a href="{% url 'accounts:user_list' %}">Xodimlar</a>
         </li>
         {% endif %}
-        {% else %}
+
+        {% elif user.is_authenticated %}
         <!-- TALABA / ARIZA BERUVCHI MENYU -->
         <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <a href="{% url 'applications:home' %}">Bosh sahifa</a>
@@ -313,10 +347,20 @@
         <li class="{% if 'announcements' in request.path %}active{% endif %}">
             <a href="{% url 'announcements:list' %}">E'lonlar</a>
         </li>
+
+        {% else %}
+        <!-- MEHMON MENYU -->
+        <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <a href="{% url 'applications:home' %}">Bosh sahifa</a>
+        </li>
+        <li class="{% if 'rooms' in request.path %}active{% endif %}">
+            <a href="{% url 'applications:available_rooms' %}">Yotoqxonalar</a>
+        </li>
         {% endif %}
     </ul>
 
     <div class="nav-right">
+        {% if user.is_authenticated %}
         <div class="dropdown">
             <div class="user-btn" data-bs-toggle="dropdown" role="button">
                 <div class="u-avatar">{{ user.username|first|upper }}</div>
@@ -329,12 +373,15 @@
                 <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">Chiqish</a></li>
             </ul>
         </div>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="nav-auth-btn">Kirish</a>
+        <a href="{% url 'accounts:register' %}" class="nav-auth-btn nav-auth-primary">Ro'yxatdan o'tish</a>
+        {% endif %}
     </div>
 </nav>
-{% endif %}
+</div>
 
 <div class="main-wrap">
-    {% if user.is_authenticated %}
     <div class="page-header">
         <div>
             <h1 class="page-title">{% block page_title %}{% block header %}{% endblock %}{% endblock %}</h1>
@@ -342,7 +389,6 @@
         </div>
         {% block page_actions %}{% endblock %}
     </div>
-    {% endif %}
 
     {% block content %}{% endblock %}
 </div>

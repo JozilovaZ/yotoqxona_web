@@ -10,24 +10,24 @@ from buildings.models import Building, Floor, Room
 from students.models import Student
 
 
-class StudentHomeView(LoginRequiredMixin, TemplateView):
-    """Talaba uchun bosh sahifa"""
+class StudentHomeView(TemplateView):
+    """Talaba uchun bosh sahifa (ochiq — login kerak emas)"""
     template_name = 'applications/home.html'
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        # Foydalanuvchining ariza holati
-        user = self.request.user
-        ctx['my_applications_count'] = Application.objects.filter(user=user).count()
-        ctx['pending_application'] = Application.objects.filter(
-            user=user, status__in=['pending', 'payment_required', 'paid']
-        ).first()
+        if self.request.user.is_authenticated:
+            user = self.request.user
+            ctx['my_applications_count'] = Application.objects.filter(user=user).count()
+            ctx['pending_application'] = Application.objects.filter(
+                user=user, status__in=['pending', 'payment_required', 'paid']
+            ).first()
 
         return ctx
 
 
-class AvailableRoomsView(LoginRequiredMixin, ListView):
+class AvailableRoomsView(ListView):
     """Talabalar uchun yotoqxonalar ro'yxati"""
     template_name = 'applications/available_rooms.html'
     context_object_name = 'buildings'
@@ -61,7 +61,7 @@ class AvailableRoomsView(LoginRequiredMixin, ListView):
         return ctx
 
 
-class BuildingDetailForApplicantView(LoginRequiredMixin, DetailView):
+class BuildingDetailForApplicantView(DetailView):
     """Talaba uchun yotoqxona tafsilotlari va bo'sh xonalar"""
     model = Building
     template_name = 'applications/building_detail.html'

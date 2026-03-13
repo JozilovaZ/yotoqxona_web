@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, T
 from django.views import View
 from django.urls import reverse_lazy
 from .models import User
-from .forms import LoginForm, UserForm, ProfileForm, RegistrationForm
+from .forms import LoginForm, UserForm, ProfileForm, PhoneRegistrationForm
 
 
 class LoginView(View):
@@ -24,13 +24,22 @@ class LoginView(View):
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
+            # Telefon raqam bilan ham login qilish imkoniyati
             user = authenticate(request, username=username, password=password)
+            if user is None:
+                # Telefon raqam bilan qidirish
+                try:
+                    phone_user = User.objects.get(phone=username)
+                    user = authenticate(request, username=phone_user.username, password=password)
+                except User.DoesNotExist:
+                    pass
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Xush kelibsiz, {user.get_full_name() or user.username}!')
-                return redirect('dashboard')
+                next_url = request.GET.get('next', 'dashboard')
+                return redirect(next_url)
             else:
-                messages.error(request, 'Login yoki parol noto\'g\'ri')
+                messages.error(request, 'Telefon raqam yoki parol noto\'g\'ri')
         return render(request, self.template_name, {'form': form})
 
 
@@ -40,16 +49,17 @@ class RegisterView(View):
     def get(self, request):
         if request.user.is_authenticated:
             return redirect('dashboard')
-        form = RegistrationForm()
+        form = PhoneRegistrationForm()
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        form = RegistrationForm(request.POST)
+        form = PhoneRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             messages.success(request, f'Ro\'yxatdan muvaffaqiyatli o\'tdingiz, {user.get_full_name() or user.username}!')
-            return redirect('dashboard')
+            next_url = request.GET.get('next', 'dashboard')
+            return redirect(next_url)
         return render(request, self.template_name, {'form': form})
 
 
