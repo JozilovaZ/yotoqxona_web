@@ -48,7 +48,7 @@
 
 /* Room header */
 .room-card-head {
-    background: linear-gradient(135deg, #f3f0ff, #e8e1fb);
+    background: #FFFFFF;
     padding: 24px 20px;
     text-align: center;
     border-bottom: 1.5px solid var(--border);
@@ -71,15 +71,15 @@
     font-size: .72rem; font-weight: 700;
     margin-top: 10px;
 }
-.rs-available   { background: rgba(5,150,105,.1); color: #059669; }
-.rs-partial     { background: rgba(92,0,211,.1); color: var(--p); }
-.rs-full        { background: rgba(217,119,6,.1); color: #D97706; }
-.rs-maintenance { background: rgba(156,163,175,.1); color: #9CA3AF; }
+.rs-available   { background: rgba(112,0,255,.1); color: #7000FF; }
+.rs-partial     { background: rgba(112,0,255,.1); color: #7000FF; }
+.rs-full        { background: rgba(0,0,0,.08); color: #000; }
+.rs-maintenance { background: rgba(208,211,217,.3); color: #000; }
 
 /* Info rows */
 .room-info-row {
     padding: 11px 18px;
-    border-bottom: 1px solid #F5F3FA;
+    border-bottom: 1px solid #D0D3D9;
     display: flex; align-items: center; justify-content: space-between;
 }
 .room-info-row:last-child { border-bottom: none; }
@@ -91,8 +91,8 @@
 .occ-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
 .occ-lbl { font-size: .72rem; font-weight: 700; color: var(--gray); }
 .occ-num { font-size: .82rem; font-weight: 800; color: var(--p); }
-.occ-bar { height: 8px; background: #EDE8F8; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
-.occ-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--p), #9061F9); transition: width .6s; }
+.occ-bar { height: 8px; background: #D0D3D9; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+.occ-fill { height: 100%; border-radius: 99px; background: #7000FF; transition: width .6s; }
 .occ-meta { display: flex; justify-content: space-between; font-size: .69rem; color: var(--gray); }
 
 /* ══ TALABALAR PANELI ══ */
@@ -123,15 +123,15 @@
 .stu-tbl thead th {
     padding: 9px 16px; font-size: .67rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: .5px;
-    color: var(--gray); background: #FAFAFE;
+    color: var(--gray); background: #FFFFFF;
     border-bottom: 1.5px solid var(--border);
 }
 .stu-tbl tbody td {
     padding: 12px 16px; font-size: .855rem;
-    border-bottom: 1px solid #F5F3FA; vertical-align: middle;
+    border-bottom: 1px solid #D0D3D9; vertical-align: middle;
 }
 .stu-tbl tbody tr:last-child td { border-bottom: none; }
-.stu-tbl tbody tr:hover td { background: #FAFAFE; }
+.stu-tbl tbody tr:hover td { background: #FFFFFF; }
 
 .stu-cell { display: flex; align-items: center; gap: 10px; }
 .stu-av {
@@ -140,8 +140,8 @@
     font-size: .72rem; font-weight: 800; color: #fff;
     flex-shrink: 0;
 }
-.av-1{background:#7C3AED;} .av-2{background:#2563EB;}
-.av-3{background:#0891B2;} .av-4{background:#059669;} .av-5{background:#D97706;}
+.av-1{background:#7000FF;} .av-2{background:#000;}
+.av-3{background:#7000FF;} .av-4{background:#000;} .av-5{background:#7000FF;}
 
 .stu-name { font-weight: 700; color: var(--dark); font-size: .875rem; }
 .stu-group { font-size: .72rem; color: var(--gray); margin-top: 1px; }
@@ -157,7 +157,7 @@
 /* ══ INVENTAR ══ */
 .inv-item {
     padding: 12px 18px;
-    border-bottom: 1px solid #F5F3FA;
+    border-bottom: 1px solid #D0D3D9;
     display: flex; align-items: center; gap: 12px;
 }
 .inv-item:last-child { border-bottom: none; }
@@ -177,13 +177,13 @@
 }
 
 /* Condition colors */
-.cond-new  { background: rgba(5,150,105,.1); color: #059669; }
-.cond-good { background: rgba(92,0,211,.08); color: var(--p); }
-.cond-fair { background: rgba(217,119,6,.1); color: #D97706; }
-.cond-poor { background: rgba(239,68,68,.1); color: #EF4444; }
+.cond-new  { background: rgba(112,0,255,.1); color: #7000FF; }
+.cond-good { background: rgba(112,0,255,.08); color: #7000FF; }
+.cond-fair { background: rgba(0,0,0,.08); color: #000; }
+.cond-poor { background: rgba(0,0,0,.08); color: #000; }
 
 .empty-room { padding: 40px 20px; text-align: center; color: var(--gray); font-size: .875rem; }
-.empty-room i { font-size: 1.8rem; color: #D1C9E8; display: block; margin-bottom: 10px; }
+.empty-room i { font-size: 1.8rem; color: #D0D3D9; display: block; margin-bottom: 10px; }
 
 </style>
 {% endblock %}
@@ -228,7 +228,7 @@
         </div>
         <div class="room-info-row">
             <span class="ri-label">Oylik to'lov</span>
-            <span class="ri-val" style="color:#059669;">{{ room.monthly_price|floatformat:0|default:"—" }} so'm</span>
+            <span class="ri-val" style="color:#000;">{{ room.monthly_price|floatformat:0|default:"—" }} so'm</span>
         </div>
 
         <!-- Bandlik visual -->
@@ -295,11 +295,11 @@
                     <td style="font-size:.82rem;color:var(--gray);">{{ student.group|default:"—" }}</td>
                     <td>
                         {% if student.has_debt %}
-                        <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(217,119,6,.1);color:#D97706;border-radius:7px;padding:3px 9px;font-size:.71rem;font-weight:700;">
+                        <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,.08);color:#000;border-radius:7px;padding:3px 9px;font-size:.71rem;font-weight:700;">
                             <i class="fas fa-clock" style="font-size:.6rem;"></i> Qarzdor
                         </span>
                         {% else %}
-                        <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(5,150,105,.1);color:#059669;border-radius:7px;padding:3px 9px;font-size:.71rem;font-weight:700;">
+                        <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(112,0,255,.1);color:#7000FF;border-radius:7px;padding:3px 9px;font-size:.71rem;font-weight:700;">
                             <i class="fas fa-check" style="font-size:.6rem;"></i> To'langan
                         </span>
                         {% endif %}
@@ -327,7 +327,7 @@
 <div class="detail-panel">
     <div class="dp-head">
         <span class="dp-title">
-            <span class="dp-icon" style="background:rgba(8,145,178,.1);color:#0891B2;"><i class="fas fa-box"></i></span>
+            <span class="dp-icon" ><i class="fas fa-box"></i></span>
             Xona inventarlari
         </span>
         <a href="{% url 'inventory:room_inventory' room.pk %}" style="

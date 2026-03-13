@@ -70,19 +70,19 @@
     padding: 10px 16px;
     font-size: .67rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: .5px;
-    color: var(--gray); background: #FAFAFE;
+    color: var(--gray); background: #FFFFFF;
     border-bottom: 1.5px solid var(--border);
 }
 .att-tbl tbody td {
     padding: 11px 16px; font-size: .855rem;
-    border-bottom: 1px solid #F5F3FA;
+    border-bottom: 1px solid #D0D3D9;
     vertical-align: middle;
 }
 .att-tbl tbody tr:last-child td { border-bottom: none; }
 
 /* Xona ustuni */
 .room-cell {
-    background: #FAFAFE !important;
+    background: #FFFFFF !important;
     text-align: center; vertical-align: middle !important;
     border-right: 1.5px solid var(--border) !important;
     width: 72px;
@@ -98,11 +98,11 @@
     font-size: .72rem; font-weight: 800; color: #fff;
     flex-shrink: 0;
 }
-.av-1 { background: #7C3AED; }
-.av-2 { background: #2563EB; }
-.av-3 { background: #0891B2; }
-.av-4 { background: #059669; }
-.av-5 { background: #D97706; }
+.av-1 { background: #7000FF; }
+.av-2 { background: #000; }
+.av-3 { background: #7000FF; }
+.av-4 { background: #000; }
+.av-5 { background: #7000FF; }
 
 .stu-name { font-weight: 700; color: var(--dark); font-size: .875rem; }
 .stu-id   { font-size: .69rem; color: var(--gray); margin-top: 1px; }
@@ -126,23 +126,23 @@
 
 /* Kelgan */
 .att-choice:checked + .lbl-present {
-    background: #059669; border-color: #059669; color: #fff;
+    background: #7000FF; border-color: #7000FF; color: #fff;
 }
 /* Kelmagan */
 .att-choice:checked + .lbl-absent {
-    background: #EF4444; border-color: #EF4444; color: #fff;
+    background: #000; border-color: #000; color: #fff;
 }
 /* Kechikkan */
 .att-choice:checked + .lbl-late {
-    background: #D97706; border-color: #D97706; color: #fff;
+    background: #000; border-color: #000; color: #fff;
 }
 /* Sababli */
 .att-choice:checked + .lbl-excused {
-    background: #3B82F6; border-color: #3B82F6; color: #fff;
+    background: #7000FF; border-color: #7000FF; color: #fff;
 }
 /* Ta'tilda */
 .att-choice:checked + .lbl-leave {
-    background: #8B5CF6; border-color: #8B5CF6; color: #fff;
+    background: #D0D3D9; border-color: #D0D3D9; color: #000;
 }
 
 /* Status ikonkalari */
@@ -173,11 +173,11 @@
     cursor: pointer; transition: all .15s;
     font-family: 'Inter', sans-serif;
     display: inline-flex; align-items: center; gap: 8px;
-    box-shadow: 0 4px 14px rgba(92,0,211,.3);
+    box-shadow: 0 4px 14px rgba(112,0,255,.3);
 }
 .btn-save:hover {
-    background: #4B00B0;
-    box-shadow: 0 6px 20px rgba(92,0,211,.4);
+    background: #5800CC;
+    box-shadow: 0 6px 20px rgba(112,0,255,.4);
     transform: translateY(-1px);
 }
 .save-hint {
@@ -191,7 +191,7 @@
     border-radius: 16px; padding: 70px 20px;
     text-align: center;
 }
-.att-empty i { font-size: 2.5rem; color: #D1C9E8; display: block; margin-bottom: 14px; }
+.att-empty i { font-size: 2.5rem; color: #D0D3D9; display: block; margin-bottom: 14px; }
 
 @media(max-width:600px) {
     .ctrl-sep { display: none; }

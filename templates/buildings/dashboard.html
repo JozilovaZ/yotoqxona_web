@@ -57,8 +57,8 @@
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1rem;
-    background: var(--ki, rgba(92,0,211,.08));
-    color: var(--kc, var(--p));
+    background: var(--p10);
+    color: var(--p);
 }
 .kpi-label {
     font-size: 0.68rem; font-weight: 700;
@@ -75,8 +75,8 @@
     display: inline-flex; align-items: center; gap: 4px;
     padding: 3px 9px; border-radius: 99px;
     font-size: 0.69rem; font-weight: 700;
-    background: var(--ki, rgba(92,0,211,.08));
-    color: var(--kc, var(--p));
+    background: var(--p10);
+    color: var(--p);
 }
 
 /* ═══════════ PANEL ═══════════ */
@@ -118,7 +118,7 @@
 /* ═══════════ BINOLAR ═══════════ */
 .bld-item {
     padding: 14px 20px;
-    border-bottom: 1px solid #F2EFF9;
+    border-bottom: 1px solid var(--border);
 }
 .bld-item:last-child { border-bottom: none; }
 .bld-top {
@@ -127,7 +127,7 @@
 }
 .bld-name { font-size: .875rem; font-weight: 700; color: var(--dark); }
 .bld-pct  { font-size: .8rem; font-weight: 800; }
-.bld-bar  { height: 7px; background: #EDE8F8; border-radius: 99px; overflow: hidden; }
+.bld-bar  { height: 7px; background: #D0D3D9; border-radius: 99px; overflow: hidden; }
 .bld-fill { height: 100%; border-radius: 99px; transition: width .7s cubic-bezier(.25,.8,.25,1); }
 .bld-meta { display: flex; justify-content: space-between; font-size: .69rem; color: var(--gray); margin-top: 5px; }
 
@@ -140,7 +140,7 @@
 
 .status-row {
     padding: 12px 20px;
-    border-bottom: 1px solid #F2EFF9;
+    border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 10px;
 }
 .status-row:last-child { border-bottom: none; }
@@ -150,7 +150,7 @@
 
 .mini-stat {
     padding: 14px 20px;
-    border-bottom: 1px solid #F2EFF9;
+    border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
 }
 .mini-stat:last-child { border-bottom: none; }
@@ -300,7 +300,7 @@
         {% empty %}
         <div class="empty-dash">Xonalar topilmadi</div>
         {% endfor %}
-        <div class="status-row" style="border-top:1.5px solid var(--border);background:#FAFAFE;">
+        <div class="status-row" style="border-top:1.5px solid var(--border);background:#FFFFFF;">
             <span class="s-dot" style="background:var(--dark);"></span>
             <span class="s-name" style="font-weight:800;">Jami xonalar</span>
             <span class="s-num" style="color:var(--p);">{{ total_rooms }}</span>

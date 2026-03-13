@@ -45,13 +45,13 @@
 .fkpi::after {
     content: '';
     position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: var(--fc, var(--p)); border-radius: 16px 16px 0 0;
+    background: var(--p); border-radius: 16px 16px 0 0;
 }
 .fkpi-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
 .fkpi-icon {
     width: 40px; height: 40px; border-radius: 11px;
-    background: var(--fi, rgba(92,0,211,.08));
-    color: var(--fc, var(--p));
+    background: var(--p10);
+    color: var(--p);
     display: flex; align-items: center; justify-content: center;
     font-size: .9rem;
 }
@@ -90,7 +90,7 @@
 }
 .fin-block-head {
     padding: 12px 18px;
-    background: #FAFAFE;
+    background: #FFFFFF;
     border-bottom: 1.5px solid var(--border);
     display: flex; align-items: center; gap: 10px;
 }
@@ -113,18 +113,18 @@
 .fin-tbl thead th {
     padding: 9px 16px; font-size: .67rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: .5px;
-    color: var(--gray); background: #FAFAFE;
+    color: var(--gray); background: #FFFFFF;
     border-bottom: 1.5px solid var(--border);
 }
 .fin-tbl tbody td {
     padding: 12px 16px; font-size: .855rem;
-    border-bottom: 1px solid #F5F3FA; vertical-align: middle;
+    border-bottom: 1px solid #D0D3D9; vertical-align: middle;
 }
 .fin-tbl tbody tr:last-child td { border-bottom: none; }
-.fin-tbl tbody tr:hover td { background: #FAFAFE; }
+.fin-tbl tbody tr:hover td { background: #FFFFFF; }
 
 .room-cell {
-    background: #FAFAFE !important;
+    background: #FFFFFF !important;
     text-align: center; vertical-align: middle !important;
     border-right: 1.5px solid var(--border) !important;
     min-width: 70px;
@@ -143,23 +143,23 @@
 .stu-link:hover { color: var(--p); }
 .pay-hint { font-size: .7rem; color: var(--p); margin-top: 1px; font-weight: 600; }
 
-.amount-val { font-weight: 800; color: #059669; font-size: .9rem; }
+.amount-val { font-weight: 800; color: #000; font-size: .9rem; }
 
 .paid-badge {
     display: inline-flex; align-items: center; gap: 4px;
-    background: rgba(5,150,105,.1); color: #059669;
+    background: rgba(112,0,255,.1); color: #7000FF;
     border-radius: 7px; padding: 4px 10px;
     font-size: .71rem; font-weight: 700;
 }
 .unpaid-badge {
     display: inline-flex; align-items: center; gap: 4px;
-    background: rgba(156,163,175,.1); color: #6B7280;
+    background: rgba(208,211,217,.3); color: #000;
     border-radius: 7px; padding: 4px 10px;
     font-size: .71rem; font-weight: 600;
 }
 .debt-badge {
     display: inline-flex; align-items: center; gap: 4px;
-    background: rgba(217,119,6,.1); color: #D97706;
+    background: rgba(0,0,0,.08); color: #000;
     border-radius: 7px; padding: 4px 10px;
     font-size: .71rem; font-weight: 700;
 }
@@ -167,7 +167,7 @@
 .empty-fin {
     padding: 60px 20px; text-align: center; color: var(--gray);
 }
-.empty-fin i { font-size: 2rem; color: #D1C9E8; display: block; margin-bottom: 10px; }
+.empty-fin i { font-size: 2rem; color: #D0D3D9; display: block; margin-bottom: 10px; }
 
 /* ══ HAVOLALAR ROW ══ */
 .quick-links {
@@ -198,7 +198,7 @@
 
 <!-- KPI -->
 <div class="fin-kpi">
-    <div class="fkpi" style="--fc:#059669;--fi:rgba(5,150,105,.08);">
+    <div class="fkpi" >
         <div class="fkpi-top">
             <div>
                 <div class="fkpi-label">Bugungi tushum</div>
@@ -207,7 +207,7 @@
             <div class="fkpi-icon"><i class="fas fa-money-bill-wave"></i></div>
         </div>
     </div>
-    <div class="fkpi" style="--fc:var(--p);--fi:rgba(92,0,211,.08);">
+    <div class="fkpi" >
         <div class="fkpi-top">
             <div>
                 <div class="fkpi-label">{{ selected_month_name }} oyi</div>
@@ -216,7 +216,7 @@
             <div class="fkpi-icon"><i class="fas fa-chart-line"></i></div>
         </div>
     </div>
-    <div class="fkpi" style="--fc:#D97706;--fi:rgba(217,119,6,.08);">
+    <div class="fkpi" >
         <div class="fkpi-top">
             <div>
                 <div class="fkpi-label">Kutilayotgan</div>
@@ -225,7 +225,7 @@
             <div class="fkpi-icon"><i class="fas fa-clock"></i></div>
         </div>
     </div>
-    <div class="fkpi" style="--fc:#EF4444;--fi:rgba(239,68,68,.08);">
+    <div class="fkpi" >
         <div class="fkpi-top">
             <div>
                 <div class="fkpi-label">Muddati o'tgan</div>
@@ -243,11 +243,11 @@
         Barcha hisoblar
     </a>
     <a href="{% url 'finance:debtor_list' %}" class="qlink">
-        <div class="qlink-icon" style="background:rgba(217,119,6,.1);color:#D97706;"><i class="fas fa-users"></i></div>
+        <div class="qlink-icon" style="background:rgba(0,0,0,.08);color:#000;"><i class="fas fa-users"></i></div>
         <span style="color:var(--dark);">Qarzdorlar ro'yxati</span>
     </a>
     <a href="{% url 'finance:reports' %}" class="qlink">
-        <div class="qlink-icon" style="background:rgba(5,150,105,.1);color:#059669;"><i class="fas fa-chart-bar"></i></div>
+        <div class="qlink-icon" ><i class="fas fa-chart-bar"></i></div>
         <span style="color:var(--dark);">Moliyaviy hisobot</span>
     </a>
 </div>

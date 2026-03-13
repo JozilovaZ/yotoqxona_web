@@ -34,7 +34,7 @@
 /* ── BOSH QISM ── */
 .bld-head {
     padding: 22px 22px 18px;
-    background: linear-gradient(135deg, #f8f6ff 0%, #eee8fb 100%);
+    background: #FFFFFF;
     border-bottom: 1.5px solid var(--border);
     display: flex;
     align-items: flex-start;
@@ -47,7 +47,7 @@
     color: #fff;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.15rem; flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(92,0,211,.25);
+    box-shadow: 0 4px 12px rgba(112,0,255,.25);
 }
 .bld-title {
     font-size: 1.05rem; font-weight: 800;
@@ -59,9 +59,9 @@
     display: flex; align-items: center; gap: 5px;
 }
 .bld-active-dot {
-    width: 7px; height: 7px; border-radius: 50%; background: #10B981; flex-shrink: 0;
+    width: 7px; height: 7px; border-radius: 50%; background: #7000FF; flex-shrink: 0;
 }
-.bld-active-dot.off { background: #9CA3AF; }
+.bld-active-dot.off { background: #D0D3D9; }
 
 /* ── KARTA TANASI ── */
 .bld-body { padding: 18px 22px; }
@@ -91,7 +91,7 @@
 }
 .occ-title { font-size: .75rem; font-weight: 700; color: var(--gray); }
 .occ-pct   { font-size: .82rem; font-weight: 900; }
-.occ-bar   { height: 8px; background: #EDE8F8; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+.occ-bar   { height: 8px; background: #D0D3D9; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
 .occ-fill  { height: 100%; border-radius: 99px; transition: width .7s cubic-bezier(.25,.8,.25,1); }
 .occ-meta  {
     display: flex; justify-content: space-between;
@@ -170,7 +170,7 @@
                     <span class="occ-pct bld-pct-{{ building.pk }}">{{ pct }}%</span>
                 </div>
                 <div class="occ-bar">
-                    <div class="occ-fill bld-fill-{{ building.pk }}" style="width:{{ pct }}%;background:linear-gradient(90deg,var(--p),#9061F9);"></div>
+                    <div class="occ-fill bld-fill-{{ building.pk }}" style="width:{{ pct }}%;background:#7000FF;"></div>
                 </div>
                 <div class="occ-meta">
                     <span>{{ occ }} band</span>
@@ -181,22 +181,14 @@
                     var p = {{ pct }};
                     var fill = document.querySelector('.bld-fill-{{ building.pk }}');
                     var pctEl = document.querySelector('.bld-pct-{{ building.pk }}');
-                    if(p >= 85){
-                        fill.style.background = 'linear-gradient(90deg,#D97706,#F59E0B)';
-                        pctEl.style.color = '#D97706';
-                    } else if(p >= 60){
-                        fill.style.background = 'linear-gradient(90deg,var(--p),#9061F9)';
-                        pctEl.style.color = 'var(--p)';
-                    } else {
-                        fill.style.background = 'linear-gradient(90deg,#059669,#34D399)';
-                        pctEl.style.color = '#059669';
-                    }
+                    fill.style.background = '#7000FF';
+                    pctEl.style.color = '#000';
                 })();
                 </script>
             {% else %}
                 <div class="occ-row">
                     <span class="occ-title">Bandlik</span>
-                    <span class="occ-pct" style="color:#9CA3AF;">—</span>
+                    <span class="occ-pct" style="color:#D0D3D9;">—</span>
                 </div>
                 <div class="occ-bar"><div class="occ-fill" style="width:0%;"></div></div>
                 <div class="occ-meta"><span>Ma'lumot yo'q</span></div>
@@ -217,7 +209,7 @@
 
     {% empty %}
     <div class="empty-bld">
-        <i class="fas fa-city" style="font-size:2.5rem;color:#D1C9E8;display:block;margin-bottom:14px;"></i>
+        <i class="fas fa-city" style="font-size:2.5rem;color:#D0D3D9;display:block;margin-bottom:14px;"></i>
         <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:6px;">Binolar topilmadi</div>
         <div style="font-size:.85rem;color:var(--gray);margin-bottom:20px;">Hozircha hech qanday bino qo'shilmagan</div>
         <a href="{% url 'buildings:building_create' %}" class="btn btn-primary">

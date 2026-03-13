@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 
 
 
+
 class Building(models.Model):
     """Yotoqxona binosi"""
     name = models.CharField(max_length=100, verbose_name="Bino nomi")
