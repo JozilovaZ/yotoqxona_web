@@ -40,7 +40,7 @@ urlpatterns = [
     path('announcements/', include('announcements.urls', namespace='announcements')),
 ]
 
-# Media va Static fayllar
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Media va Static fayllar (development uchun, production da nginx serve qiladi)
 if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
