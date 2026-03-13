@@ -7,6 +7,9 @@ from django.core.validators import MinValueValidator
 class Building(models.Model):
     """Yotoqxona binosi"""
     name = models.CharField(max_length=100, verbose_name="Bino nomi")
+    image = models.ImageField(upload_to='buildings/', blank=True, null=True, verbose_name="Rasm")
+    city = models.CharField(max_length=100, blank=True, verbose_name="Shahar")
+    street = models.CharField(max_length=200, blank=True, verbose_name="Ko'cha")
     address = models.TextField(blank=True, verbose_name="Manzil")
     description = models.TextField(blank=True, verbose_name="Tavsif")
     is_active = models.BooleanField(default=True, verbose_name="Faol")

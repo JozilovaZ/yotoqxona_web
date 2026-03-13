@@ -61,12 +61,21 @@ class AvailableRoomsView(ListView):
                     total_capacity += room.capacity
                     if room.status in ['available', 'partial']:
                         available_beds += room.available_beds
+            # Eng arzon narxni hisoblash
+            prices = []
+            for floor in building.floors.filter(is_active=True):
+                for room in floor.rooms.filter(is_active=True):
+                    if room.monthly_price > 0:
+                        prices.append(room.monthly_price)
+            min_price = min(prices) if prices else 0
+
             buildings_data.append({
                 'building': building,
                 'total_rooms': total_rooms,
                 'total_capacity': total_capacity,
                 'available_beds': available_beds,
                 'occupancy_rate': round((total_capacity - available_beds) / total_capacity * 100) if total_capacity > 0 else 0,
+                'min_price': min_price,
             })
         ctx['buildings_data'] = buildings_data
         return ctx

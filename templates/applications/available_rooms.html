@@ -15,58 +15,57 @@
 
 <div class="row g-4">
     {% for bd in buildings_data %}
-    <div class="col-md-6 col-lg-4">
+    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:0 }}00">
         <a href="{% url 'applications:building_detail' bd.building.pk %}" class="text-decoration-none">
-            <div class="card h-100 shadow-sm border-0" style="border-radius:16px;transition:transform .2s,box-shadow .2s;cursor:pointer;"
-                 onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 25px rgba(112,0,255,.12)'"
-                 onmouseleave="this.style.transform='';this.style.boxShadow=''">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div style="width:52px;height:52px;border-radius:14px;background:var(--p10);display:flex;align-items:center;justify-content:center;">
-                            <i class="fas fa-building" style="color:var(--p);font-size:1.3rem"></i>
-                        </div>
-                        <div>
-                            <h5 class="mb-0 fw-bold text-dark">{{ bd.building.name }}</h5>
-                            {% if bd.building.address %}
-                            <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ bd.building.address }}</small>
-                            {% endif %}
-                        </div>
+            <div class="dorm-card">
+                <div class="dorm-card-img">
+                    {% if bd.building.image %}
+                    <img src="{{ bd.building.image.url }}" alt="{{ bd.building.name }}">
+                    {% else %}
+                    <div class="dorm-card-placeholder">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    {% endif %}
+                    {% if bd.available_beds > 0 %}
+                    <span class="dorm-badge dorm-badge-available">{{ bd.available_beds }} bo'sh joy</span>
+                    {% else %}
+                    <span class="dorm-badge dorm-badge-full">Band</span>
+                    {% endif %}
+                </div>
+                <div class="dorm-card-body">
+                    <h5 class="dorm-card-title">{{ bd.building.name }}</h5>
+
+                    <div class="dorm-card-location">
+                        {% if bd.building.city %}
+                        <span><i class="fas fa-city me-1"></i>{{ bd.building.city }}</span>
+                        {% endif %}
+                        {% if bd.building.street %}
+                        <span><i class="fas fa-road me-1"></i>{{ bd.building.street }}</span>
+                        {% endif %}
                     </div>
 
-                    {% if bd.building.description %}
-                    <p class="text-muted small mb-3">{{ bd.building.description|truncatewords:20 }}</p>
+                    {% if bd.min_price > 0 %}
+                    <div class="dorm-card-price">
+                        {{ bd.min_price|floatformat:0 }} so'm <span>/ oy</span>
+                    </div>
                     {% endif %}
 
-                    <div class="d-flex flex-column gap-2 mb-3" style="font-size:0.85rem;">
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Jami xonalar:</span>
-                            <span class="fw-bold text-dark">{{ bd.total_rooms }}</span>
+                    <div class="dorm-card-stats">
+                        <div class="dorm-stat">
+                            <i class="fas fa-door-open"></i>
+                            <span>{{ bd.total_rooms }} xona</span>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Jami sig'imi:</span>
-                            <span class="fw-bold text-dark">{{ bd.total_capacity }} kishi</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Bo'sh joylar:</span>
-                            <span class="fw-bold" style="color:{% if bd.available_beds > 0 %}#198754{% else %}#dc3545{% endif %}">{{ bd.available_beds }}</span>
+                        <div class="dorm-stat">
+                            <i class="fas fa-bed"></i>
+                            <span>{{ bd.total_capacity }} joy</span>
                         </div>
                     </div>
 
-                    <!-- Bandlik darajasi -->
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <small class="text-muted">Bandlik</small>
-                            <small class="fw-bold">{{ bd.occupancy_rate }}%</small>
+                    <div class="dorm-card-footer">
+                        <div class="dorm-progress">
+                            <div class="dorm-progress-bar" style="width:{{ bd.occupancy_rate }}%;background:{% if bd.occupancy_rate < 50 %}#10B981{% elif bd.occupancy_rate < 80 %}var(--p){% else %}#EF4444{% endif %};"></div>
                         </div>
-                        <div style="height:6px;background:#eee;border-radius:3px;overflow:hidden;">
-                            <div style="height:100%;width:{{ bd.occupancy_rate }}%;background:{% if bd.occupancy_rate < 50 %}#198754{% elif bd.occupancy_rate < 80 %}var(--p){% else %}#dc3545{% endif %};border-radius:3px;transition:width .5s;"></div>
-                        </div>
-                    </div>
-
-                    <div class="d-grid">
-                        <span class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-eye me-1"></i> Batafsil ko'rish
-                        </span>
+                        <small class="text-muted">{{ bd.occupancy_rate }}% band</small>
                     </div>
                 </div>
             </div>
@@ -74,4 +73,155 @@
     </div>
     {% endfor %}
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dorm-card {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: transform .25s, box-shadow .25s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .dorm-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 35px rgba(112,0,255,.12);
+    }
+
+    .dorm-card-img {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background: #f3f4f6;
+    }
+    .dorm-card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .3s;
+    }
+    .dorm-card:hover .dorm-card-img img {
+        transform: scale(1.05);
+    }
+    .dorm-card-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f0e6ff 0%, #e0d0ff 100%);
+        font-size: 3rem;
+        color: var(--p);
+    }
+
+    .dorm-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 5px 12px;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        backdrop-filter: blur(8px);
+    }
+    .dorm-badge-available {
+        background: rgba(16,185,129,.9);
+        color: #fff;
+    }
+    .dorm-badge-full {
+        background: rgba(239,68,68,.9);
+        color: #fff;
+    }
+
+    .dorm-card-body {
+        padding: 1.25rem 1.5rem 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dorm-card-title {
+        font-weight: 800;
+        font-size: 1.15rem;
+        color: #1a1a2e;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.3px;
+    }
+
+    .dorm-card-location {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 0.75rem;
+    }
+    .dorm-card-location span {
+        font-size: 0.82rem;
+        color: #888;
+        font-weight: 500;
+    }
+    .dorm-card-location i {
+        color: var(--p);
+        width: 16px;
+        text-align: center;
+    }
+
+    .dorm-card-price {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: var(--p);
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.5px;
+    }
+    .dorm-card-price span {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #888;
+    }
+
+    .dorm-card-stats {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 1rem;
+        margin-top: auto;
+    }
+    .dorm-stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        color: #666;
+        font-weight: 600;
+    }
+    .dorm-stat i {
+        color: var(--p);
+        font-size: 0.8rem;
+    }
+
+    .dorm-card-footer {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .dorm-progress {
+        flex: 1;
+        height: 6px;
+        background: #eee;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .dorm-progress-bar {
+        height: 100%;
+        border-radius: 3px;
+        transition: width .5s;
+    }
+
+    @media (max-width: 768px) {
+        .dorm-card-img { height: 160px; }
+        .dorm-card-body { padding: 1rem 1.25rem 1.25rem; }
+    }
+</style>
 {% endblock %}

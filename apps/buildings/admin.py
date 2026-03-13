@@ -25,9 +25,9 @@ class FloorInline(admin.TabularInline):
 
 @admin.register(Building)
 class BuildingAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'count_floors', 'count_rooms', 'total_capacity_display', 'is_active')
-    list_filter = ('is_active',)
-    search_fields = ('name', 'address')
+    list_display = ('name', 'city', 'street', 'count_floors', 'count_rooms', 'total_capacity_display', 'is_active')
+    list_filter = ('is_active', 'city')
+    search_fields = ('name', 'address', 'city', 'street')
     inlines = [FloorInline]  # Binoni ochganda ichida etajlar chiqadi
 
     # Hisoblangan maydonlar (Optimization uchun annotation ishlatamiz)
