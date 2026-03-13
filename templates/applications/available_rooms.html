@@ -36,11 +36,15 @@
                 <div class="dorm-card-body">
                     <h6 class="dorm-card-title">{{ bd.building.name }}</h6>
 
-                    {% if bd.building.city %}
+                    {% if bd.building.city or bd.building.street %}
                     <div class="dorm-card-location">
                         <i class="fas fa-map-marker-alt"></i>
-                        <span>{{ bd.building.city }}</span>
+                        <span>{{ bd.building.city }}{% if bd.building.city and bd.building.street %}, {% endif %}{{ bd.building.street }}</span>
                     </div>
+                    {% endif %}
+
+                    {% if bd.building.description %}
+                    <p class="dorm-card-desc">{{ bd.building.description|truncatewords:12 }}</p>
                     {% endif %}
 
                     {% if bd.min_price > 0 %}
@@ -93,7 +97,7 @@
         gap: 12px;
     }
 
-    /* ═══ CARD (uzum style) ═══ */
+    /* ═══ CARD ═══ */
     .dorm-card {
         background: #fff;
         border: 1px solid #e8e8e8;
@@ -110,10 +114,9 @@
         box-shadow: 0 4px 20px rgba(0,0,0,.1);
     }
 
-    /* Rasm — balandroq */
     .dorm-card-img {
         position: relative;
-        aspect-ratio: 3 / 4;
+        aspect-ratio: 4 / 3;
         overflow: hidden;
         background: #f5f5f5;
     }
@@ -133,17 +136,16 @@
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg, #f0e6ff 0%, #e0d0ff 100%);
-        font-size: 2.5rem;
+        font-size: 2rem;
         color: var(--p);
     }
 
-    /* Body */
     .dorm-card-body {
         padding: 10px 12px 6px;
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 3px;
     }
 
     .dorm-card-title {
@@ -164,47 +166,57 @@
         gap: 4px;
     }
     .dorm-card-location span {
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         color: #999;
         font-weight: 400;
     }
     .dorm-card-location i {
         color: var(--p);
-        font-size: 0.6rem;
+        font-size: 0.58rem;
+    }
+
+    .dorm-card-desc {
+        font-size: 0.7rem;
+        color: #aaa;
+        line-height: 1.4;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .dorm-card-price {
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         font-weight: 900;
         color: #222;
         letter-spacing: -0.3px;
         margin-top: auto;
-        padding-top: 2px;
+        padding-top: 4px;
     }
     .dorm-card-price span {
-        font-size: 0.68rem;
+        font-size: 0.65rem;
         font-weight: 400;
         color: #999;
     }
 
-    /* Footer — tugma uzum uslubida */
     .dorm-card-footer {
-        padding: 6px 12px 12px;
+        padding: 6px 12px 10px;
     }
     .dorm-card-btn {
         display: flex;
         align-items: center;
         justify-content: center;
         width: 100%;
-        padding: 8px 0;
+        padding: 7px 0;
         border: none;
         border-radius: 10px;
         background: var(--p);
         color: #fff;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         font-weight: 700;
         cursor: pointer;
-        transition: background .2s, opacity .2s;
+        transition: opacity .2s;
     }
     .dorm-card-btn:hover {
         opacity: .85;
