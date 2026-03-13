@@ -1,10 +1,16 @@
 {% extends 'base.html' %}
 
 {% block title %}Yotoqxonalar{% endblock %}
-{% block header %}Yotoqxonalar{% endblock %}
-{% block page_sub %}<p class="page-sub">Yotoqxonani tanlang va bo'sh xonalar haqida ma'lumot oling</p>{% endblock %}
+{% block header %}{% endblock %}
+{% block page_sub %}{% endblock %}
 
 {% block content %}
+<!-- ═══ HEADER ═══ -->
+<div class="dorm-hero" data-aos="fade-up">
+    <h1 class="dorm-hero-title">Yotoqxonalar</h1>
+    <p class="dorm-hero-desc">O'zingizga mos yotoqxonani tanlang va ariza topshiring</p>
+</div>
+
 {% if not buildings_data %}
 <div class="card p-5 text-center">
     <i class="fas fa-building fa-3x mb-3" style="color: var(--border)"></i>
@@ -13,9 +19,9 @@
 </div>
 {% endif %}
 
-<div class="row g-4">
+<div class="dorm-grid">
     {% for bd in buildings_data %}
-    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+    <div class="dorm-grid-item" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
         <a href="{% url 'applications:building_detail' bd.building.pk %}" class="text-decoration-none">
             <div class="dorm-card">
                 <div class="dorm-card-img">
@@ -28,7 +34,7 @@
                     {% endif %}
                 </div>
                 <div class="dorm-card-body">
-                    <h5 class="dorm-card-title">{{ bd.building.name }}</h5>
+                    <h6 class="dorm-card-title">{{ bd.building.name }}</h6>
 
                     {% if bd.building.city %}
                     <div class="dorm-card-location">
@@ -39,13 +45,12 @@
 
                     {% if bd.min_price > 0 %}
                     <div class="dorm-card-price">
-                        {{ bd.min_price|floatformat:0 }} so'm <span>/ oy</span>
+                        {{ bd.min_price|floatformat:0 }} <span>so'm/oy</span>
                     </div>
                     {% endif %}
-
-                    <div class="dorm-card-btn">
-                        <i class="fas fa-arrow-right me-2"></i> Batafsil
-                    </div>
+                </div>
+                <div class="dorm-card-footer">
+                    <span class="dorm-card-btn">Batafsil <i class="fas fa-arrow-right ms-1"></i></span>
                 </div>
             </div>
         </a>
@@ -56,10 +61,41 @@
 
 {% block extra_css %}
 <style>
+    /* ═══ HERO ═══ */
+    .dorm-hero {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 2.5rem 1rem 1.5rem;
+    }
+    .dorm-hero-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        letter-spacing: -1px;
+        color: #1a1a2e;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--p), #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .dorm-hero-desc {
+        font-size: 1rem;
+        color: #888;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* ═══ GRID ═══ */
+    .dorm-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+    }
+
+    /* ═══ CARD ═══ */
     .dorm-card {
         background: #fff;
         border: 1.5px solid var(--border);
-        border-radius: 20px;
+        border-radius: 14px;
         overflow: hidden;
         transition: transform .25s, box-shadow .25s;
         height: 100%;
@@ -67,13 +103,13 @@
         flex-direction: column;
     }
     .dorm-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 35px rgba(112,0,255,.12);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(112,0,255,.12);
     }
 
     .dorm-card-img {
         position: relative;
-        height: 200px;
+        height: 130px;
         overflow: hidden;
         background: #f3f4f6;
     }
@@ -93,12 +129,12 @@
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg, #f0e6ff 0%, #e0d0ff 100%);
-        font-size: 3rem;
+        font-size: 2rem;
         color: var(--p);
     }
 
     .dorm-card-body {
-        padding: 1.25rem 1.5rem 1.5rem;
+        padding: 0.75rem 0.85rem;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -106,59 +142,76 @@
 
     .dorm-card-title {
         font-weight: 800;
-        font-size: 1.15rem;
+        font-size: 0.85rem;
         color: #1a1a2e;
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.3px;
+        margin-bottom: 0.3rem;
+        letter-spacing: -0.2px;
+        line-height: 1.3;
     }
 
     .dorm-card-location {
         display: flex;
         align-items: center;
-        gap: 6px;
-        margin-bottom: 0.6rem;
+        gap: 4px;
+        margin-bottom: 0.3rem;
     }
     .dorm-card-location span {
-        font-size: 0.85rem;
+        font-size: 0.72rem;
         color: #888;
         font-weight: 500;
     }
     .dorm-card-location i {
         color: var(--p);
-        font-size: 0.8rem;
+        font-size: 0.65rem;
     }
 
     .dorm-card-price {
-        font-size: 1.2rem;
+        font-size: 0.9rem;
         font-weight: 900;
         color: var(--p);
-        margin-bottom: 1rem;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.3px;
+        margin-top: auto;
     }
     .dorm-card-price span {
-        font-size: 0.8rem;
+        font-size: 0.65rem;
         font-weight: 500;
         color: #888;
     }
 
-    .dorm-card-btn {
-        margin-top: auto;
-        padding: 10px 0;
-        text-align: center;
-        background: var(--p);
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.9rem;
-        border-radius: 12px;
-        transition: opacity .2s;
+    .dorm-card-footer {
+        padding: 0 0.85rem 0.75rem;
     }
-    .dorm-card:hover .dorm-card-btn {
-        opacity: .88;
+    .dorm-card-btn {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--p);
+        transition: gap .2s;
+    }
+    .dorm-card-btn i {
+        font-size: 0.6rem;
+        transition: transform .2s;
+    }
+    .dorm-card:hover .dorm-card-btn i {
+        transform: translateX(3px);
     }
 
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 1200px) {
+        .dorm-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 992px) {
+        .dorm-grid { grid-template-columns: repeat(3, 1fr); }
+    }
     @media (max-width: 768px) {
-        .dorm-card-img { height: 160px; }
-        .dorm-card-body { padding: 1rem 1.25rem 1.25rem; }
+        .dorm-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .dorm-card-img { height: 110px; }
+        .dorm-hero-title { font-size: 1.6rem; }
+        .dorm-hero { padding: 1.5rem 1rem 1rem; }
+    }
+    @media (max-width: 480px) {
+        .dorm-grid { grid-template-columns: repeat(2, 1fr); }
     }
 </style>
 {% endblock %}
