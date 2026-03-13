@@ -4,13 +4,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
-from django.db.models import Sum, Count, Q
-
 from .models import Application
 from .forms import ApplicationForm, ApplicationReviewForm
 from buildings.models import Building, Floor, Room
 from students.models import Student
-from announcements.models import Announcement
 
 
 class StudentHomeView(LoginRequiredMixin, TemplateView):
@@ -20,54 +17,12 @@ class StudentHomeView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        # Umumiy statistika
-        buildings = Building.objects.filter(is_active=True)
-        total_buildings = buildings.count()
-        total_capacity = 0
-        total_available = 0
-        total_rooms = 0
-
-        buildings_data = []
-        for building in buildings.prefetch_related('floors__rooms'):
-            b_capacity = 0
-            b_available = 0
-            b_rooms = 0
-            for floor in building.floors.filter(is_active=True):
-                for room in floor.rooms.filter(is_active=True):
-                    b_rooms += 1
-                    b_capacity += room.capacity
-                    if room.status in ['available', 'partial']:
-                        b_available += room.available_beds
-            total_capacity += b_capacity
-            total_available += b_available
-            total_rooms += b_rooms
-            buildings_data.append({
-                'building': building,
-                'total_rooms': b_rooms,
-                'capacity': b_capacity,
-                'available_beds': b_available,
-                'occupancy_rate': round((b_capacity - b_available) / b_capacity * 100) if b_capacity > 0 else 0,
-            })
-
-        ctx['total_buildings'] = total_buildings
-        ctx['total_capacity'] = total_capacity
-        ctx['total_available'] = total_available
-        ctx['total_occupied'] = total_capacity - total_available
-        ctx['total_rooms'] = total_rooms
-        ctx['occupancy_rate'] = round((total_capacity - total_available) / total_capacity * 100) if total_capacity > 0 else 0
-        ctx['buildings_data'] = buildings_data
-
         # Foydalanuvchining ariza holati
         user = self.request.user
         ctx['my_applications_count'] = Application.objects.filter(user=user).count()
         ctx['pending_application'] = Application.objects.filter(
             user=user, status__in=['pending', 'payment_required', 'paid']
         ).first()
-
-        # So'nggi e'lonlar
-        ctx['announcements'] = Announcement.objects.filter(
-            is_active=True
-        ).order_by('-created_at')[:3]
 
         return ctx
 
