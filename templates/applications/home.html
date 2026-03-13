@@ -61,6 +61,46 @@
     </div>
 </div>
 
+<!-- ═══ STATISTIKA ═══ -->
+<div class="row g-4 mb-5">
+    <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="0">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(112,0,255,.1);color:#7000FF;">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-number" data-count="{{ total_buildings }}">0</div>
+            <div class="stat-label">Yotoqxonalar</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(16,185,129,.1);color:#10B981;">
+                <i class="fas fa-door-open"></i>
+            </div>
+            <div class="stat-number" data-count="{{ total_rooms }}">0</div>
+            <div class="stat-label">Xonalar</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(245,158,11,.1);color:#F59E0B;">
+                <i class="fas fa-bed"></i>
+            </div>
+            <div class="stat-number" data-count="{{ total_capacity }}">0</div>
+            <div class="stat-label">Joylar soni</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(59,130,246,.1);color:#3B82F6;">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stat-number" data-count="{{ total_students }}">0</div>
+            <div class="stat-label">Talabalar</div>
+        </div>
+    </div>
+</div>
+
 <!-- ═══ O'ZBEKISTONDAGI YOTOQXONALAR HAQIDA ═══ -->
 <div class="about-section mb-5" data-aos="fade-up">
     <h3 class="section-heading">
@@ -308,6 +348,24 @@
     }
     .carousel-dot.active { background: #fff; transform: scale(1.3); }
 
+    /* ═══ STAT CARDS ═══ */
+    .stat-card {
+        background: #fff; border: 1.5px solid var(--border); border-radius: 20px;
+        padding: 1.75rem 1.5rem; text-align: center;
+        transition: transform .25s, box-shadow .25s;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+    .stat-icon {
+        width: 52px; height: 52px; border-radius: 14px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; margin-bottom: 1rem;
+    }
+    .stat-number {
+        font-size: 2rem; font-weight: 900; color: #1a1a2e;
+        letter-spacing: -1px; line-height: 1; margin-bottom: 0.4rem;
+    }
+    .stat-label { font-size: 0.85rem; color: #888; font-weight: 600; }
+
     /* ═══ ABOUT SECTION ═══ */
     .section-heading {
         font-weight: 900; font-size: 1.4rem;
@@ -446,6 +504,26 @@
             if (diff > 0) nextSlide(); else prevSlide();
         }
     }, {passive: true});
+
+    // Animatsiyali raqam counter
+    document.querySelectorAll('.stat-number').forEach(function(el) {
+        var target = parseInt(el.dataset.count) || 0;
+        if (target === 0) return;
+        var duration = 1500;
+        var step = target / (duration / 16);
+        var val = 0;
+        var observer = new IntersectionObserver(function(entries) {
+            if (entries[0].isIntersecting) {
+                var timer = setInterval(function() {
+                    val += step;
+                    if (val >= target) { val = target; clearInterval(timer); }
+                    el.textContent = Math.round(val).toLocaleString();
+                }, 16);
+                observer.disconnect();
+            }
+        });
+        observer.observe(el);
+    });
 })();
 </script>
 {% endblock %}

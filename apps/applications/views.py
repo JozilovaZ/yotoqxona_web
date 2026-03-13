@@ -26,6 +26,15 @@ class StudentHomeView(TemplateView):
 
         ctx['carousel_images'] = CarouselImage.objects.filter(is_active=True)
 
+        # Statistika
+        from django.db.models import Sum
+        ctx['total_buildings'] = Building.objects.filter(is_active=True).count()
+        ctx['total_rooms'] = Room.objects.filter(floor__building__is_active=True, is_active=True).count()
+        ctx['total_capacity'] = Room.objects.filter(
+            floor__building__is_active=True, is_active=True
+        ).aggregate(total=Sum('capacity'))['total'] or 0
+        ctx['total_students'] = Student.objects.filter(is_active=True).count()
+
         return ctx
 
 
