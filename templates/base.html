@@ -8,9 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
-        /* ─── RANG PALITRASI ─── */
         :root {
             --p:       #7000FF;
             --p10:     rgba(112,0,255,.07);
@@ -21,7 +21,8 @@
             --gray:    #000;
             --border:  #D0D3D9;
             --bg:      #FFFFFF;
-            --nav-h:   62px;
+            --nav-h:   56px;
+            --nav-bg:  #AB5AF8;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,9 +34,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ═══════════════════════════════
-           TOPNAV — floating pill
-        ═══════════════════════════════ */
+        /* ═══ TOPNAV ═══ */
         .topnav-wrap {
             position: sticky; top: 0; z-index: 999;
             padding: 10px 16px 0;
@@ -44,107 +43,98 @@
             max-width: 1300px;
             margin: 0 auto;
             height: var(--nav-h);
-            background: #7000FF;
+            background: var(--nav-bg);
             border-radius: 100px;
-            display: flex; align-items: center;
-            padding: 0 10px 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
             gap: 0;
-            box-shadow: 0 4px 24px rgba(112,0,255,.3);
+            box-shadow: 0 2px 16px rgba(112,0,255,.2);
+            border: none;
+            flex-wrap: nowrap;
         }
 
         /* BRAND */
         .nav-brand {
-            display: flex; align-items: center; gap: 10px;
-            text-decoration: none; margin-right: 36px; flex-shrink: 0;
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none; margin-right: 20px; flex-shrink: 0;
+            padding-left: 12px;
         }
-
-        .brand-logo {
-            width: 34px; height: 34px; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .brand-logo svg { width: 34px; height: 34px; }
-
-        .brand-wordmark {
-            display: flex; align-items: center; gap: 0;
-            flex-direction: column; line-height: 1;
-        }
+        .brand-logo { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .brand-logo svg { width: 32px; height: 32px; }
         .brand-name {
-            font-size: 1.15rem; font-weight: 900;
+            font-size: 1.05rem; font-weight: 900;
             letter-spacing: -0.5px; color: #fff;
-        }
-        .brand-sub {
-            font-size: 0.55rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 1.5px;
-            color: rgba(255,255,255,.55);
-            margin-top: 1px;
+            line-height: 1;
         }
 
-        /* NAV LINKS — faqat matn, ikonkasiz */
+        /* NAV LINKS */
         .nav-links {
             display: flex; align-items: center; gap: 2px;
             list-style: none; flex: 1;
+            justify-content: center;
         }
         .nav-links li a {
-            display: block; padding: 7px 15px;
+            display: flex; align-items: center;
+            padding: 7px 14px;
             border-radius: 100px;
-            font-size: 0.85rem; font-weight: 600;
-            color: rgba(255,255,255,.55);
+            font-size: 0.82rem; font-weight: 600;
+            color: rgba(255,255,255,.75);
             text-decoration: none;
             transition: color .15s, background .15s;
             white-space: nowrap;
+            line-height: 1;
         }
         .nav-links li a:hover {
             color: #fff;
-            background: rgba(255,255,255,.18);
+            background: rgba(255,255,255,.15);
         }
         .nav-links li.active a {
-            color: var(--p);
-            background: #fff;
+            color: #fff;
+            background: rgba(255,255,255,.25);
             border-radius: 100px;
             font-weight: 700;
         }
 
         /* NAV RIGHT */
-        .nav-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+        .nav-right { display: flex; align-items: center; gap: 6px; margin-left: auto; padding-right: 4px; }
 
         .user-btn {
-            display: flex; align-items: center; gap: 8px;
-            padding: 5px 12px 5px 6px;
-            border: 1px solid rgba(255,255,255,.15);
+            display: flex; align-items: center; gap: 6px;
+            padding: 4px 10px 4px 4px;
+            border: 1.5px solid rgba(255,255,255,.3);
             border-radius: 50px;
             text-decoration: none; cursor: pointer;
-            transition: border-color .15s;
+            transition: border-color .15s, background .15s;
         }
-        .user-btn:hover { border-color: rgba(255,255,255,.4); }
-
+        .user-btn:hover { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.1); }
         .u-avatar {
             width: 26px; height: 26px; border-radius: 50%;
-            background: var(--p);
+            background: #fff;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem; font-weight: 800; color: #fff; flex-shrink: 0;
+            font-size: 0.7rem; font-weight: 800; color: var(--p); flex-shrink: 0;
         }
-        .u-name {
-            font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,.8);
-        }
-        .u-arrow { color: rgba(255,255,255,.35); font-size: 0.6rem; }
+        .u-name { font-size: 0.8rem; font-weight: 600; color: #fff; }
+        .u-arrow { color: rgba(255,255,255,.5); font-size: 0.55rem; }
 
-        /* AUTH BUTTONS (for guests) */
+        /* AUTH BUTTONS */
         .nav-auth-btn {
-            padding: 6px 16px;
+            padding: 6px 14px;
             border-radius: 100px;
-            font-size: 0.82rem; font-weight: 600;
-            color: rgba(255,255,255,.7);
+            font-size: 0.8rem; font-weight: 600;
+            color: #fff;
             text-decoration: none;
-            transition: color .15s, background .15s;
+            transition: background .15s;
         }
-        .nav-auth-btn:hover { color: #fff; }
+        .nav-auth-btn:hover { background: rgba(255,255,255,.15); color: #fff; }
         .nav-auth-primary {
             background: #fff;
             color: var(--p) !important;
-            padding: 6px 18px;
+            padding: 6px 16px;
             font-weight: 700;
         }
-        .nav-auth-primary:hover { opacity: .92; }
+        .nav-auth-primary:hover { opacity: .9; background: #fff; }
 
         /* DROPDOWN */
         .dropdown-menu {
@@ -165,12 +155,9 @@
         .dropdown-item.text-danger:hover { background: var(--err10); color: var(--err); }
         .dropdown-divider { border-color: var(--border); margin: 4px 0; }
 
-        /* ═══════════════════════════════
-           MAIN WRAPPER
-        ═══════════════════════════════ */
+        /* ═══ MAIN ═══ */
         .main-wrap { padding: 28px 32px 48px; }
 
-        /* PAGE HEADER */
         .page-header {
             display: flex; align-items: flex-start;
             justify-content: space-between; gap: 16px;
@@ -185,18 +172,13 @@
             margin: 4px 0 0; font-weight: 400;
         }
 
-        /* ═══════════════════════════════
-           COMPONENT STYLES
-        ═══════════════════════════════ */
-
-        /* Buttons */
+        /* ═══ COMPONENTS ═══ */
         .btn-primary {
             background: var(--p) !important; border-color: var(--p) !important;
             color: #fff !important; font-weight: 700; border-radius: 10px;
             transition: opacity .15s;
         }
         .btn-primary:hover { opacity: .88; }
-
         .btn-accent {
             background: var(--p); border: none; color: #fff;
             font-weight: 700; border-radius: 10px;
@@ -204,7 +186,6 @@
             transition: opacity .15s; text-decoration: none; display: inline-block;
         }
         .btn-accent:hover { opacity: .88; color: #fff; }
-
         .btn-dark {
             background: var(--dark) !important; border-color: var(--dark) !important;
             border-radius: 10px; font-weight: 700;
@@ -215,7 +196,6 @@
         }
         .btn-outline-primary:hover { background: var(--p) !important; color: #fff !important; }
 
-        /* Form controls */
         .form-control, .form-select {
             border: 1.5px solid var(--border); border-radius: 10px;
             padding: 9px 14px; font-size: 0.875rem;
@@ -228,10 +208,8 @@
             outline: none;
         }
 
-        /* Cards */
         .card { border: 1.5px solid var(--border); border-radius: 16px; background: #fff; }
 
-        /* Tables */
         .tbl { width: 100%; border-collapse: collapse; }
         .tbl thead th {
             padding: 11px 18px; font-size: 0.7rem; font-weight: 700;
@@ -246,7 +224,6 @@
         .tbl tbody tr:last-child td { border-bottom: none; }
         .tbl tbody tr:hover td { background: #FFFFFF; }
 
-        /* Alerts */
         .alert-stack { position: fixed; bottom: 20px; right: 20px; z-index: 9999; min-width: 280px; }
         .alert { border: none; border-radius: 12px; font-size: .875rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
         .alert-success { background: #7000FF; color: #fff; }
@@ -256,19 +233,13 @@
         .btn-close { filter: invert(1); }
         .alert-info .btn-close { filter: none; }
 
-        /* ═══════════════════════════════
-           FOOTER
-        ═══════════════════════════════ */
+        /* ═══ FOOTER ═══ */
         .site-footer {
             background: #0a0a0a;
             color: rgba(255,255,255,.6);
             margin-top: 60px;
         }
-        .footer-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 48px 32px 0;
-        }
+        .footer-inner { max-width: 1200px; margin: 0 auto; padding: 48px 32px 0; }
         .footer-top {
             display: grid;
             grid-template-columns: 1.5fr 1fr 1fr 1fr;
@@ -276,72 +247,40 @@
             padding-bottom: 36px;
             border-bottom: 1px solid rgba(255,255,255,.08);
         }
-        .footer-desc {
-            font-size: .84rem;
-            line-height: 1.7;
-            color: rgba(255,255,255,.4);
-            max-width: 280px;
-        }
-        .footer-heading {
-            font-size: .72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: rgba(255,255,255,.3);
-            margin-bottom: 16px;
-        }
-        .footer-links-group a {
-            display: block;
-            font-size: .85rem;
-            color: rgba(255,255,255,.55);
-            text-decoration: none;
-            padding: 5px 0;
-            transition: color .15s;
-        }
+        .footer-desc { font-size: .84rem; line-height: 1.7; color: rgba(255,255,255,.4); max-width: 280px; }
+        .footer-heading { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,.3); margin-bottom: 16px; }
+        .footer-links-group a { display: block; font-size: .85rem; color: rgba(255,255,255,.55); text-decoration: none; padding: 5px 0; transition: color .15s; }
         .footer-links-group a:hover { color: #fff; }
-        .footer-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            font-size: .78rem;
-            color: rgba(255,255,255,.3);
-        }
+        .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; font-size: .78rem; color: rgba(255,255,255,.3); }
 
         @media (max-width: 768px) {
-            .footer-top {
-                grid-template-columns: 1fr 1fr;
-                gap: 28px;
-            }
+            .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
             .footer-brand { grid-column: 1 / -1; }
-            .footer-bottom {
-                flex-direction: column;
-                gap: 6px;
-                text-align: center;
-            }
+            .footer-bottom { flex-direction: column; gap: 6px; text-align: center; }
         }
         @media (max-width: 480px) {
             .footer-top { grid-template-columns: 1fr; }
             .footer-inner { padding: 32px 16px 0; }
         }
 
-        /* Mobile */
-        .mob-toggle { display: none; background: none; border: none; color: rgba(255,255,255,.7); font-size: 1.1rem; cursor: pointer; }
+        /* ═══ MOBILE NAV ═══ */
+        .mob-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; }
 
         @media (max-width: 1024px) {
             .topnav-wrap { padding: 8px 10px 0; }
-            .topnav { border-radius: 20px; padding: 0 8px 0 16px; }
+            .topnav { border-radius: 18px; padding: 0 8px; }
             .nav-links { display: none; }
             .nav-links.open {
                 display: flex; flex-direction: column; gap: 4px;
-                position: fixed; top: 78px; left: 10px; right: 10px;
-                background: #7000FF;
+                position: fixed; top: 72px; left: 10px; right: 10px;
+                background: var(--nav-bg);
                 padding: 16px 20px;
-                border-radius: 20px;
-                box-shadow: 0 8px 32px rgba(112,0,255,.4);
+                border-radius: 18px;
+                border: 1px solid rgba(112,0,255,.1);
+                box-shadow: 0 8px 32px rgba(112,0,255,.15);
                 z-index: 998;
             }
-            .mob-toggle { display: block; margin-right: 12px; }
+            .mob-toggle { display: block; margin-right: 6px; }
             .main-wrap { padding: 20px 16px 40px; }
         }
     </style>
@@ -356,19 +295,15 @@
     <a class="nav-brand" href="{% url 'dashboard' %}">
         <div class="brand-logo">
             <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="34" height="34" rx="9" fill="rgba(255,255,255,.2)"/>
+                <rect width="34" height="34" rx="9" fill="#7000FF"/>
                 <path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </div>
-        <div class="brand-wordmark">
-            <span class="brand-name">Makon</span>
-            <span class="brand-sub">Yotoqxona tizimi</span>
-        </div>
+        <span class="brand-name">Makon</span>
     </a>
 
     <ul class="nav-links" id="navLinks">
         {% if user.is_authenticated and user.is_staff_member %}
-        <!-- ADMIN / XODIM MENYU -->
         <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
             <a href="{% url 'dashboard' %}">Bosh sahifa</a>
         </li>
@@ -400,12 +335,14 @@
         {% endif %}
 
         {% elif user.is_authenticated %}
-        <!-- TALABA / ARIZA BERUVCHI MENYU -->
         <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <a href="{% url 'applications:home' %}">Bosh sahifa</a>
         </li>
         <li class="{% if 'rooms' in request.path %}active{% endif %}">
             <a href="{% url 'applications:available_rooms' %}">Yotoqxonalar</a>
+        </li>
+        <li class="{% if request.resolver_match.url_name == 'apply' %}active{% endif %}">
+            <a href="{% url 'applications:apply' %}">Ariza topshirish</a>
         </li>
         <li class="{% if request.resolver_match.url_name == 'my_applications' or request.resolver_match.url_name == 'detail' %}active{% endif %}">
             <a href="{% url 'applications:my_applications' %}">Arizalarim</a>
@@ -415,12 +352,14 @@
         </li>
 
         {% else %}
-        <!-- MEHMON MENYU -->
         <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <a href="{% url 'applications:home' %}">Bosh sahifa</a>
         </li>
         <li class="{% if 'rooms' in request.path %}active{% endif %}">
             <a href="{% url 'applications:available_rooms' %}">Yotoqxonalar</a>
+        </li>
+        <li>
+            <a href="{% url 'accounts:register' %}">Ariza topshirish</a>
         </li>
         {% endif %}
     </ul>
@@ -459,25 +398,19 @@
     {% block content %}{% endblock %}
 </div>
 
-<!-- FOOTER -->
 {% block footer %}
 <footer class="site-footer">
     <div class="footer-inner">
         <div class="footer-top">
             <div class="footer-brand">
-                <div class="d-flex align-items-center gap-10 mb-3" style="gap:10px;">
-                    <svg width="32" height="32" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="34" height="34" rx="9" fill="#7000FF"/>
-                        <path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                <div class="d-flex align-items-center mb-3" style="gap:10px;">
+                    <svg width="32" height="32" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#7000FF"/><path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <div>
                         <div style="font-size:1.1rem;font-weight:900;color:#fff;">Makon</div>
                         <div style="font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.4);">Yotoqxona tizimi</div>
                     </div>
                 </div>
-                <p class="footer-desc">
-                    Talabalar yotoqxonasini boshqarish tizimi. Qulay va zamonaviy yashash joyingizni tanlang.
-                </p>
+                <p class="footer-desc">Talabalar yotoqxonasini boshqarish tizimi. Qulay va zamonaviy yashash joyingizni tanlang.</p>
             </div>
             <div class="footer-links-group">
                 <h6 class="footer-heading">Sahifalar</h6>
@@ -520,6 +453,8 @@
 {% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>AOS.init({duration: 700, once: true, offset: 80});</script>
 <script>
     const mobBtn = document.getElementById('mobBtn');
     const navLinks = document.getElementById('navLinks');

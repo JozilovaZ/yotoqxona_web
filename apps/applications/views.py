@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
-from .models import Application
+from .models import Application, CarouselImage
 from .forms import ApplicationForm, ApplicationReviewForm
 from buildings.models import Building, Floor, Room
 from students.models import Student
@@ -23,6 +23,8 @@ class StudentHomeView(TemplateView):
             ctx['pending_application'] = Application.objects.filter(
                 user=user, status__in=['pending', 'payment_required', 'paid']
             ).first()
+
+        ctx['carousel_images'] = CarouselImage.objects.filter(is_active=True)
 
         return ctx
 

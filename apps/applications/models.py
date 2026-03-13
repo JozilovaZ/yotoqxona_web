@@ -3,6 +3,23 @@ from django.conf import settings
 from django.utils import timezone
 
 
+class CarouselImage(models.Model):
+    """Bosh sahifa carousel rasmlari"""
+    title = models.CharField(max_length=200, blank=True, verbose_name="Sarlavha")
+    image = models.ImageField(upload_to='carousel/', verbose_name="Rasm")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Carousel rasm"
+        verbose_name_plural = "Carousel rasmlar"
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.title or f"Rasm #{self.pk}"
+
+
 class Application(models.Model):
     """Yotoqxonaga joylashish uchun ariza"""
 
