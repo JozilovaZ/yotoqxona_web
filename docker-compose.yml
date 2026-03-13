@@ -15,25 +15,6 @@ services:
       - default
       - shared_net
 
-  nginx:
-    image: nginx:alpine
-    container_name: yotoqxona_nginx
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - static_files:/app/staticfiles
-      - media_files:/app/media
-      - certbot_www:/var/www/certbot
-      - certbot_conf:/etc/letsencrypt
-    depends_on:
-      - web
-    networks:
-      - default
-      - shared_net
-
   bot:
     build: .
     container_name: yotoqxona_bot
@@ -50,21 +31,10 @@ services:
     networks:
       - default
 
-  certbot:
-    image: certbot/certbot
-    container_name: yotoqxona_certbot
-    volumes:
-      - certbot_www:/var/www/certbot
-      - certbot_conf:/etc/letsencrypt
-    networks:
-      - default
-
 volumes:
   static_files:
   media_files:
   sqlite_data:
-  certbot_www:
-  certbot_conf:
 
 networks:
   shared_net:
