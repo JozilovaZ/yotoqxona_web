@@ -15,7 +15,7 @@
 
 <div class="row g-4">
     {% for bd in buildings_data %}
-    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:0 }}00">
+    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
         <a href="{% url 'applications:building_detail' bd.building.pk %}" class="text-decoration-none">
             <div class="dorm-card">
                 <div class="dorm-card-img">
@@ -26,23 +26,16 @@
                         <i class="fas fa-building"></i>
                     </div>
                     {% endif %}
-                    {% if bd.available_beds > 0 %}
-                    <span class="dorm-badge dorm-badge-available">{{ bd.available_beds }} bo'sh joy</span>
-                    {% else %}
-                    <span class="dorm-badge dorm-badge-full">Band</span>
-                    {% endif %}
                 </div>
                 <div class="dorm-card-body">
                     <h5 class="dorm-card-title">{{ bd.building.name }}</h5>
 
+                    {% if bd.building.city %}
                     <div class="dorm-card-location">
-                        {% if bd.building.city %}
-                        <span><i class="fas fa-city me-1"></i>{{ bd.building.city }}</span>
-                        {% endif %}
-                        {% if bd.building.street %}
-                        <span><i class="fas fa-road me-1"></i>{{ bd.building.street }}</span>
-                        {% endif %}
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ bd.building.city }}</span>
                     </div>
+                    {% endif %}
 
                     {% if bd.min_price > 0 %}
                     <div class="dorm-card-price">
@@ -50,22 +43,8 @@
                     </div>
                     {% endif %}
 
-                    <div class="dorm-card-stats">
-                        <div class="dorm-stat">
-                            <i class="fas fa-door-open"></i>
-                            <span>{{ bd.total_rooms }} xona</span>
-                        </div>
-                        <div class="dorm-stat">
-                            <i class="fas fa-bed"></i>
-                            <span>{{ bd.total_capacity }} joy</span>
-                        </div>
-                    </div>
-
-                    <div class="dorm-card-footer">
-                        <div class="dorm-progress">
-                            <div class="dorm-progress-bar" style="width:{{ bd.occupancy_rate }}%;background:{% if bd.occupancy_rate < 50 %}#10B981{% elif bd.occupancy_rate < 80 %}var(--p){% else %}#EF4444{% endif %};"></div>
-                        </div>
-                        <small class="text-muted">{{ bd.occupancy_rate }}% band</small>
+                    <div class="dorm-card-btn">
+                        <i class="fas fa-arrow-right me-2"></i> Batafsil
                     </div>
                 </div>
             </div>
@@ -118,25 +97,6 @@
         color: var(--p);
     }
 
-    .dorm-badge {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        padding: 5px 12px;
-        border-radius: 100px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        backdrop-filter: blur(8px);
-    }
-    .dorm-badge-available {
-        background: rgba(16,185,129,.9);
-        color: #fff;
-    }
-    .dorm-badge-full {
-        background: rgba(239,68,68,.9);
-        color: #fff;
-    }
-
     .dorm-card-body {
         padding: 1.25rem 1.5rem 1.5rem;
         flex: 1;
@@ -154,26 +114,25 @@
 
     .dorm-card-location {
         display: flex;
-        flex-direction: column;
-        gap: 4px;
-        margin-bottom: 0.75rem;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.6rem;
     }
     .dorm-card-location span {
-        font-size: 0.82rem;
+        font-size: 0.85rem;
         color: #888;
         font-weight: 500;
     }
     .dorm-card-location i {
         color: var(--p);
-        width: 16px;
-        text-align: center;
+        font-size: 0.8rem;
     }
 
     .dorm-card-price {
         font-size: 1.2rem;
         font-weight: 900;
         color: var(--p);
-        margin-bottom: 0.75rem;
+        margin-bottom: 1rem;
         letter-spacing: -0.5px;
     }
     .dorm-card-price span {
@@ -182,41 +141,19 @@
         color: #888;
     }
 
-    .dorm-card-stats {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 1rem;
+    .dorm-card-btn {
         margin-top: auto;
+        padding: 10px 0;
+        text-align: center;
+        background: var(--p);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border-radius: 12px;
+        transition: opacity .2s;
     }
-    .dorm-stat {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.82rem;
-        color: #666;
-        font-weight: 600;
-    }
-    .dorm-stat i {
-        color: var(--p);
-        font-size: 0.8rem;
-    }
-
-    .dorm-card-footer {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .dorm-progress {
-        flex: 1;
-        height: 6px;
-        background: #eee;
-        border-radius: 3px;
-        overflow: hidden;
-    }
-    .dorm-progress-bar {
-        height: 100%;
-        border-radius: 3px;
-        transition: width .5s;
+    .dorm-card:hover .dorm-card-btn {
+        opacity: .88;
     }
 
     @media (max-width: 768px) {
