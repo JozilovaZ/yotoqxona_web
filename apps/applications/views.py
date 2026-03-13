@@ -12,7 +12,7 @@ from students.models import Student
 
 
 class AvailableRoomsView(LoginRequiredMixin, ListView):
-    """Talabalar uchun bo'sh xonalar ro'yxati"""
+    """Talabalar uchun yotoqxonalar ro'yxati"""
     template_name = 'applications/available_rooms.html'
     context_object_name = 'buildings'
 
@@ -23,26 +23,49 @@ class AvailableRoomsView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        # Har bir bino uchun bo'sh xonalar
         buildings_data = []
         for building in self.get_queryset():
-            floors_data = []
-            for floor in building.floors.filter(is_active=True).order_by('number'):
-                rooms = floor.rooms.filter(
-                    is_active=True,
-                    status__in=['available', 'partial']
-                ).order_by('number')
-                if rooms.exists():
-                    floors_data.append({
-                        'floor': floor,
-                        'rooms': rooms,
-                    })
-            if floors_data:
-                buildings_data.append({
-                    'building': building,
-                    'floors': floors_data,
-                })
+            total_capacity = 0
+            available_beds = 0
+            total_rooms = 0
+            for floor in building.floors.filter(is_active=True):
+                for room in floor.rooms.filter(is_active=True):
+                    total_rooms += 1
+                    total_capacity += room.capacity
+                    if room.status in ['available', 'partial']:
+                        available_beds += room.available_beds
+            buildings_data.append({
+                'building': building,
+                'total_rooms': total_rooms,
+                'total_capacity': total_capacity,
+                'available_beds': available_beds,
+                'occupancy_rate': round((total_capacity - available_beds) / total_capacity * 100) if total_capacity > 0 else 0,
+            })
         ctx['buildings_data'] = buildings_data
+        return ctx
+
+
+class BuildingDetailForApplicantView(LoginRequiredMixin, DetailView):
+    """Talaba uchun yotoqxona tafsilotlari va bo'sh xonalar"""
+    model = Building
+    template_name = 'applications/building_detail.html'
+    context_object_name = 'building'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        building = self.object
+        floors_data = []
+        for floor in building.floors.filter(is_active=True).order_by('number'):
+            rooms = floor.rooms.filter(
+                is_active=True,
+                status__in=['available', 'partial']
+            ).order_by('number')
+            if rooms.exists():
+                floors_data.append({
+                    'floor': floor,
+                    'rooms': rooms,
+                })
+        ctx['floors_data'] = floors_data
         return ctx
 
 

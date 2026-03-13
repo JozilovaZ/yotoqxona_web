@@ -6,6 +6,7 @@ app_name = 'applications'
 urlpatterns = [
     # Talaba sahifalari
     path('rooms/', views.AvailableRoomsView.as_view(), name='available_rooms'),
+    path('rooms/<int:pk>/', views.BuildingDetailForApplicantView.as_view(), name='building_detail'),
     path('apply/', views.ApplicationCreateView.as_view(), name='apply'),
     path('my/', views.MyApplicationsView.as_view(), name='my_applications'),
     path('<int:pk>/', views.ApplicationDetailView.as_view(), name='detail'),
