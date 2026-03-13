@@ -21,7 +21,7 @@
 
 <div class="dorm-grid">
     {% for bd in buildings_data %}
-    <div class="dorm-grid-item" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
+    <div data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
         <a href="{% url 'applications:building_detail' bd.building.pk %}" class="text-decoration-none">
             <div class="dorm-card">
                 <div class="dorm-card-img">
@@ -50,7 +50,9 @@
                     {% endif %}
                 </div>
                 <div class="dorm-card-footer">
-                    <span class="dorm-card-btn">Batafsil <i class="fas fa-arrow-right ms-1"></i></span>
+                    <button class="dorm-card-btn">
+                        <i class="fas fa-eye me-1"></i> Batafsil
+                    </button>
                 </div>
             </div>
         </a>
@@ -88,30 +90,32 @@
     .dorm-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        gap: 16px;
+        gap: 12px;
     }
 
-    /* ═══ CARD ═══ */
+    /* ═══ CARD (uzum style) ═══ */
     .dorm-card {
         background: #fff;
-        border: 1.5px solid var(--border);
-        border-radius: 14px;
+        border: 1px solid #e8e8e8;
+        border-radius: 16px;
         overflow: hidden;
-        transition: transform .25s, box-shadow .25s;
+        transition: transform .2s, box-shadow .2s;
         height: 100%;
         display: flex;
         flex-direction: column;
+        cursor: pointer;
     }
     .dorm-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 25px rgba(112,0,255,.12);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,.1);
     }
 
+    /* Rasm — balandroq */
     .dorm-card-img {
         position: relative;
-        height: 130px;
+        aspect-ratio: 3 / 4;
         overflow: hidden;
-        background: #f3f4f6;
+        background: #f5f5f5;
     }
     .dorm-card-img img {
         width: 100%;
@@ -120,7 +124,7 @@
         transition: transform .3s;
     }
     .dorm-card:hover .dorm-card-img img {
-        transform: scale(1.05);
+        transform: scale(1.04);
     }
     .dorm-card-placeholder {
         width: 100%;
@@ -129,72 +133,81 @@
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg, #f0e6ff 0%, #e0d0ff 100%);
-        font-size: 2rem;
+        font-size: 2.5rem;
         color: var(--p);
     }
 
+    /* Body */
     .dorm-card-body {
-        padding: 0.75rem 0.85rem;
+        padding: 10px 12px 6px;
         flex: 1;
         display: flex;
         flex-direction: column;
+        gap: 4px;
     }
 
     .dorm-card-title {
-        font-weight: 800;
-        font-size: 0.85rem;
-        color: #1a1a2e;
-        margin-bottom: 0.3rem;
-        letter-spacing: -0.2px;
-        line-height: 1.3;
+        font-weight: 700;
+        font-size: 0.82rem;
+        color: #222;
+        margin: 0;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .dorm-card-location {
         display: flex;
         align-items: center;
         gap: 4px;
-        margin-bottom: 0.3rem;
     }
     .dorm-card-location span {
         font-size: 0.72rem;
-        color: #888;
-        font-weight: 500;
+        color: #999;
+        font-weight: 400;
     }
     .dorm-card-location i {
         color: var(--p);
-        font-size: 0.65rem;
+        font-size: 0.6rem;
     }
 
     .dorm-card-price {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 900;
-        color: var(--p);
+        color: #222;
         letter-spacing: -0.3px;
         margin-top: auto;
+        padding-top: 2px;
     }
     .dorm-card-price span {
-        font-size: 0.65rem;
-        font-weight: 500;
-        color: #888;
+        font-size: 0.68rem;
+        font-weight: 400;
+        color: #999;
     }
 
+    /* Footer — tugma uzum uslubida */
     .dorm-card-footer {
-        padding: 0 0.85rem 0.75rem;
+        padding: 6px 12px 12px;
     }
     .dorm-card-btn {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        font-size: 0.7rem;
+        justify-content: center;
+        width: 100%;
+        padding: 8px 0;
+        border: none;
+        border-radius: 10px;
+        background: var(--p);
+        color: #fff;
+        font-size: 0.78rem;
         font-weight: 700;
-        color: var(--p);
-        transition: gap .2s;
+        cursor: pointer;
+        transition: background .2s, opacity .2s;
     }
-    .dorm-card-btn i {
-        font-size: 0.6rem;
-        transition: transform .2s;
-    }
-    .dorm-card:hover .dorm-card-btn i {
-        transform: translateX(3px);
+    .dorm-card-btn:hover {
+        opacity: .85;
     }
 
     /* ═══ RESPONSIVE ═══ */
@@ -205,13 +218,9 @@
         .dorm-grid { grid-template-columns: repeat(3, 1fr); }
     }
     @media (max-width: 768px) {
-        .dorm-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .dorm-card-img { height: 110px; }
+        .dorm-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .dorm-hero-title { font-size: 1.6rem; }
-        .dorm-hero { padding: 1.5rem 1rem 1rem; }
-    }
-    @media (max-width: 480px) {
-        .dorm-grid { grid-template-columns: repeat(2, 1fr); }
+        .dorm-hero { padding: 1.5rem 1rem 1rem; margin-bottom: 1.25rem; }
     }
 </style>
 {% endblock %}
