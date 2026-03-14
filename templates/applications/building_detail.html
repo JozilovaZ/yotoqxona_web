@@ -23,9 +23,29 @@
             </div>
         </div>
 
+        <!-- Tab navigatsiya -->
+        <div class="sb-tabs">
+            <button class="sb-tab active" onclick="showSbTab('etajlar', this)">
+                <i class="fas fa-layer-group"></i> Etajlar
+            </button>
+            <button class="sb-tab" onclick="showSbTab('lokatsiya', this)">
+                <i class="fas fa-map-marker-alt"></i> Lokatsiya
+            </button>
+            <button class="sb-tab" onclick="showSbTab('jihozlar', this)">
+                <i class="fas fa-couch"></i> Jihozlar
+            </button>
+            <button class="sb-tab" onclick="showSbTab('narx', this)">
+                <i class="fas fa-tag"></i> Narx
+            </button>
+            <button class="sb-tab" onclick="showSbTab('aloqa', this)">
+                <i class="fas fa-phone"></i> Aloqa
+            </button>
+        </div>
+
+        <!-- Tab kontentlari -->
+
         <!-- Etajlar -->
-        <div class="sb-section">
-            <div class="sb-section-title"><i class="fas fa-layer-group me-2"></i>Etajlar</div>
+        <div class="sb-panel" id="sb-etajlar">
             <div class="sb-nav">
                 {% for fd in floors_data %}
                 <button class="sb-nav-item {% if forloop.first %}active{% endif %}" onclick="showFloor({{ fd.floor.number }}, this)">
@@ -38,8 +58,7 @@
         </div>
 
         <!-- Lokatsiya -->
-        <div class="sb-section">
-            <div class="sb-section-title"><i class="fas fa-map-marker-alt me-2"></i>Lokatsiya</div>
+        <div class="sb-panel" id="sb-lokatsiya" style="display:none;">
             <div class="sb-info-list">
                 {% if building.city %}
                 <div class="sb-info-row">
@@ -62,31 +81,48 @@
             </div>
         </div>
 
-        <!-- Anjomlar / Rasmlar -->
-        <div class="sb-section">
-            <div class="sb-section-title"><i class="fas fa-image me-2"></i>Rasmlar va anjomlar</div>
-            <div class="sb-gallery">
-                {% if building.image %}
-                <div class="sb-gallery-item">
-                    <img src="{{ building.image.url }}" alt="{{ building.name }}">
+        <!-- Jihozlar -->
+        <div class="sb-panel" id="sb-jihozlar" style="display:none;">
+            {% if building.image %}
+            <div class="sb-gallery-item">
+                <img src="{{ building.image.url }}" alt="{{ building.name }}">
+            </div>
+            {% endif %}
+            <div class="sb-amenities">
+                <div class="sb-amenity"><i class="fas fa-wifi"></i><span>Wi-Fi</span></div>
+                <div class="sb-amenity"><i class="fas fa-shower"></i><span>Issiq suv</span></div>
+                <div class="sb-amenity"><i class="fas fa-utensils"></i><span>Oshxona</span></div>
+                <div class="sb-amenity"><i class="fas fa-tshirt"></i><span>Kir yuvish</span></div>
+                <div class="sb-amenity"><i class="fas fa-shield-alt"></i><span>Qo'riqlash</span></div>
+                <div class="sb-amenity"><i class="fas fa-video"></i><span>Kamera</span></div>
+                <div class="sb-amenity"><i class="fas fa-book"></i><span>Kutubxona</span></div>
+                <div class="sb-amenity"><i class="fas fa-parking"></i><span>Parking</span></div>
+            </div>
+        </div>
+
+        <!-- Narx -->
+        <div class="sb-panel" id="sb-narx" style="display:none;">
+            <div class="sb-prices">
+                {% if building.monthly_price > 0 %}
+                <div class="sb-price">
+                    <span class="sb-price-label">Oylik to'lov</span>
+                    <span class="sb-price-val">{{ building.monthly_price|floatformat:0 }} so'm</span>
                 </div>
                 {% endif %}
-                <div class="sb-amenities">
-                    <div class="sb-amenity"><i class="fas fa-wifi"></i><span>Wi-Fi</span></div>
-                    <div class="sb-amenity"><i class="fas fa-shower"></i><span>Issiq suv</span></div>
-                    <div class="sb-amenity"><i class="fas fa-utensils"></i><span>Oshxona</span></div>
-                    <div class="sb-amenity"><i class="fas fa-tshirt"></i><span>Kir yuvish</span></div>
-                    <div class="sb-amenity"><i class="fas fa-shield-alt"></i><span>Qo'riqlash</span></div>
-                    <div class="sb-amenity"><i class="fas fa-video"></i><span>Kamera</span></div>
-                    <div class="sb-amenity"><i class="fas fa-book"></i><span>Kutubxona</span></div>
-                    <div class="sb-amenity"><i class="fas fa-parking"></i><span>Parking</span></div>
+                {% if building.daily_price > 0 %}
+                <div class="sb-price">
+                    <span class="sb-price-label">Kunlik to'lov</span>
+                    <span class="sb-price-val">{{ building.daily_price|floatformat:0 }} so'm</span>
                 </div>
+                {% endif %}
+                {% if building.monthly_price == 0 and building.daily_price == 0 %}
+                <div class="sb-empty-msg">Narx belgilanmagan</div>
+                {% endif %}
             </div>
         </div>
 
         <!-- Aloqa -->
-        <div class="sb-section">
-            <div class="sb-section-title"><i class="fas fa-phone me-2"></i>Aloqa</div>
+        <div class="sb-panel" id="sb-aloqa" style="display:none;">
             <div class="sb-info-list">
                 <a href="tel:+998901234567" class="sb-info-row sb-link">
                     <i class="fas fa-phone"></i>
@@ -102,27 +138,6 @@
                 </a>
             </div>
         </div>
-
-        <!-- Narxlar -->
-        {% if building.monthly_price > 0 or building.daily_price > 0 %}
-        <div class="sb-section">
-            <div class="sb-section-title"><i class="fas fa-tag me-2"></i>Narxlar</div>
-            <div class="sb-prices">
-                {% if building.monthly_price > 0 %}
-                <div class="sb-price">
-                    <span class="sb-price-label">Oylik</span>
-                    <span class="sb-price-val">{{ building.monthly_price|floatformat:0 }} so'm</span>
-                </div>
-                {% endif %}
-                {% if building.daily_price > 0 %}
-                <div class="sb-price">
-                    <span class="sb-price-label">Kunlik</span>
-                    <span class="sb-price-val">{{ building.daily_price|floatformat:0 }} so'm</span>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
     </aside>
 
     <!-- ═══ MAIN CONTENT ═══ -->
@@ -271,20 +286,53 @@
         margin-top: 1px;
     }
 
-    .sb-section {
-        padding: 14px 16px;
-        border-top: 1px solid #F2F2F2;
+    /* Sidebar tabs */
+    .sb-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        border-bottom: 1.5px solid #D0D3D9;
     }
-    .sb-section-title {
-        font-size: 0.7rem;
+    .sb-tab {
+        flex: 1;
+        padding: 10px 4px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.62rem;
         font-weight: 700;
         color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 10px;
+        text-align: center;
+        transition: all .15s;
+        border-bottom: 2px solid transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
     }
-    .sb-section-title i {
+    .sb-tab i {
+        font-size: 0.82rem;
+        color: #D0D3D9;
+        transition: color .15s;
+    }
+    .sb-tab:hover {
         color: #0C2F75;
+        background: rgba(12,47,117,.03);
+    }
+    .sb-tab:hover i { color: #0C2F75; }
+    .sb-tab.active {
+        color: #0C2F75;
+        border-bottom-color: #0C2F75;
+    }
+    .sb-tab.active i { color: #0C2F75; }
+
+    .sb-panel {
+        padding: 14px 16px;
+    }
+    .sb-empty-msg {
+        font-size: 0.8rem;
+        color: #6b7280;
+        text-align: center;
+        padding: 12px;
     }
 
     /* Sidebar nav */
@@ -599,10 +647,7 @@
         .bd-sidebar {
             width: 100%;
             position: static;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
         }
-        .sb-header { grid-column: 1 / -1; }
         .bd-floor-tabs-mobile { display: flex; }
         .bd-hero-img { height: 240px; }
     }
@@ -618,15 +663,24 @@
 
 {% block extra_js %}
 <script>
+function showSbTab(name, btn) {
+    document.querySelectorAll('.sb-panel').forEach(function(el) {
+        el.style.display = 'none';
+    });
+    document.querySelectorAll('.sb-tab').forEach(function(el) {
+        el.classList.remove('active');
+    });
+    document.getElementById('sb-' + name).style.display = 'block';
+    btn.classList.add('active');
+}
+
 function showFloor(num, btn) {
     document.querySelectorAll('.bd-floor-content').forEach(function(el) {
         el.style.display = 'none';
     });
-    // Update sidebar nav
     document.querySelectorAll('.sb-nav-item').forEach(function(el) {
         el.classList.remove('active');
     });
-    // Update mobile tabs
     document.querySelectorAll('.bd-floor-tab').forEach(function(el) {
         el.classList.remove('active');
     });
