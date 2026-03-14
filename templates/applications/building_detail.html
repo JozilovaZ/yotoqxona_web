@@ -998,27 +998,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Xarita
 var bdMap = null;
+var hasCoords = {% if building.latitude and building.longitude %}true{% else %}false{% endif %};
 var mapLat = {{ building.latitude|default:"41.2995" }};
 var mapLng = {{ building.longitude|default:"69.2401" }};
-var mapZoom = {% if building.latitude and building.longitude %}16{% else %}12{% endif %};
+var buildingName = '{{ building.name|escapejs }}';
+var buildingCity = '{{ building.city|default:""|escapejs }}';
+var buildingStreet = '{{ building.street|default:""|escapejs }}';
+var buildingAddress = '{{ building.address|default:""|escapejs }}';
+
+function showMapAt(lat, lng, zoom) {
+    bdMap = L.map('bd-map').setView([lat, lng], zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(bdMap);
+
+    var popupText = '<strong>' + buildingName + '</strong>';
+    if (buildingStreet) popupText += '<br>' + buildingStreet;
+    if (buildingCity) popupText += '<br>' + buildingCity;
+
+    L.marker([lat, lng])
+        .addTo(bdMap)
+        .bindPopup(popupText)
+        .openPopup();
+}
 
 function initMap() {
     if (bdMap) return;
     var mapEl = document.getElementById('bd-map');
     if (!mapEl || mapEl.offsetParent === null) return;
 
-    bdMap = L.map('bd-map').setView([mapLat, mapLng], mapZoom);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap'
-    }).addTo(bdMap);
+    if (hasCoords) {
+        showMapAt(mapLat, mapLng, 16);
+    } else {
+        // Shahar, ko'cha, manzil bo'yicha geocoding
+        var searchParts = [];
+        if (buildingAddress) searchParts.push(buildingAddress);
+        if (buildingStreet) searchParts.push(buildingStreet);
+        if (buildingCity) searchParts.push(buildingCity);
+        searchParts.push('Uzbekistan');
+        var query = searchParts.join(', ');
 
-    {% if building.latitude and building.longitude %}
-    L.marker([mapLat, mapLng])
-        .addTo(bdMap)
-        .bindPopup('<strong>{{ building.name }}</strong>{% if building.street %}<br>{{ building.street }}{% endif %}')
-        .openPopup();
-    {% endif %}
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(query) + '&limit=1')
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data && data.length > 0) {
+                    showMapAt(parseFloat(data[0].lat), parseFloat(data[0].lon), 16);
+                } else {
+                    // Faqat shahar bo'yicha qidirish
+                    if (buildingCity) {
+                        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(buildingCity + ', Uzbekistan') + '&limit=1')
+                            .then(function(res) { return res.json(); })
+                            .then(function(data2) {
+                                if (data2 && data2.length > 0) {
+                                    showMapAt(parseFloat(data2[0].lat), parseFloat(data2[0].lon), 14);
+                                } else {
+                                    showMapAt(41.2995, 69.2401, 12);
+                                }
+                            });
+                    } else {
+                        showMapAt(41.2995, 69.2401, 12);
+                    }
+                }
+            })
+            .catch(function() {
+                showMapAt(41.2995, 69.2401, 12);
+            });
+    }
 }
 
 // Xarita lokatsiya sahifasi ochilganda yuklanadi
