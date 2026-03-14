@@ -4,8 +4,8 @@ services:
     container_name: yotoqxona_web
     restart: always
     volumes:
-      - static_files:/app/staticfiles
-      - media_files:/app/media
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
       - sqlite_data:/app/data
     env_file:
       - .env
@@ -21,8 +21,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - static_files:/app/staticfiles
-      - media_files:/app/media
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
       - certbot_conf:/etc/letsencrypt
       - certbot_www:/var/www/certbot
     depends_on:
@@ -32,6 +32,7 @@ services:
     build: .
     container_name: yotoqxona_bot
     restart: always
+    entrypoint: []
     command: python manage.py run_telegram_bot
     volumes:
       - sqlite_data:/app/data
@@ -50,8 +51,6 @@ services:
       - certbot_www:/var/www/certbot
 
 volumes:
-  static_files:
-  media_files:
   sqlite_data:
   certbot_conf:
   certbot_www:

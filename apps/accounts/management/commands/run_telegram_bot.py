@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 from accounts.models import User
 
 
-BOT_TOKEN = '8219355279:AAHdr9NwUdMRT8wMTmLSRdSiqDFIYK5jEWw'
+BOT_TOKEN = '8793216108:AAF2bU1jV88RcfA9dJM5FdUN8qkPsLXWaXA'
 ADMIN_CHAT_ID = 8618873404
 
 

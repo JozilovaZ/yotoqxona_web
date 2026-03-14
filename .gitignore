@@ -106,6 +106,7 @@ ENV/
 .idea/
 *.sqlite3
 media/
+staticfiles/
 *.pyc
 *.db
 *.pid
