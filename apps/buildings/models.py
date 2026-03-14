@@ -23,6 +23,8 @@ class Building(models.Model):
         default=0,
         verbose_name="Kunlik to'lov"
     )
+    latitude = models.FloatField(blank=True, null=True, verbose_name="Kenglik (latitude)")
+    longitude = models.FloatField(blank=True, null=True, verbose_name="Uzunlik (longitude)")
     description = models.TextField(blank=True, verbose_name="Tavsif")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     created_at = models.DateTimeField(auto_now_add=True)

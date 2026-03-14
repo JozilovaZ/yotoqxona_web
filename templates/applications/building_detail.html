@@ -248,6 +248,14 @@
             <div class="bd-page-title">
                 <i class="fas fa-map-marker-alt"></i> Lokatsiya
             </div>
+
+            <!-- Xarita -->
+            {% if building.latitude and building.longitude %}
+            <div class="bd-map-wrap">
+                <div id="bd-map"></div>
+            </div>
+            {% endif %}
+
             <div class="bd-loc-list">
                 {% if building.city %}
                 <div class="bd-loc-item">
@@ -277,6 +285,12 @@
                 </div>
                 {% endif %}
             </div>
+
+            {% if building.latitude and building.longitude %}
+            <a href="https://www.google.com/maps?q={{ building.latitude }},{{ building.longitude }}" target="_blank" class="bd-map-link">
+                <i class="fas fa-directions me-2"></i> Google Maps'da ochish
+            </a>
+            {% endif %}
         </div>
 
         <!-- ══ SAHIFA: JIHOZLAR ══ -->
@@ -399,6 +413,7 @@
 {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
     .bd-layout {
         display: flex;
@@ -758,6 +773,23 @@
     }
 
     /* ═══ LOKATSIYA ═══ */
+    .bd-map-wrap {
+        width: 100%; height: 320px;
+        border-radius: 14px; overflow: hidden;
+        border: 1.5px solid #D0D3D9;
+        margin-bottom: 16px;
+    }
+    #bd-map { width: 100%; height: 100%; }
+    .bd-map-link {
+        display: flex; align-items: center; justify-content: center;
+        margin-top: 16px; padding: 12px;
+        background: #0C2F75; color: #fff;
+        border-radius: 10px; text-decoration: none;
+        font-size: 0.85rem; font-weight: 700;
+        transition: opacity .2s;
+    }
+    .bd-map-link:hover { opacity: .85; color: #fff; }
+
     .bd-loc-list { display: flex; flex-direction: column; gap: 12px; }
     .bd-loc-item {
         display: flex; align-items: center; gap: 14px;
@@ -870,6 +902,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 function toggleEtajlar(btn) {
     var submenu = document.getElementById('sb-etajlar-list');
@@ -977,5 +1010,35 @@ function sortRooms(sortBy, floorNum) {
         grid.appendChild(room);
     });
 }
+
+// Xarita
+var bdMap = null;
+{% if building.latitude and building.longitude %}
+function initMap() {
+    if (bdMap) return;
+    var mapEl = document.getElementById('bd-map');
+    if (!mapEl || mapEl.offsetParent === null) return;
+
+    bdMap = L.map('bd-map').setView([{{ building.latitude }}, {{ building.longitude }}], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(bdMap);
+
+    L.marker([{{ building.latitude }}, {{ building.longitude }}])
+        .addTo(bdMap)
+        .bindPopup('<strong>{{ building.name }}</strong>{% if building.street %}<br>{{ building.street }}{% endif %}')
+        .openPopup();
+}
+
+// Xarita lokatsiya sahifasi ochilganda yuklanadi
+var origShowPage = showPage;
+showPage = function(name, btn) {
+    origShowPage(name, btn);
+    if (name === 'lokatsiya') {
+        setTimeout(initMap, 100);
+    }
+};
+{% endif %}
 </script>
 {% endblock %}

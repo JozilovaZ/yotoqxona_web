@@ -5,7 +5,7 @@ from .models import Building, Floor, Room
 class BuildingForm(forms.ModelForm):
     class Meta:
         model = Building
-        fields = ['name', 'image', 'city', 'street', 'address', 'monthly_price', 'daily_price', 'description', 'is_active']
+        fields = ['name', 'image', 'city', 'street', 'address', 'monthly_price', 'daily_price', 'latitude', 'longitude', 'description', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Bino nomi'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -14,6 +14,8 @@ class BuildingForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Manzil'}),
             'monthly_price': forms.NumberInput(attrs={'class': 'form-control', 'step': '1000', 'placeholder': "Oylik narx (so'm)"}),
             'daily_price': forms.NumberInput(attrs={'class': 'form-control', 'step': '1000', 'placeholder': "Kunlik narx (so'm)"}),
+            'latitude': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.000001', 'placeholder': 'Masalan: 41.311081'}),
+            'longitude': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.000001', 'placeholder': 'Masalan: 69.240562'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Tavsif'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
