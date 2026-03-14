@@ -199,13 +199,6 @@
                 <i class="fas fa-map-marker-alt"></i> Lokatsiya
             </div>
 
-            <!-- Xarita -->
-            {% if building.latitude and building.longitude %}
-            <div class="bd-map-wrap">
-                <div id="bd-map"></div>
-            </div>
-            {% endif %}
-
             <div class="bd-loc-list">
                 {% if building.city %}
                 <div class="bd-loc-item">
@@ -236,7 +229,12 @@
                 {% endif %}
             </div>
 
+            <!-- Xarita -->
             {% if building.latitude and building.longitude %}
+            <div class="bd-map-wrap">
+                <div id="bd-map"></div>
+            </div>
+
             <a href="https://www.google.com/maps?q={{ building.latitude }},{{ building.longitude }}" target="_blank" class="bd-map-link">
                 <i class="fas fa-directions me-2"></i> Google Maps'da ochish
             </a>
@@ -714,7 +712,7 @@
     }
     .bd-map-link:hover { opacity: .85; color: #fff; }
 
-    .bd-loc-list { display: flex; flex-direction: column; gap: 12px; }
+    .bd-loc-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
     .bd-loc-item {
         display: flex; align-items: center; gap: 14px;
         padding: 16px; background: #fff;
