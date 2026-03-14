@@ -145,7 +145,7 @@ floorSelect.addEventListener('change', function() {
             .then(r => r.json())
             .then(data => {
                 data.forEach(r => {
-                    roomSelect.innerHTML += `<option value="${r.id}" data-info='${JSON.stringify(r)}'>${r.number}-xona (${r.available_beds} bo'sh joy, ${r.monthly_price} so'm)</option>`;
+                    roomSelect.innerHTML += `<option value="${r.id}" data-info='${JSON.stringify(r)}'>${r.number}-xona (${r.available_beds} bo'sh joy)</option>`;
                 });
             });
     }
@@ -159,7 +159,8 @@ roomSelect.addEventListener('change', function() {
         roomInfoText.innerHTML = `
             <strong>${info.number}-xona</strong> | Turi: ${info.room_type} |
             Sig'imi: ${info.capacity} kishilik | Bo'sh: <strong>${info.available_beds}</strong> joy |
-            Narxi: <strong>${Number(info.monthly_price).toLocaleString()} so'm/oy</strong>
+            Oylik: <strong>${Number(info.monthly_price).toLocaleString()} so'm</strong> |
+            Kunlik: <strong>${Number(info.daily_price).toLocaleString()} so'm</strong>
         `;
     } else {
         roomInfo.style.display = 'none';

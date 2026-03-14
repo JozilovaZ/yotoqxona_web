@@ -37,7 +37,7 @@
 
 <div class="dorm-grid">
     {% for bd in buildings_data %}
-    <div class="dorm-grid-item" data-name="{{ bd.building.name|lower }}" data-city="{{ bd.building.city|lower }}" data-price="{{ bd.min_price|default:0 }}" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
+    <div class="dorm-grid-item" data-name="{{ bd.building.name|lower }}" data-city="{{ bd.building.city|lower }}" data-price="{{ bd.building.monthly_price|default:0 }}" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
         <a href="{% url 'applications:building_detail' bd.building.pk %}" class="text-decoration-none">
             <div class="dorm-card">
                 <div class="dorm-card-img">
@@ -63,9 +63,14 @@
                     <p class="dorm-card-desc">{{ bd.building.description|truncatewords:12 }}</p>
                     {% endif %}
 
-                    {% if bd.min_price > 0 %}
+                    {% if bd.building.monthly_price > 0 %}
                     <div class="dorm-card-price">
-                        {{ bd.min_price|floatformat:0 }} <span>so'm/oy</span>
+                        {{ bd.building.monthly_price|floatformat:0 }} <span>so'm/oy</span>
+                    </div>
+                    {% endif %}
+                    {% if bd.building.daily_price > 0 %}
+                    <div class="dorm-card-price" style="font-size:0.78rem;">
+                        {{ bd.building.daily_price|floatformat:0 }} <span>so'm/kun</span>
                     </div>
                     {% endif %}
                 </div>

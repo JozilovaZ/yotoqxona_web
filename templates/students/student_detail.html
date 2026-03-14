@@ -360,7 +360,11 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Oylik to'lov</span>
-                <span class="info-val" style="color:#000;">{{ student.room.monthly_price|floatformat:0|default:"—" }} so'm</span>
+                <span class="info-val" style="color:#000;">{{ student.room.floor.building.monthly_price|floatformat:0|default:"—" }} so'm</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Kunlik to'lov</span>
+                <span class="info-val" style="color:#000;">{{ student.room.floor.building.daily_price|floatformat:0|default:"—" }} so'm</span>
             </div>
         </div>
         {% endif %}

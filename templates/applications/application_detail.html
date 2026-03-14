@@ -97,8 +97,12 @@
                     <span class="fw-600">{{ application.room.get_room_type_display }}</span>
                 </div>
                 <div class="d-flex justify-content-between">
-                    <span class="text-muted">Narxi:</span>
-                    <span class="fw-bold">{{ application.room.monthly_price|floatformat:0 }} so'm</span>
+                    <span class="text-muted">Oylik:</span>
+                    <span class="fw-bold">{{ application.room.floor.building.monthly_price|floatformat:0 }} so'm</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Kunlik:</span>
+                    <span class="fw-bold">{{ application.room.floor.building.daily_price|floatformat:0 }} so'm</span>
                 </div>
             </div>
         </div>

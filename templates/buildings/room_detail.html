@@ -228,7 +228,11 @@
         </div>
         <div class="room-info-row">
             <span class="ri-label">Oylik to'lov</span>
-            <span class="ri-val" style="color:#000;">{{ room.monthly_price|floatformat:0|default:"—" }} so'm</span>
+            <span class="ri-val" style="color:#000;">{{ room.floor.building.monthly_price|floatformat:0|default:"—" }} so'm</span>
+        </div>
+        <div class="room-info-row">
+            <span class="ri-label">Kunlik to'lov</span>
+            <span class="ri-val" style="color:#000;">{{ room.floor.building.daily_price|floatformat:0|default:"—" }} so'm</span>
         </div>
 
         <!-- Bandlik visual -->

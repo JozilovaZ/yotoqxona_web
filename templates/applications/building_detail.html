@@ -102,7 +102,7 @@
                     <span class="bd-room-occ-text">{{ room.current_occupancy }} / {{ room.capacity }}</span>
                     <span class="bd-room-occ-label">joy band</span>
                 </div>
-                <div class="bd-room-price">{{ room.monthly_price|floatformat:0 }} <span>so'm</span></div>
+                <div class="bd-room-price">{{ building.monthly_price|floatformat:0 }} <span>so'm/oy</span></div>
             </div>
 
             {% if room.available_beds > 0 %}

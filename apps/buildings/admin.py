@@ -9,7 +9,7 @@ class RoomInline(admin.TabularInline):
     """Etaj ichida xonalarni ko'rsatish"""
     model = Room
     extra = 0  # Bo'sh qatorlar soni
-    fields = ('number', 'room_type', 'capacity', 'monthly_price', 'status', 'is_active')
+    fields = ('number', 'room_type', 'capacity', 'status', 'is_active')
     show_change_link = True  # Xona ichiga kirish uchun link
 
 
@@ -78,19 +78,19 @@ class FloorAdmin(admin.ModelAdmin):
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
-    list_display = ('number', 'floor_info', 'room_type', 'monthly_price', 'capacity_info', 'status',
+    list_display = ('number', 'floor_info', 'room_type', 'capacity_info', 'status',
                     'occupancy_bar')
     list_display_links = ('number',)
     list_filter = ('floor__building', 'floor', 'room_type', 'status', 'is_active')
     search_fields = ('number', 'floor__building__name')
-    list_editable = ('status', 'monthly_price')  # Ro'yxatdan turib narx va statusni o'zgartirish
+    list_editable = ('status',)
 
     fieldsets = (
         ("Joylashuv", {
             'fields': ('floor', 'number')
         }),
         ("Ma'lumotlar", {
-            'fields': ('room_type', 'capacity', 'monthly_price', 'description')
+            'fields': ('room_type', 'capacity', 'description')
         }),
         ("Holat", {
             'fields': ('status', 'is_active')

@@ -11,6 +11,18 @@ class Building(models.Model):
     city = models.CharField(max_length=100, blank=True, verbose_name="Shahar")
     street = models.CharField(max_length=200, blank=True, verbose_name="Ko'cha")
     address = models.TextField(blank=True, verbose_name="Manzil")
+    monthly_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        verbose_name="Oylik to'lov"
+    )
+    daily_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        verbose_name="Kunlik to'lov"
+    )
     description = models.TextField(blank=True, verbose_name="Tavsif")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -118,12 +130,6 @@ class Room(models.Model):
         default=4,
         validators=[MinValueValidator(1)],
         verbose_name="Sig'imi (joy soni)"
-    )
-    monthly_price = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=0,
-        verbose_name="Oylik to'lov"
     )
     status = models.CharField(
         max_length=20,
