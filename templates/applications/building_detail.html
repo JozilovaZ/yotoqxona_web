@@ -12,7 +12,6 @@
 <div class="bd-layout">
     <!-- ═══ SIDEBAR ═══ -->
     <aside class="bd-sidebar">
-        <!-- Yotoqxona nomi -->
         <div class="sb-header">
             <div class="sb-icon"><i class="fas fa-building"></i></div>
             <div>
@@ -23,220 +22,296 @@
             </div>
         </div>
 
-        <!-- Tab navigatsiya -->
-        <div class="sb-tabs">
-            <button class="sb-tab active" onclick="showSbTab('etajlar', this)">
-                <i class="fas fa-layer-group"></i> Etajlar
+        <nav class="sb-menu">
+            <button class="sb-menu-item active" onclick="showPage('etajlar', this)">
+                <i class="fas fa-layer-group"></i>
+                <span>Etajlar</span>
+                <i class="fas fa-chevron-right sb-arrow"></i>
             </button>
-            <button class="sb-tab" onclick="showSbTab('lokatsiya', this)">
-                <i class="fas fa-map-marker-alt"></i> Lokatsiya
+            <button class="sb-menu-item" onclick="showPage('lokatsiya', this)">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Lokatsiya</span>
+                <i class="fas fa-chevron-right sb-arrow"></i>
             </button>
-            <button class="sb-tab" onclick="showSbTab('jihozlar', this)">
-                <i class="fas fa-couch"></i> Jihozlar
+            <button class="sb-menu-item" onclick="showPage('jihozlar', this)">
+                <i class="fas fa-couch"></i>
+                <span>Jihozlar</span>
+                <i class="fas fa-chevron-right sb-arrow"></i>
             </button>
-            <button class="sb-tab" onclick="showSbTab('narx', this)">
-                <i class="fas fa-tag"></i> Narx
+            <button class="sb-menu-item" onclick="showPage('narx', this)">
+                <i class="fas fa-tag"></i>
+                <span>Narx</span>
+                <i class="fas fa-chevron-right sb-arrow"></i>
             </button>
-            <button class="sb-tab" onclick="showSbTab('aloqa', this)">
-                <i class="fas fa-phone"></i> Aloqa
+            <button class="sb-menu-item" onclick="showPage('aloqa', this)">
+                <i class="fas fa-phone"></i>
+                <span>Aloqa</span>
+                <i class="fas fa-chevron-right sb-arrow"></i>
             </button>
-        </div>
-
-        <!-- Tab kontentlari -->
-
-        <!-- Etajlar -->
-        <div class="sb-panel" id="sb-etajlar">
-            <div class="sb-nav">
-                {% for fd in floors_data %}
-                <button class="sb-nav-item {% if forloop.first %}active{% endif %}" onclick="showFloor({{ fd.floor.number }}, this)">
-                    <i class="fas fa-door-open"></i>
-                    <span>{{ fd.floor.number }}-etaj</span>
-                    <span class="sb-nav-badge">{{ fd.available }} bo'sh</span>
-                </button>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Lokatsiya -->
-        <div class="sb-panel" id="sb-lokatsiya" style="display:none;">
-            <div class="sb-info-list">
-                {% if building.city %}
-                <div class="sb-info-row">
-                    <i class="fas fa-city"></i>
-                    <span>{{ building.city }}</span>
-                </div>
-                {% endif %}
-                {% if building.street %}
-                <div class="sb-info-row">
-                    <i class="fas fa-road"></i>
-                    <span>{{ building.street }}</span>
-                </div>
-                {% endif %}
-                {% if building.address %}
-                <div class="sb-info-row">
-                    <i class="fas fa-location-dot"></i>
-                    <span>{{ building.address }}</span>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Jihozlar -->
-        <div class="sb-panel" id="sb-jihozlar" style="display:none;">
-            {% if building.image %}
-            <div class="sb-gallery-item">
-                <img src="{{ building.image.url }}" alt="{{ building.name }}">
-            </div>
-            {% endif %}
-            <div class="sb-amenities">
-                <div class="sb-amenity"><i class="fas fa-wifi"></i><span>Wi-Fi</span></div>
-                <div class="sb-amenity"><i class="fas fa-shower"></i><span>Issiq suv</span></div>
-                <div class="sb-amenity"><i class="fas fa-utensils"></i><span>Oshxona</span></div>
-                <div class="sb-amenity"><i class="fas fa-tshirt"></i><span>Kir yuvish</span></div>
-                <div class="sb-amenity"><i class="fas fa-shield-alt"></i><span>Qo'riqlash</span></div>
-                <div class="sb-amenity"><i class="fas fa-video"></i><span>Kamera</span></div>
-                <div class="sb-amenity"><i class="fas fa-book"></i><span>Kutubxona</span></div>
-                <div class="sb-amenity"><i class="fas fa-parking"></i><span>Parking</span></div>
-            </div>
-        </div>
-
-        <!-- Narx -->
-        <div class="sb-panel" id="sb-narx" style="display:none;">
-            <div class="sb-prices">
-                {% if building.monthly_price > 0 %}
-                <div class="sb-price">
-                    <span class="sb-price-label">Oylik to'lov</span>
-                    <span class="sb-price-val">{{ building.monthly_price|floatformat:0 }} so'm</span>
-                </div>
-                {% endif %}
-                {% if building.daily_price > 0 %}
-                <div class="sb-price">
-                    <span class="sb-price-label">Kunlik to'lov</span>
-                    <span class="sb-price-val">{{ building.daily_price|floatformat:0 }} so'm</span>
-                </div>
-                {% endif %}
-                {% if building.monthly_price == 0 and building.daily_price == 0 %}
-                <div class="sb-empty-msg">Narx belgilanmagan</div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Aloqa -->
-        <div class="sb-panel" id="sb-aloqa" style="display:none;">
-            <div class="sb-info-list">
-                <a href="tel:+998901234567" class="sb-info-row sb-link">
-                    <i class="fas fa-phone"></i>
-                    <span>+998 90 123 45 67</span>
-                </a>
-                <a href="https://t.me/makon_yotoqxona_bot" target="_blank" class="sb-info-row sb-link">
-                    <i class="fab fa-telegram"></i>
-                    <span>Telegram bot</span>
-                </a>
-                <a href="mailto:info@bekendchi.uz" class="sb-info-row sb-link">
-                    <i class="fas fa-envelope"></i>
-                    <span>info@bekendchi.uz</span>
-                </a>
-            </div>
-        </div>
+        </nav>
     </aside>
 
     <!-- ═══ MAIN CONTENT ═══ -->
     <main class="bd-main">
-        <!-- Rasm katta -->
-        <div class="bd-hero-img">
-            {% if building.image %}
-            <img src="{{ building.image.url }}" alt="{{ building.name }}">
-            {% else %}
-            <div class="bd-hero-placeholder">
-                <i class="fas fa-building"></i>
+
+        <!-- ══ SAHIFA: ETAJLAR ══ -->
+        <div class="bd-page" id="page-etajlar">
+            <!-- Rasm -->
+            <div class="bd-hero-img">
+                {% if building.image %}
+                <img src="{{ building.image.url }}" alt="{{ building.name }}">
+                {% else %}
+                <div class="bd-hero-placeholder">
+                    <i class="fas fa-building"></i>
+                </div>
+                {% endif %}
             </div>
+
+            <!-- Statistika -->
+            <div class="bd-stats">
+                <div class="bd-stat">
+                    <div class="bd-stat-num">{{ floors_data|length }}</div>
+                    <div class="bd-stat-label">Etaj</div>
+                </div>
+                <div class="bd-stat">
+                    <div class="bd-stat-num">{{ total_rooms }}</div>
+                    <div class="bd-stat-label">Xona</div>
+                </div>
+                <div class="bd-stat">
+                    <div class="bd-stat-num">{{ total_capacity }}</div>
+                    <div class="bd-stat-label">Jami joy</div>
+                </div>
+                <div class="bd-stat">
+                    <div class="bd-stat-num">{{ total_available }}</div>
+                    <div class="bd-stat-label">Bo'sh</div>
+                </div>
+            </div>
+
+            {% if building.description %}
+            <p class="bd-desc">{{ building.description }}</p>
+            {% endif %}
+
+            {% if not floors_data %}
+            <div class="bd-empty">
+                <i class="fas fa-door-closed"></i>
+                <h5>Bu yotoqxonada hozircha xona yo'q</h5>
+                <p>Keyinroq qayta tekshiring</p>
+            </div>
+            {% endif %}
+
+            {% if floors_data %}
+            <!-- Etaj tablari -->
+            <div class="bd-floor-tabs">
+                {% for fd in floors_data %}
+                <button class="bd-floor-tab {% if forloop.first %}active{% endif %}" onclick="showFloor({{ fd.floor.number }}, this)">
+                    {{ fd.floor.number }}-etaj
+                    <span class="bd-floor-badge">{{ fd.available }} bo'sh</span>
+                </button>
+                {% endfor %}
+            </div>
+
+            {% for fd in floors_data %}
+            <div class="bd-floor-content" id="floor-{{ fd.floor.number }}" style="{% if not forloop.first %}display:none{% endif %}">
+                <div class="bd-rooms-grid">
+                    {% for room in fd.rooms %}
+                    <div class="bd-room {% if room.available_beds > 0 %}bd-room-free{% elif room.status == 'maintenance' %}bd-room-repair{% else %}bd-room-full{% endif %}">
+                        <div class="bd-room-header">
+                            <span class="bd-room-number">{{ room.number }}-xona</span>
+                            <span class="bd-room-type">{{ room.get_room_type_display }}</span>
+                        </div>
+                        <div class="bd-beds">
+                            {% for i in "x"|ljust:room.capacity %}
+                            <div class="bd-bed {% if forloop.counter <= room.current_occupancy %}bd-bed-taken{% else %}bd-bed-free{% endif %}">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="bd-room-info">
+                            <span class="bd-room-occ">{{ room.current_occupancy }} / {{ room.capacity }}</span>
+                        </div>
+                        {% if room.available_beds > 0 %}
+                        <a href="{% if user.is_authenticated %}{% url 'applications:apply' %}?room={{ room.pk }}{% else %}{% url 'accounts:register' %}{% endif %}" class="bd-room-btn">
+                            <i class="fas fa-paper-plane me-1"></i> Ariza
+                        </a>
+                        {% else %}
+                        <span class="bd-room-btn-disabled">
+                            <i class="fas fa-ban me-1"></i> Joy yo'q
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
             {% endif %}
         </div>
 
-        <!-- Statistika -->
-        <div class="bd-stats">
-            <div class="bd-stat">
-                <div class="bd-stat-num">{{ floors_data|length }}</div>
-                <div class="bd-stat-label">Etaj</div>
+        <!-- ══ SAHIFA: LOKATSIYA ══ -->
+        <div class="bd-page" id="page-lokatsiya" style="display:none;">
+            <div class="bd-page-title">
+                <i class="fas fa-map-marker-alt"></i> Lokatsiya
             </div>
-            <div class="bd-stat">
-                <div class="bd-stat-num">{{ total_rooms }}</div>
-                <div class="bd-stat-label">Xona</div>
-            </div>
-            <div class="bd-stat">
-                <div class="bd-stat-num">{{ total_capacity }}</div>
-                <div class="bd-stat-label">Jami joy</div>
-            </div>
-            <div class="bd-stat">
-                <div class="bd-stat-num">{{ total_available }}</div>
-                <div class="bd-stat-label">Bo'sh</div>
-            </div>
-        </div>
-
-        {% if building.description %}
-        <p class="bd-desc">{{ building.description }}</p>
-        {% endif %}
-
-        <!-- Etajlar va xonalar -->
-        {% if not floors_data %}
-        <div class="bd-empty">
-            <i class="fas fa-door-closed"></i>
-            <h5>Bu yotoqxonada hozircha xona yo'q</h5>
-            <p>Keyinroq qayta tekshiring</p>
-        </div>
-        {% endif %}
-
-        {% if floors_data %}
-        <!-- Mobil etaj tablari -->
-        <div class="bd-floor-tabs-mobile">
-            {% for fd in floors_data %}
-            <button class="bd-floor-tab {% if forloop.first %}active{% endif %}" onclick="showFloor({{ fd.floor.number }}, this)">
-                {{ fd.floor.number }}-etaj
-            </button>
-            {% endfor %}
-        </div>
-
-        {% for fd in floors_data %}
-        <div class="bd-floor-content" id="floor-{{ fd.floor.number }}" style="{% if not forloop.first %}display:none{% endif %}">
-            <div class="bd-rooms-grid">
-                {% for room in fd.rooms %}
-                <div class="bd-room {% if room.available_beds > 0 %}bd-room-free{% elif room.status == 'maintenance' %}bd-room-repair{% else %}bd-room-full{% endif %}">
-                    <div class="bd-room-header">
-                        <span class="bd-room-number">{{ room.number }}-xona</span>
-                        <span class="bd-room-type">{{ room.get_room_type_display }}</span>
-                    </div>
-                    <div class="bd-beds">
-                        {% for i in "x"|ljust:room.capacity %}
-                        <div class="bd-bed {% if forloop.counter <= room.current_occupancy %}bd-bed-taken{% else %}bd-bed-free{% endif %}">
-                            <i class="fas fa-bed"></i>
+            <div class="bd-page-card">
+                <div class="bd-loc-list">
+                    {% if building.city %}
+                    <div class="bd-loc-item">
+                        <div class="bd-loc-icon"><i class="fas fa-city"></i></div>
+                        <div>
+                            <div class="bd-loc-label">Shahar</div>
+                            <div class="bd-loc-value">{{ building.city }}</div>
                         </div>
-                        {% endfor %}
                     </div>
-                    <div class="bd-room-info">
-                        <span class="bd-room-occ">{{ room.current_occupancy }} / {{ room.capacity }}</span>
+                    {% endif %}
+                    {% if building.street %}
+                    <div class="bd-loc-item">
+                        <div class="bd-loc-icon"><i class="fas fa-road"></i></div>
+                        <div>
+                            <div class="bd-loc-label">Ko'cha</div>
+                            <div class="bd-loc-value">{{ building.street }}</div>
+                        </div>
                     </div>
-                    {% if room.available_beds > 0 %}
-                    <a href="{% if user.is_authenticated %}{% url 'applications:apply' %}?room={{ room.pk }}{% else %}{% url 'accounts:register' %}{% endif %}" class="bd-room-btn">
-                        <i class="fas fa-paper-plane me-1"></i> Ariza
-                    </a>
-                    {% else %}
-                    <span class="bd-room-btn-disabled">
-                        <i class="fas fa-ban me-1"></i> Joy yo'q
-                    </span>
+                    {% endif %}
+                    {% if building.address %}
+                    <div class="bd-loc-item">
+                        <div class="bd-loc-icon"><i class="fas fa-location-dot"></i></div>
+                        <div>
+                            <div class="bd-loc-label">Manzil</div>
+                            <div class="bd-loc-value">{{ building.address }}</div>
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
-                {% endfor %}
             </div>
         </div>
-        {% endfor %}
-        {% endif %}
+
+        <!-- ══ SAHIFA: JIHOZLAR ══ -->
+        <div class="bd-page" id="page-jihozlar" style="display:none;">
+            <div class="bd-page-title">
+                <i class="fas fa-couch"></i> Jihozlar
+            </div>
+
+            {% if building.image %}
+            <div class="bd-page-img">
+                <img src="{{ building.image.url }}" alt="{{ building.name }}">
+            </div>
+            {% endif %}
+
+            <div class="bd-amenities-grid">
+                <div class="bd-amenity-card">
+                    <div class="bd-amenity-icon"><i class="fas fa-wifi"></i></div>
+                    <div class="bd-amenity-name">Wi-Fi</div>
+                    <div class="bd-amenity-desc">Bepul internet</div>
+                </div>
+                <div class="bd-amenity-card">
+                    <div class="bd-amenity-icon"><i class="fas fa-shower"></i></div>
+                    <div class="bd-amenity-name">Issiq suv</div>
+                    <div class="bd-amenity-desc">24 soat</div>
+                </div>
+                <div class="bd-amenity-card">
+                    <div class="bd-amenity-icon"><i class="fas fa-utensils"></i></div>
+                    <div class="bd-amenity-name">Oshxona</div>
+                    <div class="bd-amenity-desc">Umumiy foydalanish</div>
+                </div>
+                <div class="bd-amenity-card">
+                    <div class="bd-amenity-icon"><i class="fas fa-tshirt"></i></div>
+                    <div class="bd-amenity-name">Kir yuvish</div>
+                    <div class="bd-amenity-desc">Kir yuvish xonasi</div>
+                </div>
+                <div class="bd-amenity-card">
+                    <div class="bd-amenity-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="bd-amenity-name">Qo'riqlash</div>
+                    <div class="bd-amenity-desc">24/7 xavfsizlik</div>
+                </div>
+                <div class="bd-amenity-card">
+                    <div class="bd-amenity-icon"><i class="fas fa-video"></i></div>
+                    <div class="bd-amenity-name">Kamera</div>
+                    <div class="bd-amenity-desc">Kuzatuv tizimlari</div>
+                </div>
+                <div class="bd-amenity-card">
+                    <div class="bd-amenity-icon"><i class="fas fa-book"></i></div>
+                    <div class="bd-amenity-name">Kutubxona</div>
+                    <div class="bd-amenity-desc">O'quv xonasi</div>
+                </div>
+                <div class="bd-amenity-card">
+                    <div class="bd-amenity-icon"><i class="fas fa-parking"></i></div>
+                    <div class="bd-amenity-name">Parking</div>
+                    <div class="bd-amenity-desc">Avtomobil uchun</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ SAHIFA: NARX ══ -->
+        <div class="bd-page" id="page-narx" style="display:none;">
+            <div class="bd-page-title">
+                <i class="fas fa-tag"></i> Narxlar
+            </div>
+            <div class="bd-price-cards">
+                {% if building.monthly_price > 0 %}
+                <div class="bd-price-card">
+                    <div class="bd-price-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="bd-price-type">Oylik to'lov</div>
+                    <div class="bd-price-amount">{{ building.monthly_price|floatformat:0 }} <span>so'm</span></div>
+                    <div class="bd-price-note">Har oyda to'lanadi</div>
+                </div>
+                {% endif %}
+                {% if building.daily_price > 0 %}
+                <div class="bd-price-card">
+                    <div class="bd-price-icon"><i class="fas fa-clock"></i></div>
+                    <div class="bd-price-type">Kunlik to'lov</div>
+                    <div class="bd-price-amount">{{ building.daily_price|floatformat:0 }} <span>so'm</span></div>
+                    <div class="bd-price-note">Har kuni to'lanadi</div>
+                </div>
+                {% endif %}
+                {% if building.monthly_price == 0 and building.daily_price == 0 %}
+                <div class="bd-page-card" style="text-align:center;color:#6b7280;padding:2rem;">
+                    Narx hali belgilanmagan
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ══ SAHIFA: ALOQA ══ -->
+        <div class="bd-page" id="page-aloqa" style="display:none;">
+            <div class="bd-page-title">
+                <i class="fas fa-phone"></i> Aloqa
+            </div>
+            <div class="bd-contact-list">
+                <a href="tel:+998901234567" class="bd-contact-card">
+                    <div class="bd-contact-icon" style="background:rgba(12,47,117,.08);color:#0C2F75;">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div>
+                        <div class="bd-contact-label">Telefon</div>
+                        <div class="bd-contact-value">+998 90 123 45 67</div>
+                    </div>
+                </a>
+                <a href="https://t.me/makon_yotoqxona_bot" target="_blank" class="bd-contact-card">
+                    <div class="bd-contact-icon" style="background:rgba(0,136,204,.08);color:#0088cc;">
+                        <i class="fab fa-telegram"></i>
+                    </div>
+                    <div>
+                        <div class="bd-contact-label">Telegram</div>
+                        <div class="bd-contact-value">Telegram bot</div>
+                    </div>
+                </a>
+                <a href="mailto:info@bekendchi.uz" class="bd-contact-card">
+                    <div class="bd-contact-icon" style="background:rgba(12,47,117,.08);color:#0C2F75;">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div>
+                        <div class="bd-contact-label">Email</div>
+                        <div class="bd-contact-value">info@bekendchi.uz</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
     </main>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    /* ═══ LAYOUT ═══ */
     .bd-layout {
         display: flex;
         gap: 24px;
@@ -250,7 +325,6 @@
         background: #fff;
         border: 1.5px solid #D0D3D9;
         border-radius: 16px;
-        padding: 0;
         overflow: hidden;
         position: sticky;
         top: 80px;
@@ -265,327 +339,152 @@
         color: #fff;
     }
     .sb-icon {
-        width: 40px;
-        height: 40px;
+        width: 40px; height: 40px;
         border-radius: 10px;
         background: rgba(255,255,255,.15);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
     }
-    .sb-title {
-        font-size: 0.92rem;
-        font-weight: 800;
-        line-height: 1.2;
-    }
-    .sb-subtitle {
-        font-size: 0.7rem;
-        opacity: .7;
-        margin-top: 1px;
-    }
+    .sb-title { font-size: 0.92rem; font-weight: 800; line-height: 1.2; }
+    .sb-subtitle { font-size: 0.7rem; opacity: .7; margin-top: 1px; }
 
-    /* Sidebar tabs */
-    .sb-tabs {
-        display: flex;
-        flex-wrap: wrap;
-        border-bottom: 1.5px solid #D0D3D9;
-    }
-    .sb-tab {
-        flex: 1;
-        padding: 10px 4px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        font-size: 0.62rem;
-        font-weight: 700;
-        color: #6b7280;
-        text-align: center;
-        transition: all .15s;
-        border-bottom: 2px solid transparent;
+    /* Menu items — vertical list */
+    .sb-menu {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 3px;
+        padding: 8px;
+        gap: 2px;
     }
-    .sb-tab i {
-        font-size: 0.82rem;
-        color: #D0D3D9;
-        transition: color .15s;
-    }
-    .sb-tab:hover {
-        color: #0C2F75;
-        background: rgba(12,47,117,.03);
-    }
-    .sb-tab:hover i { color: #0C2F75; }
-    .sb-tab.active {
-        color: #0C2F75;
-        border-bottom-color: #0C2F75;
-    }
-    .sb-tab.active i { color: #0C2F75; }
-
-    .sb-panel {
-        padding: 14px 16px;
-    }
-    .sb-empty-msg {
-        font-size: 0.8rem;
-        color: #6b7280;
-        text-align: center;
-        padding: 12px;
-    }
-
-    /* Sidebar nav */
-    .sb-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    .sb-nav-item {
+    .sb-menu-item {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
+        gap: 10px;
+        padding: 12px 14px;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         background: transparent;
         cursor: pointer;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         font-weight: 600;
         color: #000;
         transition: all .15s;
         text-align: left;
         width: 100%;
     }
-    .sb-nav-item i {
+    .sb-menu-item > i:first-child {
         color: #D0D3D9;
-        font-size: 0.75rem;
-        width: 16px;
+        font-size: 0.9rem;
+        width: 20px;
         text-align: center;
+        flex-shrink: 0;
+        transition: color .15s;
     }
-    .sb-nav-item:hover {
+    .sb-menu-item span { flex: 1; }
+    .sb-arrow {
+        font-size: 0.6rem !important;
+        color: #D0D3D9 !important;
+        width: auto !important;
+        transition: all .15s;
+    }
+    .sb-menu-item:hover {
         background: #F2F2F2;
     }
-    .sb-nav-item.active {
+    .sb-menu-item:hover > i:first-child { color: #0C2F75; }
+    .sb-menu-item.active {
         background: #0C2F75;
         color: #fff;
     }
-    .sb-nav-item.active i { color: rgba(255,255,255,.7); }
-    .sb-nav-badge {
-        margin-left: auto;
-        font-size: 0.62rem;
-        font-weight: 700;
-        color: #6b7280;
-        background: #F2F2F2;
-        padding: 1px 6px;
-        border-radius: 4px;
-    }
-    .sb-nav-item.active .sb-nav-badge {
-        background: rgba(255,255,255,.2);
-        color: #fff;
-    }
-
-    /* Sidebar info */
-    .sb-info-list {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-    .sb-info-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.78rem;
-        color: #000;
-    }
-    .sb-info-row i {
-        color: #0C2F75;
-        font-size: 0.72rem;
-        width: 16px;
-        text-align: center;
-        flex-shrink: 0;
-    }
-    .sb-link {
-        text-decoration: none;
-        padding: 6px 8px;
-        border-radius: 6px;
-        transition: background .15s;
-    }
-    .sb-link:hover {
-        background: #F2F2F2;
-        color: #000;
-    }
-
-    /* Gallery & amenities */
-    .sb-gallery-item {
-        border-radius: 10px;
-        overflow: hidden;
-        height: 120px;
-        margin-bottom: 10px;
-    }
-    .sb-gallery-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .sb-amenities {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 6px;
-    }
-    .sb-amenity {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: #000;
-        padding: 6px 8px;
-        background: #F2F2F2;
-        border-radius: 6px;
-    }
-    .sb-amenity i {
-        color: #0C2F75;
-        font-size: 0.68rem;
-        width: 14px;
-        text-align: center;
-    }
-
-    /* Prices */
-    .sb-prices {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-    .sb-price {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 10px;
-        background: #F2F2F2;
-        border-radius: 8px;
-    }
-    .sb-price-label {
-        font-size: 0.75rem;
-        color: #6b7280;
-        font-weight: 600;
-    }
-    .sb-price-val {
-        font-size: 0.82rem;
-        font-weight: 800;
-        color: #0C2F75;
-    }
+    .sb-menu-item.active > i:first-child { color: rgba(255,255,255,.8); }
+    .sb-menu-item.active .sb-arrow { color: rgba(255,255,255,.5) !important; }
 
     /* ═══ MAIN ═══ */
-    .bd-main {
-        flex: 1;
-        min-width: 0;
-    }
+    .bd-main { flex: 1; min-width: 0; }
 
     .bd-back {
-        display: inline-flex;
-        align-items: center;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #0C2F75;
-        text-decoration: none;
-        margin-bottom: 1rem;
+        display: inline-flex; align-items: center;
+        font-size: 0.85rem; font-weight: 600;
+        color: #0C2F75; text-decoration: none; margin-bottom: 1rem;
     }
     .bd-back:hover { opacity: .7; color: #0C2F75; }
 
-    .bd-hero-img {
-        width: 100%;
-        height: 380px;
-        border-radius: 16px;
-        overflow: hidden;
-        background: #F2F2F2;
+    /* Page titles */
+    .bd-page-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #0C2F75;
         margin-bottom: 1.25rem;
-    }
-    .bd-hero-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .bd-hero-placeholder {
-        width: 100%;
-        height: 100%;
         display: flex;
         align-items: center;
-        justify-content: center;
-        background: #F2F2F2;
-        font-size: 4rem;
-        color: #D0D3D9;
+        gap: 10px;
+    }
+    .bd-page-title i { font-size: 1rem; }
+
+    .bd-page-card {
+        background: #fff;
+        border: 1.5px solid #D0D3D9;
+        border-radius: 14px;
+        padding: 20px;
     }
 
-    .bd-stats {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-    }
-    .bd-stat {
-        background: #F2F2F2;
-        border-radius: 10px;
-        padding: 8px 16px;
-        text-align: center;
-    }
-    .bd-stat-num {
-        font-size: 1.1rem;
-        font-weight: 900;
-        color: #000;
-        line-height: 1;
-    }
-    .bd-stat-label {
-        font-size: 0.6rem;
-        color: #6b7280;
-        font-weight: 600;
-        margin-top: 2px;
-    }
-
-    .bd-desc {
-        font-size: 0.85rem;
-        color: #6b7280;
-        line-height: 1.6;
+    .bd-page-img {
+        width: 100%;
+        height: 220px;
+        border-radius: 14px;
+        overflow: hidden;
         margin-bottom: 1.25rem;
     }
+    .bd-page-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Hero image */
+    .bd-hero-img {
+        width: 100%; height: 380px;
+        border-radius: 16px; overflow: hidden;
+        background: #F2F2F2; margin-bottom: 1.25rem;
+    }
+    .bd-hero-img img { width: 100%; height: 100%; object-fit: cover; }
+    .bd-hero-placeholder {
+        width: 100%; height: 100%;
+        display: flex; align-items: center; justify-content: center;
+        background: #F2F2F2; font-size: 4rem; color: #D0D3D9;
+    }
+
+    /* Stats */
+    .bd-stats { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+    .bd-stat { background: #F2F2F2; border-radius: 10px; padding: 8px 16px; text-align: center; }
+    .bd-stat-num { font-size: 1.1rem; font-weight: 900; color: #000; line-height: 1; }
+    .bd-stat-label { font-size: 0.6rem; color: #6b7280; font-weight: 600; margin-top: 2px; }
+
+    .bd-desc { font-size: 0.85rem; color: #6b7280; line-height: 1.6; margin-bottom: 1.25rem; }
 
     .bd-empty {
-        text-align: center;
-        padding: 3rem;
-        background: #fff;
-        border: 1px solid #D0D3D9;
-        border-radius: 16px;
+        text-align: center; padding: 3rem;
+        background: #fff; border: 1px solid #D0D3D9; border-radius: 16px;
     }
     .bd-empty i { font-size: 2.5rem; color: #D0D3D9; margin-bottom: 1rem; }
     .bd-empty h5 { font-weight: 700; color: #000; }
     .bd-empty p { color: #6b7280; font-size: 0.9rem; }
 
-    /* Mobile floor tabs (hidden on desktop) */
-    .bd-floor-tabs-mobile {
-        display: none;
-        gap: 6px;
-        margin-bottom: 1rem;
-        overflow-x: auto;
-        padding-bottom: 4px;
+    /* Floor tabs */
+    .bd-floor-tabs {
+        display: flex; gap: 6px; margin-bottom: 1rem;
+        overflow-x: auto; padding-bottom: 4px;
     }
     .bd-floor-tab {
-        padding: 6px 14px;
-        border: 1.5px solid #D0D3D9;
-        border-radius: 8px;
-        background: #fff;
-        cursor: pointer;
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: #000;
-        white-space: nowrap;
-        flex-shrink: 0;
-        transition: all .15s;
+        padding: 8px 16px;
+        border: 1.5px solid #D0D3D9; border-radius: 8px;
+        background: #fff; cursor: pointer;
+        font-size: 0.8rem; font-weight: 700; color: #000;
+        white-space: nowrap; flex-shrink: 0; transition: all .15s;
+        display: flex; align-items: center; gap: 6px;
     }
     .bd-floor-tab:hover { border-color: #0C2F75; color: #0C2F75; }
-    .bd-floor-tab.active {
-        background: #0C2F75;
-        border-color: #0C2F75;
-        color: #fff;
+    .bd-floor-tab.active { background: #0C2F75; border-color: #0C2F75; color: #fff; }
+    .bd-floor-badge {
+        font-size: 0.6rem; font-weight: 700;
+        background: rgba(0,0,0,.08); padding: 1px 6px; border-radius: 4px;
+    }
+    .bd-floor-tab.active .bd-floor-badge {
+        background: rgba(255,255,255,.2); color: #fff;
     }
 
     /* Rooms */
@@ -595,33 +494,18 @@
         gap: 10px;
     }
     .bd-room {
-        background: #fff;
-        border: 1.5px solid #D0D3D9;
-        border-radius: 12px;
-        padding: 12px;
+        background: #fff; border: 1.5px solid #D0D3D9;
+        border-radius: 12px; padding: 12px;
     }
     .bd-room:hover { box-shadow: 0 2px 10px rgba(0,0,0,.05); }
     .bd-room-free { border-left: 3px solid #0C2F75; }
     .bd-room-full { border-left: 3px solid #D0D3D9; opacity: .6; }
     .bd-room-repair { border-left: 3px solid #D0D3D9; opacity: .4; }
-
-    .bd-room-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-    }
+    .bd-room-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .bd-room-number { font-size: 0.85rem; font-weight: 800; color: #000; }
-    .bd-room-type {
-        font-size: 0.62rem; font-weight: 600; color: #6b7280;
-        background: #F2F2F2; padding: 2px 6px; border-radius: 4px;
-    }
+    .bd-room-type { font-size: 0.62rem; font-weight: 600; color: #6b7280; background: #F2F2F2; padding: 2px 6px; border-radius: 4px; }
     .bd-beds { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
-    .bd-bed {
-        width: 30px; height: 26px; border-radius: 6px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.7rem;
-    }
+    .bd-bed { width: 30px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
     .bd-bed-free { background: #F2F2F2; color: #0C2F75; border: 1.5px dashed #D0D3D9; }
     .bd-bed-taken { background: #F2F2F2; color: #D0D3D9; border: 1.5px solid #D0D3D9; }
     .bd-room-info { margin-bottom: 8px; }
@@ -641,19 +525,98 @@
         font-size: 0.72rem; font-weight: 700;
     }
 
+    /* ═══ LOKATSIYA ═══ */
+    .bd-loc-list { display: flex; flex-direction: column; gap: 12px; }
+    .bd-loc-item {
+        display: flex; align-items: center; gap: 14px;
+        padding: 16px; background: #fff;
+        border: 1.5px solid #D0D3D9; border-radius: 12px;
+    }
+    .bd-loc-icon {
+        width: 44px; height: 44px; border-radius: 10px;
+        background: rgba(12,47,117,.08);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; color: #0C2F75; flex-shrink: 0;
+    }
+    .bd-loc-label { font-size: 0.7rem; color: #6b7280; font-weight: 600; margin-bottom: 2px; }
+    .bd-loc-value { font-size: 0.9rem; font-weight: 700; color: #000; }
+
+    /* ═══ JIHOZLAR ═══ */
+    .bd-amenities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 12px;
+    }
+    .bd-amenity-card {
+        background: #fff; border: 1.5px solid #D0D3D9;
+        border-radius: 12px; padding: 20px; text-align: center;
+        transition: box-shadow .15s;
+    }
+    .bd-amenity-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+    .bd-amenity-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        background: rgba(12,47,117,.08);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; color: #0C2F75;
+        margin: 0 auto 10px;
+    }
+    .bd-amenity-name { font-size: 0.85rem; font-weight: 700; color: #000; margin-bottom: 2px; }
+    .bd-amenity-desc { font-size: 0.7rem; color: #6b7280; }
+
+    /* ═══ NARX ═══ */
+    .bd-price-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .bd-price-card {
+        background: #fff; border: 1.5px solid #D0D3D9;
+        border-radius: 14px; padding: 24px; text-align: center;
+    }
+    .bd-price-icon {
+        width: 52px; height: 52px; border-radius: 14px;
+        background: rgba(12,47,117,.08);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; color: #0C2F75;
+        margin: 0 auto 12px;
+    }
+    .bd-price-type { font-size: 0.8rem; color: #6b7280; font-weight: 600; margin-bottom: 6px; }
+    .bd-price-amount {
+        font-size: 1.4rem; font-weight: 900; color: #0C2F75;
+    }
+    .bd-price-amount span { font-size: 0.8rem; font-weight: 600; }
+    .bd-price-note { font-size: 0.7rem; color: #6b7280; margin-top: 6px; }
+
+    /* ═══ ALOQA ═══ */
+    .bd-contact-list { display: flex; flex-direction: column; gap: 12px; }
+    .bd-contact-card {
+        display: flex; align-items: center; gap: 14px;
+        padding: 16px; background: #fff;
+        border: 1.5px solid #D0D3D9; border-radius: 12px;
+        text-decoration: none; color: #000;
+        transition: box-shadow .15s;
+    }
+    .bd-contact-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.05); color: #000; }
+    .bd-contact-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
+    }
+    .bd-contact-label { font-size: 0.7rem; color: #6b7280; font-weight: 600; margin-bottom: 2px; }
+    .bd-contact-value { font-size: 0.9rem; font-weight: 700; color: #000; }
+
     /* ═══ RESPONSIVE ═══ */
     @media (max-width: 900px) {
         .bd-layout { flex-direction: column; }
-        .bd-sidebar {
-            width: 100%;
-            position: static;
+        .bd-sidebar { width: 100%; position: static; }
+        .sb-menu { flex-direction: row; overflow-x: auto; gap: 4px; padding: 6px; }
+        .sb-menu-item {
+            flex-shrink: 0; padding: 8px 12px;
+            font-size: 0.78rem; border-radius: 8px;
         }
-        .bd-floor-tabs-mobile { display: flex; }
+        .sb-arrow { display: none; }
         .bd-hero-img { height: 240px; }
     }
     @media (max-width: 600px) {
-        .bd-sidebar { grid-template-columns: 1fr; }
         .bd-rooms-grid { grid-template-columns: repeat(2, 1fr); }
+        .bd-amenities-grid { grid-template-columns: repeat(2, 1fr); }
+        .bd-price-cards { grid-template-columns: 1fr; }
     }
     @media (max-width: 400px) {
         .bd-rooms-grid { grid-template-columns: 1fr; }
@@ -663,23 +626,20 @@
 
 {% block extra_js %}
 <script>
-function showSbTab(name, btn) {
-    document.querySelectorAll('.sb-panel').forEach(function(el) {
+function showPage(name, btn) {
+    document.querySelectorAll('.bd-page').forEach(function(el) {
         el.style.display = 'none';
     });
-    document.querySelectorAll('.sb-tab').forEach(function(el) {
+    document.querySelectorAll('.sb-menu-item').forEach(function(el) {
         el.classList.remove('active');
     });
-    document.getElementById('sb-' + name).style.display = 'block';
+    document.getElementById('page-' + name).style.display = 'block';
     btn.classList.add('active');
 }
 
 function showFloor(num, btn) {
     document.querySelectorAll('.bd-floor-content').forEach(function(el) {
         el.style.display = 'none';
-    });
-    document.querySelectorAll('.sb-nav-item').forEach(function(el) {
-        el.classList.remove('active');
     });
     document.querySelectorAll('.bd-floor-tab').forEach(function(el) {
         el.classList.remove('active');
