@@ -16,7 +16,7 @@
             </div>
             {% empty %}
             <div class="carousel-slide">
-                <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e 0%,#7000FF 100%);"></div>
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e 0%,#3D5A80 100%);"></div>
                 <div class="slide-overlay"></div>
             </div>
             {% endfor %}
@@ -177,7 +177,7 @@
     .slide-overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(0,0,0,.65) 0%, rgba(112,0,255,.4) 100%);
+        background: linear-gradient(135deg, rgba(0,0,0,.65) 0%, rgba(61,90,128,.4) 100%);
     }
     .carousel-hero-content {
         position: absolute;
@@ -198,7 +198,7 @@
         text-shadow: 0 2px 20px rgba(0,0,0,.3);
     }
     .hero-title span {
-        background: linear-gradient(90deg, #c084fc, #a855f7);
+        background: linear-gradient(90deg, #98C1D9, #E0FBFC);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
@@ -256,9 +256,9 @@
     }
     .info-card::before {
         content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-        background: linear-gradient(90deg, var(--p), #a855f7); opacity: 0; transition: opacity .25s;
+        background: linear-gradient(90deg, var(--p), #98C1D9); opacity: 0; transition: opacity .25s;
     }
-    .info-card:hover { transform: translateY(-6px); box-shadow: 0 12px 35px rgba(112,0,255,.1); border-color: rgba(112,0,255,.15); }
+    .info-card:hover { transform: translateY(-6px); box-shadow: 0 12px 35px rgba(61,90,128,.1); border-color: rgba(61,90,128,.15); }
     .info-card:hover::before { opacity: 1; }
     .info-card-icon {
         width: 56px; height: 56px; border-radius: 16px;
@@ -280,7 +280,7 @@
         width: 26px; height: 26px; border-radius: 50%;
         background: var(--p); color: #fff; font-size: 0.75rem; font-weight: 800;
         display: flex; align-items: center; justify-content: center; z-index: 2;
-        box-shadow: 0 3px 10px rgba(112,0,255,.3);
+        box-shadow: 0 3px 10px rgba(61,90,128,.3);
     }
     .step-icon-box {
         width: 72px; height: 72px; border-radius: 20px;

@@ -12,17 +12,17 @@
 
     <style>
         :root {
-            --p:       #7000FF;
-            --p10:     rgba(112,0,255,.07);
-            --p20:     rgba(112,0,255,.15);
+            --p:       #3D5A80;
+            --p10:     rgba(61,90,128,.07);
+            --p20:     rgba(61,90,128,.15);
             --err:     #000;
             --err10:   rgba(0,0,0,.08);
-            --dark:    #000;
-            --gray:    #000;
+            --dark:    #1a1a2e;
+            --gray:    #6b7280;
             --border:  #D0D3D9;
-            --bg:      #FFFFFF;
+            --bg:      #FAF9F5;
             --nav-h:   56px;
-            --nav-bg:  #7000FF;
+            --nav-bg:  #3D5A80;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -50,7 +50,7 @@
             justify-content: center;
             padding: 0 8px;
             gap: 0;
-            box-shadow: 0 2px 16px rgba(112,0,255,.2);
+            box-shadow: 0 2px 16px rgba(61,90,128,.25);
             border: none;
             flex-wrap: nowrap;
         }
@@ -238,7 +238,7 @@
 
         .alert-stack { position: fixed; bottom: 20px; right: 20px; z-index: 9999; min-width: 280px; }
         .alert { border: none; border-radius: 12px; font-size: .875rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
-        .alert-success { background: #7000FF; color: #fff; }
+        .alert-success { background: #3D5A80; color: #fff; }
         .alert-danger, .alert-error { background: #000; color: #fff; }
         .alert-info { background: var(--p10); color: var(--p); border: 1px solid var(--p20); }
         .alert-warning { background: #D0D3D9; color: #000; }
@@ -288,8 +288,8 @@
                 background: var(--nav-bg);
                 padding: 16px 20px;
                 border-radius: 18px;
-                border: 1px solid rgba(112,0,255,.1);
-                box-shadow: 0 8px 32px rgba(112,0,255,.15);
+                border: 1px solid rgba(61,90,128,.1);
+                box-shadow: 0 8px 32px rgba(61,90,128,.15);
                 z-index: 998;
             }
             .mob-toggle { display: block; margin-right: 6px; }
@@ -307,7 +307,7 @@
     <a class="nav-brand" href="{% url 'dashboard' %}">
         <div class="brand-logo">
             <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="34" height="34" rx="9" fill="#7000FF"/>
+                <rect width="34" height="34" rx="9" fill="#3D5A80"/>
                 <path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </div>
@@ -416,7 +416,7 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <div class="d-flex align-items-center mb-3" style="gap:10px;">
-                    <svg width="32" height="32" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#7000FF"/><path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg width="32" height="32" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#3D5A80"/><path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <div>
                         <div style="font-size:1.1rem;font-weight:900;color:#fff;">Makon</div>
                         <div style="font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.4);">Yotoqxona tizimi</div>
