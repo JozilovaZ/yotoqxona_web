@@ -44,16 +44,27 @@ class CustomUserAdmin(UserAdmin):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
         if not request.user.is_superuser:
-            # Superuser bo'lmasa building, is_superuser, is_staff, permissions ko'rinmasin
+            hidden = ('building', 'is_superuser', 'is_staff', 'user_permissions', 'groups')
             new_fieldsets = []
             for title, opts in fieldsets:
                 fields = list(opts.get('fields', []))
-                for remove_field in ('building', 'is_superuser', 'user_permissions', 'groups'):
-                    if remove_field in fields:
-                        fields.remove(remove_field)
-                new_fieldsets.append((title, {**opts, 'fields': fields}))
+                fields = [f for f in fields if f not in hidden]
+                if fields:
+                    new_fieldsets.append((title, {**opts, 'fields': fields}))
             return new_fieldsets
         return fieldsets
+
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser and request.user.building_id:
+            # Bino admini yaratgan userlar o'z binosiga biriktiriladi
+            if not change:
+                obj.building = request.user.building
+                obj.is_staff = True
+            # O'z binosidan boshqasiga o'zgartira olmaydi
+            if obj.building_id and obj.building_id != request.user.building_id:
+                from django.core.exceptions import PermissionDenied
+                raise PermissionDenied("Faqat o'z binongiz uchun foydalanuvchi yaratishingiz mumkin.")
+        super().save_model(request, obj, form, change)
 
     # To'liq ismni chiroyli ko'rsatish
     def full_name_display(self, obj):

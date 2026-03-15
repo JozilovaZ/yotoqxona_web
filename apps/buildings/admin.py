@@ -40,6 +40,18 @@ class BuildingAdmin(BuildingFilterMixin, admin.ModelAdmin):
             qs = qs.filter(id=request.user.building_id)
         return qs.annotate(floors_count=Count('floors', distinct=True))
 
+    def has_add_permission(self, request):
+        # Bino admini yangi bino yarata olmaydi
+        if not request.user.is_superuser and request.user.building_id:
+            return False
+        return super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        # Bino admini binoni o'chira olmaydi
+        if not request.user.is_superuser and request.user.building_id:
+            return False
+        return super().has_delete_permission(request, obj)
+
     def count_floors(self, obj):
         return obj.floors_count
     count_floors.short_description = "Etajlar soni"
