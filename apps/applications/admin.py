@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Application, CarouselImage
+from accounts.admin_mixins import BuildingFilteredFormMixin
 
 
 @admin.register(CarouselImage)
@@ -18,7 +19,9 @@ class CarouselImageAdmin(admin.ModelAdmin):
 
 
 @admin.register(Application)
-class ApplicationAdmin(admin.ModelAdmin):
+class ApplicationAdmin(BuildingFilteredFormMixin, admin.ModelAdmin):
+    building_filter_field = 'room__floor__building'
+
     list_display = ['last_name', 'first_name', 'student_id', 'room', 'status', 'created_at']
     list_filter = ['status', 'created_at']
     search_fields = ['first_name', 'last_name', 'student_id']

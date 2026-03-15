@@ -7,7 +7,7 @@ from .models import User
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     # 1. Ro'yxatda ko'rinadigan ustunlar
-    list_display = ('username', 'full_name_display', 'role', 'phone', 'avatar_thumbnail', 'is_active', 'is_staff')
+    list_display = ('username', 'full_name_display', 'role', 'building', 'phone', 'avatar_thumbnail', 'is_active', 'is_staff')
 
     # 2. Bosganda tahrirlashga kiradigan ustunlar
     list_display_links = ('username', 'full_name_display')
@@ -19,21 +19,41 @@ class CustomUserAdmin(UserAdmin):
     search_fields = ('username', 'first_name', 'last_name', 'phone', 'email')
 
     # 5. Tahrirlash oynasidagi maydonlar guruhlanishi
-    # UserAdmin.fieldsets ni olib, unga o'zimizning maydonlarni qo'shamiz
     fieldsets = UserAdmin.fieldsets + (
         ("Qo'shimcha ma'lumotlar", {
-            'fields': ('role', 'phone', 'avatar'),
+            'fields': ('role', 'building', 'phone', 'avatar'),
         }),
     )
 
     # 6. Yangi foydalanuvchi qo'shish oynasidagi maydonlar
     add_fieldsets = UserAdmin.add_fieldsets + (
         (None, {
-            'fields': ('email', 'first_name', 'last_name', 'role', 'phone'),
+            'fields': ('email', 'first_name', 'last_name', 'role', 'building', 'phone'),
         }),
     )
 
-    # --- Qo'shimcha metodlar ---
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser and request.user.building_id:
+            from django.db.models import Q
+            qs = qs.filter(
+                Q(building_id=request.user.building_id) | Q(id=request.user.id)
+            )
+        return qs
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if not request.user.is_superuser:
+            # Superuser bo'lmasa building, is_superuser, is_staff, permissions ko'rinmasin
+            new_fieldsets = []
+            for title, opts in fieldsets:
+                fields = list(opts.get('fields', []))
+                for remove_field in ('building', 'is_superuser', 'user_permissions', 'groups'):
+                    if remove_field in fields:
+                        fields.remove(remove_field)
+                new_fieldsets.append((title, {**opts, 'fields': fields}))
+            return new_fieldsets
+        return fieldsets
 
     # To'liq ismni chiroyli ko'rsatish
     def full_name_display(self, obj):

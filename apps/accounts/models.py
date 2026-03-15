@@ -18,6 +18,15 @@ class User(AbstractUser):
         default=Role.STAFF,
         verbose_name="Rol"
     )
+    building = models.ForeignKey(
+        'buildings.Building',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='staff_users',
+        verbose_name="Biriktirilgan bino",
+        help_text="Admin/Menejer/Xodim faqat shu binoni boshqara oladi. Bo'sh = barcha binolar."
+    )
     phone = models.CharField(max_length=20, blank=True, verbose_name="Telefon")
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name="Rasm")
 
@@ -47,3 +56,8 @@ class User(AbstractUser):
     @property
     def is_applicant(self):
         return self.role == self.Role.APPLICANT
+
+    @property
+    def has_building_restriction(self):
+        """User bitta binoga biriktirilganmi?"""
+        return self.building_id is not None and not self.is_superuser

@@ -21,16 +21,27 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = timezone.now().date()
+        user = self.request.user
+
+        # Bino filtr — admin faqat o'z binosini ko'radi
+        bld_filter = {}
+        room_bld_filter = {}
+        student_bld_filter = {}
+        if not user.is_superuser and user.building_id:
+            bld_filter = {'id': user.building_id}
+            room_bld_filter = {'floor__building_id': user.building_id}
+            student_bld_filter = {'room__floor__building_id': user.building_id}
+            context['user_building'] = user.building
 
         # Umumiy statistika
-        context['total_buildings'] = Building.objects.filter(is_active=True).count()
-        context['total_rooms'] = Room.objects.filter(is_active=True).count()
-        context['total_students'] = Student.objects.filter(is_active=True).count()
+        context['total_buildings'] = Building.objects.filter(is_active=True, **bld_filter).count()
+        rooms_qs = Room.objects.filter(is_active=True, **room_bld_filter)
+        students_qs = Student.objects.filter(is_active=True, **student_bld_filter)
+        context['total_rooms'] = rooms_qs.count()
+        context['total_students'] = students_qs.count()
 
         # Xonalar statistikasi
-        total_capacity = Room.objects.filter(is_active=True).aggregate(
-            total=Sum('capacity')
-        )['total'] or 0
+        total_capacity = rooms_qs.aggregate(total=Sum('capacity'))['total'] or 0
         context['total_capacity'] = total_capacity
         context['occupied_beds'] = context['total_students']
         context['free_beds'] = max(0, total_capacity - context['total_students'])
@@ -39,32 +50,37 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         )
 
         # Bo'sh xonalar
-        context['empty_rooms'] = Room.objects.filter(is_active=True, status='available').count()
-        context['full_rooms'] = Room.objects.filter(is_active=True, status='full').count()
-        context['partial_rooms'] = Room.objects.filter(is_active=True, status='partial').count()
+        context['empty_rooms'] = rooms_qs.filter(status='available').count()
+        context['full_rooms'] = rooms_qs.filter(status='full').count()
+        context['partial_rooms'] = rooms_qs.filter(status='partial').count()
+
+        # Moliya filtr
+        payment_filter = {'status': 'completed'}
+        invoice_filter = {'status__in': ['pending', 'partial', 'overdue']}
+        if student_bld_filter:
+            payment_filter['student__room__floor__building_id'] = user.building_id
+            invoice_filter['student__room__floor__building_id'] = user.building_id
 
         # Moliya - bu oy
         context['total_collected_month'] = Payment.objects.filter(
             payment_date__year=today.year,
             payment_date__month=today.month,
-            status='completed'
+            **payment_filter
         ).aggregate(total=Sum('amount'))['total'] or 0
 
         # Moliya - bugun
         context['total_collected_today'] = Payment.objects.filter(
             payment_date__date=today,
-            status='completed'
+            **payment_filter
         ).aggregate(total=Sum('amount'))['total'] or 0
 
         # Kutilayotgan to'lovlar
         context['pending_amount'] = Invoice.objects.filter(
-            status__in=['pending', 'partial', 'overdue']
+            **invoice_filter
         ).aggregate(total=Sum('amount'))['total'] or 0
 
         # Qarzdorlar
-        context['debtors_count'] = Student.objects.filter(
-            is_active=True
-        ).annotate(
+        context['debtors_count'] = students_qs.annotate(
             total_invoiced=Sum('invoices__amount'),
             total_paid=Sum('payments__amount', filter=Q(payments__status='completed'))
         ).filter(
@@ -74,7 +90,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ).count()
 
         # Davomat
-        today_att = Attendance.objects.filter(date=today)
+        att_filter = {'date': today}
+        if student_bld_filter:
+            att_filter['student__room__floor__building_id'] = user.building_id
+        today_att = Attendance.objects.filter(**att_filter)
         context['today_present'] = today_att.filter(status='present').count()
         context['today_absent'] = today_att.filter(status='absent').count()
         context['today_attendance'] = context['today_present']
@@ -84,7 +103,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         )
 
         # Binolar bandlik ma'lumoti
-        buildings = Building.objects.filter(is_active=True)
+        buildings = Building.objects.filter(is_active=True, **bld_filter)
         buildings_data = []
         for b in buildings:
             cap = Room.objects.filter(floor__building=b, is_active=True).aggregate(
@@ -101,7 +120,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['buildings_data'] = buildings_data
 
         # Xonalar holati
-        context['rooms_by_status'] = Room.objects.filter(is_active=True).values('status').annotate(
+        context['rooms_by_status'] = rooms_qs.values('status').annotate(
             count=Count('id')
         )
 

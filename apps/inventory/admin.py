@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.db.models import Sum
 from .models import InventoryCategory, InventoryItem, InventoryItemImage, RoomInventory, InventoryLog
+from accounts.admin_mixins import BuildingFilteredFormMixin
 
 
 # --- INLINES ---
@@ -37,7 +38,7 @@ class InventoryLogInline(admin.TabularInline):
     can_delete = False
 
     def has_add_permission(self, request, obj):
-        return False  # Loglarni qo'lda qo'shib bo'lmaydi
+        return False
 
 
 # --- ADMIN CLASSES ---
@@ -50,7 +51,6 @@ class InventoryCategoryAdmin(admin.ModelAdmin):
 
     def item_count(self, obj):
         return obj.items.count()
-
     item_count.short_description = "Jihoz turlari soni"
 
 
@@ -77,32 +77,31 @@ class InventoryItemAdmin(admin.ModelAdmin):
 
     def unit_price_fmt(self, obj):
         return f"{obj.unit_price:,.0f} so'm"
-
     unit_price_fmt.short_description = "Donasining narxi"
 
     def total_in_rooms(self, obj):
         count = obj.room_items.aggregate(total=Sum('quantity'))['total'] or 0
         return f"{count} dona"
-
     total_in_rooms.short_description = "Xonalardagi jami soni"
 
 
 @admin.register(RoomInventory)
-class RoomInventoryAdmin(admin.ModelAdmin):
+class RoomInventoryAdmin(BuildingFilteredFormMixin, admin.ModelAdmin):
+    building_filter_field = 'room__floor__building'
+
     list_display = ('item_name', 'room_link', 'quantity', 'condition', 'total_value_fmt', 'purchase_date')
     list_filter = ('condition', 'item__category', 'purchase_date')
     search_fields = ('item__name', 'room__number', 'serial_number')
-    autocomplete_fields = ['room', 'item']  # Room va Item ko'p bo'lsa qotmasligi uchun
-    list_editable = ('condition',)  # Ro'yxatdan turib holatni o'zgartirish
-    inlines = [InventoryLogInline]  # Tarixni ko'rish
+    autocomplete_fields = ['room', 'item']
+    list_editable = ('condition',)
+    inlines = [InventoryLogInline]
 
-    # N+1 muammosini oldini olish uchun (Optimization)
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('room', 'item', 'room__floor__building')
+        qs = super().get_queryset(request)
+        return qs.select_related('room', 'item', 'room__floor__building')
 
     def item_name(self, obj):
         return f"{obj.item.name} ({obj.serial_number})" if obj.serial_number else obj.item.name
-
     item_name.short_description = "Jihoz"
 
     def room_link(self, obj):
@@ -111,41 +110,32 @@ class RoomInventoryAdmin(admin.ModelAdmin):
             obj.room.id,
             str(obj.room)
         )
-
     room_link.short_description = "Xona"
 
     def total_value_fmt(self, obj):
         return f"{obj.total_value:,.0f}"
-
     total_value_fmt.short_description = "Jami qiymati"
 
     def condition_colored(self, obj):
         colors = {
             'new': 'green',
-            'good': '#2e7d32',  # Dark green
+            'good': '#2e7d32',
             'fair': 'orange',
-            'poor': '#d32f2f',  # Red
+            'poor': '#d32f2f',
             'broken': 'black',
         }
-        icons = {
-            'new': '✨',
-            'good': '👍',
-            'fair': '😐',
-            'poor': '👎',
-            'broken': '💀',
-        }
         return format_html(
-            '<span style="color: {}; font-weight: bold;">{} {}</span>',
+            '<span style="color: {}; font-weight: bold;">{}</span>',
             colors.get(obj.condition, 'black'),
-            icons.get(obj.condition, ''),
             obj.get_condition_display()
         )
-
     condition_colored.short_description = "Holati"
 
 
 @admin.register(InventoryLog)
-class InventoryLogAdmin(admin.ModelAdmin):
+class InventoryLogAdmin(BuildingFilteredFormMixin, admin.ModelAdmin):
+    building_filter_field = 'room_inventory__room__floor__building'
+
     list_display = ('performed_at', 'room_inventory', 'action_colored', 'performed_by')
     list_filter = ('action', 'performed_at')
     search_fields = ('room_inventory__item__name', 'notes', 'performed_by__username')
@@ -170,5 +160,4 @@ class InventoryLogAdmin(admin.ModelAdmin):
             colors.get(obj.action, 'black'),
             obj.get_action_display()
         )
-
     action_colored.short_description = "Harakat"
