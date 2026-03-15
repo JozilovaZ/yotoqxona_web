@@ -36,6 +36,12 @@ class InventoryItem(models.Model):
     )
     name = models.CharField(max_length=100, verbose_name="Nomi")
     description = models.TextField(blank=True, verbose_name="Tavsif")
+    image = models.ImageField(
+        upload_to='inventory/',
+        blank=True,
+        null=True,
+        verbose_name="Rasm"
+    )
     unit_price = models.DecimalField(
         max_digits=12,
         decimal_places=2,

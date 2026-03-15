@@ -8,6 +8,7 @@ from .models import Application, CarouselImage
 from .forms import ApplicationForm, ApplicationReviewForm
 from buildings.models import Building, Floor, Room
 from students.models import Student
+from inventory.models import InventoryItem
 
 
 class StudentHomeView(TemplateView):
@@ -102,6 +103,9 @@ class BuildingDetailForApplicantView(DetailView):
         ctx['total_capacity'] = total_capacity
         ctx['total_available'] = total_available
         ctx['total_rooms'] = sum(fd['total_rooms'] for fd in floors_data)
+        ctx['inventory_items'] = InventoryItem.objects.filter(
+            image__isnull=False
+        ).exclude(image='').select_related('category')
         return ctx
 
 

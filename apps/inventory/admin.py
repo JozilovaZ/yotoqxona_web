@@ -10,7 +10,7 @@ class InventoryItemInline(admin.TabularInline):
     """Kategoriya ichida jihoz turlarini ko'rsatish"""
     model = InventoryItem
     extra = 0
-    fields = ('name', 'unit_price')
+    fields = ('name', 'image', 'unit_price')
     show_change_link = True
 
 
@@ -42,10 +42,16 @@ class InventoryCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(InventoryItem)
 class InventoryItemAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'unit_price_fmt', 'total_in_rooms')
+    list_display = ('image_preview', 'name', 'category', 'unit_price_fmt', 'total_in_rooms')
     list_filter = ('category',)
     search_fields = ('name', 'category__name')
     list_per_page = 20
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;" />', obj.image.url)
+        return '-'
+    image_preview.short_description = "Rasm"
 
     def unit_price_fmt(self, obj):
         return f"{obj.unit_price:,.0f} so'm"
