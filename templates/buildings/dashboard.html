@@ -1,24 +1,7 @@
 {% extends "base.html" %}
 
-{% block page_title %}Umumiy ko'rinish{% endblock %}
-{% block page_sub %}<p class="page-sub">Yotoqxona boshqaruv tizimi — joriy holat</p>{% endblock %}
-{% block page_actions %}
-<div style="display:flex;gap:10px;">
-    <a href="{% url 'students:student_create' %}" class="btn-accent">
-        <i class="fas fa-plus me-1" style="font-size:.8rem;"></i> Talaba qo'shish
-    </a>
-    <a href="{% url 'finance:payment_create' %}" style="
-        display:inline-flex;align-items:center;gap:6px;
-        padding:8px 18px; border-radius:10px;
-        border:1.5px solid var(--border); color:var(--dark);
-        font-weight:700; font-size:0.875rem; text-decoration:none;
-        background:#fff; transition:all .15s;
-    " onmouseover="this.style.borderColor='var(--p)';this.style.color='var(--p)';"
-       onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dark)';">
-        <i class="fas fa-wallet" style="font-size:.8rem;"></i> To'lov qabul
-    </a>
-</div>
-{% endblock %}
+{% block page_title %}Boshqaruv paneli{% endblock %}
+{% block page_sub %}<p class="page-sub">Bugungi holat va umumiy statistika</p>{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -115,21 +98,63 @@
     margin-bottom: 16px;
 }
 
-/* ═══════════ BINOLAR ═══════════ */
-.bld-item {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
+/* ═══════════ BINOLAR GRID ═══════════ */
+.bld-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+    padding: 18px;
 }
-.bld-item:last-child { border-bottom: none; }
-.bld-top {
-    display: flex; align-items: center;
-    justify-content: space-between; margin-bottom: 7px;
+.bld-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .2s, transform .18s;
 }
-.bld-name { font-size: .875rem; font-weight: 700; color: var(--dark); }
-.bld-pct  { font-size: .8rem; font-weight: 800; }
-.bld-bar  { height: 7px; background: #D0D3D9; border-radius: 99px; overflow: hidden; }
-.bld-fill { height: 100%; border-radius: 99px; transition: width .7s cubic-bezier(.25,.8,.25,1); }
-.bld-meta { display: flex; justify-content: space-between; font-size: .69rem; color: var(--gray); margin-top: 5px; }
+.bld-card:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,.07);
+    transform: translateY(-2px);
+}
+.bld-card-head {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.bld-card-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+}
+.bld-card-name {
+    font-size: .95rem; font-weight: 800; color: var(--dark);
+}
+.bld-card-pct {
+    font-size: .75rem; font-weight: 700; color: var(--gray);
+}
+.bld-ring-wrap {
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+}
+.bld-ring {
+    position: relative; width: 90px; height: 90px;
+}
+.bld-ring svg { transform: rotate(-90deg); }
+.bld-ring-bg { fill: none; stroke: #E8EAED; stroke-width: 8; }
+.bld-ring-fill { fill: none; stroke-width: 8; stroke-linecap: round;
+    transition: stroke-dashoffset .8s cubic-bezier(.25,.8,.25,1); }
+.bld-ring-text {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: 900; color: var(--dark);
+}
+.bld-card-stats {
+    display: flex; justify-content: space-between;
+    padding-top: 12px; border-top: 1px solid var(--border);
+}
+.bld-stat { text-align: center; }
+.bld-stat-val { font-size: 1.05rem; font-weight: 800; color: var(--dark); }
+.bld-stat-lbl { font-size: .65rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
 
 /* ═══════════ UCHLIK PASTKI ═══════════ */
 .dash-three {
@@ -233,38 +258,60 @@
 <!-- ══════════════════════════════════════════════
      2-QATOR: TALABALAR + BINOLAR
 ══════════════════════════════════════════════ -->
-<div class="dash-two" style="grid-template-columns:1fr;">
-
-    <!-- Binolar bandligi -->
-    <div class="panel">
-        <div class="panel-head">
-            <span class="ph-title">
-                <span class="ph-icon"><i class="fas fa-building"></i></span>
-                Binolar bandligi
-            </span>
-            <a href="{% url 'buildings:building_list' %}" class="ph-link">Ko'rish →</a>
-        </div>
+<!-- Binolar bandligi -->
+<div class="panel" style="margin-bottom:16px;">
+    <div class="panel-head">
+        <span class="ph-title">
+            <span class="ph-icon"><i class="fas fa-building"></i></span>
+            Binolar bandligi
+        </span>
+        <a href="{% url 'buildings:building_list' %}" class="ph-link">Barchasini ko'rish →</a>
+    </div>
+    <div class="bld-grid">
         {% for bd in buildings_data %}
-        <div class="bld-item">
-            <div class="bld-top">
-                <span class="bld-name">{{ bd.building.name }}</span>
-                <span class="bld-pct" style="color:var(--p);">
-                    {{ bd.rate }}%
-                </span>
+        <div class="bld-card">
+            <div class="bld-card-head">
+                <div class="bld-card-icon" style="background:{% if bd.rate >= 80 %}#FEE2E2;color:#DC2626;{% elif bd.rate >= 50 %}#FEF3C7;color:#D97706;{% else %}var(--p10);color:var(--p);{% endif %}">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div>
+                    <div class="bld-card-name">{{ bd.building.name }}</div>
+                    <div class="bld-card-pct">{{ bd.occupied }} / {{ bd.capacity }} o'rin band</div>
+                </div>
             </div>
-            <div class="bld-bar">
-                <div class="bld-fill" style="width:{{ bd.rate }}%;background:var(--p);"></div>
+            <div class="bld-ring-wrap">
+                <div class="bld-ring">
+                    <svg viewBox="0 0 100 100" width="90" height="90">
+                        <circle class="bld-ring-bg" cx="50" cy="50" r="42"/>
+                        <circle class="bld-ring-fill" cx="50" cy="50" r="42"
+                            stroke="{% if bd.rate >= 80 %}#DC2626{% elif bd.rate >= 50 %}#D97706{% else %}var(--p){% endif %}"
+                            stroke-dasharray="263.9"
+                            stroke-dashoffset="263.9"
+                            data-rate="{{ bd.rate }}"
+                        />
+                    </svg>
+                    <span class="bld-ring-text">{{ bd.rate }}%</span>
+                </div>
             </div>
-            <div class="bld-meta">
-                <span>{{ bd.occupied }} talaba</span>
-                <span>{{ bd.free }} bo'sh joy</span>
+            <div class="bld-card-stats">
+                <div class="bld-stat">
+                    <div class="bld-stat-val" style="color:var(--p);">{{ bd.occupied }}</div>
+                    <div class="bld-stat-lbl">Talaba</div>
+                </div>
+                <div class="bld-stat">
+                    <div class="bld-stat-val">{{ bd.free }}</div>
+                    <div class="bld-stat-lbl">Bo'sh joy</div>
+                </div>
+                <div class="bld-stat">
+                    <div class="bld-stat-val">{{ bd.capacity }}</div>
+                    <div class="bld-stat-lbl">Sig'im</div>
+                </div>
             </div>
         </div>
         {% empty %}
-        <div class="empty-dash">Binolar topilmadi</div>
+        <div class="empty-dash" style="grid-column:1/-1;">Binolar topilmadi</div>
         {% endfor %}
     </div>
-
 </div>
 
 <!-- ══════════════════════════════════════════════
@@ -377,4 +424,14 @@
 
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.bld-ring-fill').forEach(function(el){
+        var rate = parseFloat(el.dataset.rate) || 0;
+        var circ = 2 * Math.PI * 42;
+        var offset = circ - (circ * rate / 100);
+        setTimeout(function(){ el.style.strokeDashoffset = offset; }, 100);
+    });
+});
+</script>
 {% endblock %}
