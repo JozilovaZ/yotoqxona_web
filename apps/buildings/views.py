@@ -13,9 +13,10 @@ from .forms import BuildingForm, FloorForm, RoomForm
 from students.models import Student
 from finance.models import Payment, Invoice
 from attendance.models import Attendance
+from accounts.view_mixins import BuildingStaffMixin
 
 
-class DashboardView(LoginRequiredMixin, TemplateView):
+class DashboardView(BuildingStaffMixin, TemplateView):
     template_name = 'buildings/dashboard.html'
 
     def get_context_data(self, **kwargs):
@@ -128,26 +129,29 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
 
 # Building Views
-class BuildingListView(LoginRequiredMixin, ListView):
+class BuildingListView(BuildingStaffMixin, ListView):
     model = Building
     template_name = 'buildings/building_list.html'
     context_object_name = 'buildings'
 
     def get_queryset(self):
-        return Building.objects.filter(is_active=True).prefetch_related('floors', 'floors__rooms')
+        return self.get_buildings_qs().prefetch_related('floors', 'floors__rooms')
 
 
-class BuildingDetailView(LoginRequiredMixin, DetailView):
+class BuildingDetailView(BuildingStaffMixin, DetailView):
     model = Building
     template_name = 'buildings/building_detail.html'
     context_object_name = 'building'
+
+    def get_queryset(self):
+        return self.get_buildings_qs()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['floors'] = self.object.floors.filter(is_active=True).prefetch_related('rooms')
         return context
 
-class BuildingCreateView(LoginRequiredMixin, CreateView):
+class BuildingCreateView(BuildingStaffMixin, CreateView):
     model = Building
     form_class = BuildingForm
     template_name = 'buildings/building_form.html'
@@ -158,21 +162,27 @@ class BuildingCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class BuildingUpdateView(LoginRequiredMixin, UpdateView):
+class BuildingUpdateView(BuildingStaffMixin, UpdateView):
     model = Building
     form_class = BuildingForm
     template_name = 'buildings/building_form.html'
     success_url = reverse_lazy('buildings:building_list')
+
+    def get_queryset(self):
+        return self.get_buildings_qs()
 
     def form_valid(self, form):
         messages.success(self.request, 'Bino muvaffaqiyatli yangilandi')
         return super().form_valid(form)
 
 
-class BuildingDeleteView(LoginRequiredMixin, DeleteView):
+class BuildingDeleteView(BuildingStaffMixin, DeleteView):
     model = Building
     template_name = 'buildings/building_confirm_delete.html'
     success_url = reverse_lazy('buildings:building_list')
+
+    def get_queryset(self):
+        return self.get_buildings_qs()
 
     def form_valid(self, form):
         messages.success(self.request, 'Bino o\'chirildi')
@@ -180,14 +190,14 @@ class BuildingDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # Floor Views
-class FloorListView(LoginRequiredMixin, ListView):
+class FloorListView(BuildingStaffMixin, ListView):
     model = Floor
     template_name = 'buildings/floor_list.html'
     context_object_name = 'floors'
 
     def get_queryset(self):
-        self.building = get_object_or_404(Building, pk=self.kwargs['building_pk'])
-        return Floor.objects.filter(building=self.building, is_active=True).prefetch_related('rooms')
+        self.building = get_object_or_404(self.get_buildings_qs(), pk=self.kwargs['building_pk'])
+        return self.get_floors_qs().filter(building=self.building).prefetch_related('rooms')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -195,7 +205,7 @@ class FloorListView(LoginRequiredMixin, ListView):
         return context
 
 
-class FloorCreateView(LoginRequiredMixin, CreateView):
+class FloorCreateView(BuildingStaffMixin, CreateView):
     model = Floor
     form_class = FloorForm
     template_name = 'buildings/floor_form.html'
@@ -219,7 +229,7 @@ class FloorCreateView(LoginRequiredMixin, CreateView):
         return reverse('buildings:building_detail', kwargs={'pk': self.kwargs['building_pk']})
 
 
-class FloorUpdateView(LoginRequiredMixin, UpdateView):
+class FloorUpdateView(BuildingStaffMixin, UpdateView):
     model = Floor
     form_class = FloorForm
     template_name = 'buildings/floor_form.html'
@@ -232,7 +242,7 @@ class FloorUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('buildings:building_detail', kwargs={'pk': self.object.building.pk})
 
 
-class FloorDeleteView(LoginRequiredMixin, DeleteView):
+class FloorDeleteView(BuildingStaffMixin, DeleteView):
     model = Floor
     template_name = 'buildings/floor_confirm_delete.html'
 
@@ -245,14 +255,14 @@ class FloorDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # Room Views
-class RoomListView(LoginRequiredMixin, ListView):
+class RoomListView(BuildingStaffMixin, ListView):
     model = Room
     template_name = 'buildings/room_list.html'
     context_object_name = 'rooms'
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Room.objects.filter(is_active=True).select_related(
+        queryset = self.get_rooms_qs().select_related(
             'floor', 'floor__building'
         ).prefetch_related('students')
 
@@ -275,16 +285,19 @@ class RoomListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['buildings'] = Building.objects.filter(is_active=True)
+        context['buildings'] = self.get_buildings_qs()
         context['room_statuses'] = Room.RoomStatus.choices
         context['room_types'] = Room.RoomType.choices
         return context
 
 
-class RoomDetailView(LoginRequiredMixin, DetailView):
+class RoomDetailView(BuildingStaffMixin, DetailView):
     model = Room
     template_name = 'buildings/room_detail.html'
     context_object_name = 'room'
+
+    def get_queryset(self):
+        return self.get_rooms_qs()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -309,7 +322,7 @@ class RoomDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class RoomCreateView(LoginRequiredMixin, CreateView):
+class RoomCreateView(BuildingStaffMixin, CreateView):
     model = Room
     form_class = RoomForm
     template_name = 'buildings/room_form.html'
@@ -328,7 +341,7 @@ class RoomCreateView(LoginRequiredMixin, CreateView):
         return reverse('buildings:building_detail', kwargs={'pk': self.object.floor.building.pk})
 
 
-class RoomUpdateView(LoginRequiredMixin, UpdateView):
+class RoomUpdateView(BuildingStaffMixin, UpdateView):
     model = Room
     form_class = RoomForm
     template_name = 'buildings/room_form.html'
@@ -341,7 +354,7 @@ class RoomUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('buildings:room_detail', kwargs={'pk': self.object.pk})
 
 
-class RoomDeleteView(LoginRequiredMixin, DeleteView):
+class RoomDeleteView(BuildingStaffMixin, DeleteView):
     model = Room
     template_name = 'buildings/room_confirm_delete.html'
 

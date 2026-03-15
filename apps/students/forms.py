@@ -46,9 +46,15 @@ class StudentForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.building_id = kwargs.pop('building_id', None)
         super().__init__(*args, **kwargs)
         # Xona raqamini ko'rsatish formati
         self.fields['room'].label_from_instance = lambda obj: f"{obj.number}-xona"
+
+        # Bino admini faqat o'z binosini ko'radi
+        if self.building_id:
+            self.fields['building'].queryset = Building.objects.filter(id=self.building_id)
+            self.fields['building'].initial = self.building_id
 
         if 'building' in self.data:
             try:
@@ -56,6 +62,8 @@ class StudentForm(forms.ModelForm):
                 self.fields['floor'].queryset = Floor.objects.filter(building_id=building_id, is_active=True)
             except (ValueError, TypeError):
                 pass
+        elif self.building_id:
+            self.fields['floor'].queryset = Floor.objects.filter(building_id=self.building_id, is_active=True)
         elif self.instance and self.instance.pk and self.instance.room:
             self.fields['building'].initial = self.instance.room.floor.building
             self.fields['floor'].queryset = Floor.objects.filter(building=self.instance.room.floor.building)
@@ -106,8 +114,14 @@ class StudentTransferForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.student = kwargs.pop('student', None)
+        self.building_id = kwargs.pop('building_id', None)
         super().__init__(*args, **kwargs)
         self.fields['room'].label_from_instance = lambda obj: f"{obj.number}-xona"
+
+        # Bino admini faqat o'z binosini ko'radi
+        if self.building_id:
+            self.fields['building'].queryset = Building.objects.filter(id=self.building_id)
+            self.fields['building'].initial = self.building_id
 
         if 'building' in self.data:
             try:
@@ -115,6 +129,8 @@ class StudentTransferForm(forms.Form):
                 self.fields['floor'].queryset = Floor.objects.filter(building_id=building_id, is_active=True)
             except (ValueError, TypeError):
                 pass
+        elif self.building_id:
+            self.fields['floor'].queryset = Floor.objects.filter(building_id=self.building_id, is_active=True)
 
         if 'floor' in self.data:
             try:

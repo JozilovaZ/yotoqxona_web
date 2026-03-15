@@ -7,9 +7,10 @@ from django.db.models import Q
 
 from .models import Announcement
 from .forms import AnnouncementForm
+from accounts.view_mixins import BuildingStaffMixin
 
 
-class AnnouncementListView(LoginRequiredMixin, ListView):
+class AnnouncementListView(BuildingStaffMixin, ListView):
     """Barcha foydalanuvchilar uchun e'lonlar"""
     template_name = 'announcements/announcement_list.html'
     context_object_name = 'announcements'
@@ -17,10 +18,14 @@ class AnnouncementListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = Announcement.objects.filter(is_active=True).select_related('building', 'created_by')
-        # Muddati o'tganlarni chiqarish
         qs = qs.filter(
             Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
         )
+        # Bino admini faqat o'z binosi va umumiy e'lonlarni ko'radi
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(Q(building_id=bid) | Q(building__isnull=True))
+
         category = self.request.GET.get('category')
         if category:
             qs = qs.filter(category=category)
@@ -33,36 +38,71 @@ class AnnouncementListView(LoginRequiredMixin, ListView):
         return ctx
 
 
-class AnnouncementCreateView(LoginRequiredMixin, CreateView):
+class AnnouncementCreateView(BuildingStaffMixin, CreateView):
     """Admin: yangi e'lon yaratish"""
     model = Announcement
     form_class = AnnouncementForm
     template_name = 'announcements/announcement_form.html'
     success_url = reverse_lazy('announcements:list')
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        bid = self.get_user_building_id()
+        if bid:
+            from buildings.models import Building
+            form.fields['building'].queryset = Building.objects.filter(id=bid)
+            form.fields['building'].initial = bid
+        return form
+
     def form_valid(self, form):
         form.instance.created_by = self.request.user
+        # Bino admini faqat o'z binosiga e'lon yaratadi
+        bid = self.get_user_building_id()
+        if bid:
+            form.instance.building_id = bid
         messages.success(self.request, "E'lon muvaffaqiyatli yaratildi!")
         return super().form_valid(form)
 
 
-class AnnouncementUpdateView(LoginRequiredMixin, UpdateView):
+class AnnouncementUpdateView(BuildingStaffMixin, UpdateView):
     """Admin: e'lonni tahrirlash"""
     model = Announcement
     form_class = AnnouncementForm
     template_name = 'announcements/announcement_form.html'
     success_url = reverse_lazy('announcements:list')
 
+    def get_queryset(self):
+        qs = Announcement.objects.all()
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(building_id=bid)
+        return qs
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        bid = self.get_user_building_id()
+        if bid:
+            from buildings.models import Building
+            form.fields['building'].queryset = Building.objects.filter(id=bid)
+        return form
+
     def form_valid(self, form):
         messages.success(self.request, "E'lon yangilandi!")
         return super().form_valid(form)
 
 
-class AnnouncementDeleteView(LoginRequiredMixin, DeleteView):
+class AnnouncementDeleteView(BuildingStaffMixin, DeleteView):
     """Admin: e'lonni o'chirish"""
     model = Announcement
     template_name = 'announcements/announcement_confirm_delete.html'
     success_url = reverse_lazy('announcements:list')
+
+    def get_queryset(self):
+        qs = Announcement.objects.all()
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(building_id=bid)
+        return qs
 
     def form_valid(self, form):
         messages.success(self.request, "E'lon o'chirildi!")

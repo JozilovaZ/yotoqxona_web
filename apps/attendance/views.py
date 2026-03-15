@@ -12,26 +12,32 @@ from .models import Attendance, AttendanceReport
 from .forms import AttendanceForm, BulkAttendanceForm
 from students.models import Student
 from buildings.models import Building, Floor, Room
+from accounts.view_mixins import BuildingStaffMixin
 
 
-class AttendanceDashboardView(LoginRequiredMixin, TemplateView):
+class AttendanceDashboardView(BuildingStaffMixin, TemplateView):
     template_name = 'attendance/dashboard.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = timezone.now().date()
+        bid = self.get_user_building_id()
 
-        total_students = Student.objects.filter(is_active=True).count()
+        student_filter = {}
+        att_filter = {'date': today}
+        if bid:
+            student_filter = {'room__floor__building_id': bid}
+            att_filter['student__room__floor__building_id'] = bid
+
+        total_students = Student.objects.filter(is_active=True, **student_filter).count()
 
         # Bugungi davomat
-        today_attendance = Attendance.objects.filter(date=today)
+        today_attendance = Attendance.objects.filter(**att_filter)
         context['present_count'] = today_attendance.filter(status='present').count()
         context['absent_count'] = today_attendance.filter(status='absent').count()
         context['late_count'] = today_attendance.filter(status='late').count()
         context['excused_count'] = today_attendance.filter(status='excused').count()
 
-        # Belgilanmagan
-        marked_students = today_attendance.values_list('student_id', flat=True)
         context['unmarked_count'] = total_students - today_attendance.count()
 
         # Haftalik statistika
@@ -39,26 +45,28 @@ class AttendanceDashboardView(LoginRequiredMixin, TemplateView):
         context['week_stats'] = []
         for i in range(7):
             day = week_start + timedelta(days=i)
-            day_attendance = Attendance.objects.filter(date=day)
+            day_filter = {'date': day}
+            if bid:
+                day_filter['student__room__floor__building_id'] = bid
+            day_attendance = Attendance.objects.filter(**day_filter)
             context['week_stats'].append({
                 'date': day,
                 'present': day_attendance.filter(status='present').count(),
                 'absent': day_attendance.filter(status='absent').count(),
             })
 
-        # Binolar bo'yicha
-        context['buildings'] = Building.objects.filter(is_active=True)
+        context['buildings'] = self.get_buildings_qs()
 
         return context
 
 
-class DailyAttendanceView(LoginRequiredMixin, TemplateView):
+class DailyAttendanceView(BuildingStaffMixin, TemplateView):
     template_name = 'attendance/daily.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        bid = self.get_user_building_id()
 
-        # Sana
         date_str = self.request.GET.get('date')
         if date_str:
             selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -67,7 +75,6 @@ class DailyAttendanceView(LoginRequiredMixin, TemplateView):
 
         context['selected_date'] = selected_date
 
-        # Filtrlash
         building_id = self.request.GET.get('building')
         floor_id = self.request.GET.get('floor')
 
@@ -75,12 +82,15 @@ class DailyAttendanceView(LoginRequiredMixin, TemplateView):
             'room', 'room__floor', 'room__floor__building'
         )
 
+        # Bino admini faqat o'z binosi talabalarini ko'radi
+        if bid:
+            students = students.filter(room__floor__building_id=bid)
+
         if building_id:
             students = students.filter(room__floor__building_id=building_id)
         if floor_id:
             students = students.filter(room__floor_id=floor_id)
 
-        # Davomat ma'lumotlari
         attendance_dict = {}
         attendances = Attendance.objects.filter(date=selected_date)
         for att in attendances:
@@ -94,24 +104,26 @@ class DailyAttendanceView(LoginRequiredMixin, TemplateView):
             })
 
         context['student_list'] = student_list
-        context['buildings'] = Building.objects.filter(is_active=True)
+        context['buildings'] = self.get_buildings_qs()
         context['statuses'] = Attendance.Status.choices
 
         if building_id:
             context['floors'] = Floor.objects.filter(building_id=building_id, is_active=True)
+        elif bid:
+            context['floors'] = Floor.objects.filter(building_id=bid, is_active=True)
 
         return context
 
 
-class MarkAttendanceView(LoginRequiredMixin, View):
+class MarkAttendanceView(BuildingStaffMixin, View):
     def get(self, request):
         today = timezone.now().date()
         date_str = request.GET.get('date')
         selected_date = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else today
+        bid = self.get_user_building_id()
 
-        # Finance dizayni kabi ma'lumotlarni guruhlash
         floors_data = []
-        floors = Floor.objects.all().order_by('number')
+        floors = self.get_floors_qs().order_by('number')
 
         for floor in floors:
             rooms_list = []
@@ -143,7 +155,7 @@ class MarkAttendanceView(LoginRequiredMixin, View):
         context = {
             'floors_data': floors_data,
             'selected_date': selected_date,
-            'statuses': Attendance.Status.choices,  # Bor, Yo'q, Kechikkan va h.k.
+            'statuses': Attendance.Status.choices,
         }
         return render(request, 'attendance/daily.html', context)
 
@@ -165,7 +177,7 @@ class MarkAttendanceView(LoginRequiredMixin, View):
         return redirect(f"{reverse('attendance:mark')}?date={selected_date}")
 
 
-class AttendanceHistoryView(LoginRequiredMixin, ListView):
+class AttendanceHistoryView(BuildingStaffMixin, ListView):
     model = Attendance
     template_name = 'attendance/history.html'
     context_object_name = 'attendances'
@@ -173,8 +185,10 @@ class AttendanceHistoryView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Attendance.objects.select_related('student', 'student__room', 'marked_by')
+        bid = self.get_user_building_id()
+        if bid:
+            queryset = queryset.filter(student__room__floor__building_id=bid)
 
-        # Filtrlash
         date_from = self.request.GET.get('date_from')
         date_to = self.request.GET.get('date_to')
         status = self.request.GET.get('status')
@@ -194,7 +208,7 @@ class AttendanceHistoryView(LoginRequiredMixin, ListView):
         return context
 
 
-class StudentAttendanceView(LoginRequiredMixin, TemplateView):
+class StudentAttendanceView(BuildingStaffMixin, TemplateView):
     template_name = 'attendance/student_history.html'
 
     def get_context_data(self, **kwargs):
@@ -202,7 +216,6 @@ class StudentAttendanceView(LoginRequiredMixin, TemplateView):
         student = get_object_or_404(Student, pk=self.kwargs['student_pk'])
         context['student'] = student
 
-        # Oy bo'yicha statistika
         year = int(self.request.GET.get('year', timezone.now().year))
         month = int(self.request.GET.get('month', timezone.now().month))
 
@@ -210,7 +223,6 @@ class StudentAttendanceView(LoginRequiredMixin, TemplateView):
         context['month'] = month
         context['month_name'] = calendar.month_name[month]
 
-        # Kunlik davomat
         _, num_days = calendar.monthrange(year, month)
         days = []
         for day in range(1, num_days + 1):
@@ -223,7 +235,6 @@ class StudentAttendanceView(LoginRequiredMixin, TemplateView):
 
         context['days'] = days
 
-        # Oylik statistika
         month_attendances = Attendance.objects.filter(
             student=student,
             date__year=year,
@@ -237,12 +248,12 @@ class StudentAttendanceView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class FloorAttendanceView(LoginRequiredMixin, TemplateView):
+class FloorAttendanceView(BuildingStaffMixin, TemplateView):
     template_name = 'attendance/floor.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        floor = get_object_or_404(Floor, pk=self.kwargs['floor_pk'])
+        floor = get_object_or_404(self.get_floors_qs(), pk=self.kwargs['floor_pk'])
         context['floor'] = floor
 
         date_str = self.request.GET.get('date')
@@ -253,7 +264,6 @@ class FloorAttendanceView(LoginRequiredMixin, TemplateView):
 
         context['selected_date'] = selected_date
 
-        # Xonalar va talabalar
         rooms = Room.objects.filter(floor=floor, is_active=True).prefetch_related('students')
 
         room_list = []
@@ -277,11 +287,12 @@ class FloorAttendanceView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class AttendanceReportView(LoginRequiredMixin, TemplateView):
+class AttendanceReportView(BuildingStaffMixin, TemplateView):
     template_name = 'attendance/report.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        bid = self.get_user_building_id()
 
         year = int(self.request.GET.get('year', timezone.now().year))
         month = int(self.request.GET.get('month', timezone.now().month))
@@ -290,17 +301,20 @@ class AttendanceReportView(LoginRequiredMixin, TemplateView):
         context['month'] = month
         context['month_name'] = calendar.month_name[month]
 
-        # Talabalar ro'yxati - barcha davomatlarni bir so'rovda olamiz
         students = Student.objects.filter(is_active=True).select_related('room')
+        if bid:
+            students = students.filter(room__floor__building_id=bid)
 
-        # Bir so'rovda barcha davomatlarni olamiz
-        all_attendances = Attendance.objects.filter(
-            date__year=year,
-            date__month=month,
-            student__is_active=True
-        ).values('student_id', 'status')
+        att_filter = {
+            'date__year': year,
+            'date__month': month,
+            'student__is_active': True
+        }
+        if bid:
+            att_filter['student__room__floor__building_id'] = bid
 
-        # student_id bo'yicha guruhlash
+        all_attendances = Attendance.objects.filter(**att_filter).values('student_id', 'status')
+
         from collections import defaultdict
         att_map = defaultdict(lambda: {'present': 0, 'absent': 0, 'late': 0, 'total': 0})
         for att in all_attendances:
@@ -326,7 +340,6 @@ class AttendanceReportView(LoginRequiredMixin, TemplateView):
                 'rate': rate
             })
 
-        # Davomat foiziga qarab tartiblash
         student_stats.sort(key=lambda x: x['rate'], reverse=True)
         context['student_stats'] = student_stats
 

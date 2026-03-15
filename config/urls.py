@@ -7,6 +7,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.http import HttpResponseForbidden
 
 # apps. prefiksini olib tashlaymiz
 from buildings.views import DashboardView
@@ -22,8 +23,12 @@ def home_redirect(request):
     return redirect('applications:home')
 
 
+# Django admin faqat superuser uchun
+admin.site.__class__.has_permission = lambda self, request: request.user.is_active and request.user.is_superuser
+
+
 urlpatterns = [
-    # Admin
+    # Admin - faqat superuser
     path('admin/', admin.site.urls),
 
     # Dashboard (Bosh sahifa) - rolga qarab

@@ -10,16 +10,18 @@ from datetime import timedelta
 from .models import Invoice, Payment, FinancialSummary
 from .forms import InvoiceForm, PaymentForm, BulkInvoiceForm
 from students.models import Student
+from accounts.view_mixins import BuildingStaffMixin
 
 from django.db.models import Prefetch
 
 
-class FinanceDashboardView(LoginRequiredMixin, TemplateView):
+class FinanceDashboardView(BuildingStaffMixin, TemplateView):
     template_name = 'finance/dashboard.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = timezone.now().date()
+        bid = self.get_user_building_id()
 
         month_names = ["", "Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun",
                        "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"]
@@ -30,31 +32,38 @@ class FinanceDashboardView(LoginRequiredMixin, TemplateView):
 
         selected_month_name = month_names[selected_month]
 
+        # Bino filtr
+        payment_bld = {}
+        invoice_bld = {}
+        if bid:
+            payment_bld = {'student__room__floor__building_id': bid}
+            invoice_bld = {'student__room__floor__building_id': bid}
+
         # Statistikalar
         context['today_payments'] = \
-        Payment.objects.filter(payment_date__date=today, status='completed').aggregate(total=Sum('amount'))[
+        Payment.objects.filter(payment_date__date=today, status='completed', **payment_bld).aggregate(total=Sum('amount'))[
             'total'] or 0
         context['month_payments'] = \
         Payment.objects.filter(reference=selected_month_name, payment_date__year=selected_year,
-                               status='completed').aggregate(total=Sum('amount'))['total'] or 0
+                               status='completed', **payment_bld).aggregate(total=Sum('amount'))['total'] or 0
         context['pending_invoices'] = \
-        Invoice.objects.filter(status__in=['pending', 'partial']).aggregate(total=Sum('amount'))['total'] or 0
+        Invoice.objects.filter(status__in=['pending', 'partial'], **invoice_bld).aggregate(total=Sum('amount'))['total'] or 0
         context['overdue_invoices'] = Invoice.objects.filter(status__in=['pending', 'partial', 'overdue'],
-                                                             due_date__lt=today).count() or 0
+                                                             due_date__lt=today, **invoice_bld).count() or 0
 
         from buildings.models import Floor, Room
         floors_data = []
 
-        # Barcha qavatlarni aylanib chiqamiz
-        for floor in Floor.objects.all().order_by('number'):
+        # Bino admini faqat o'z binosi qavatlarini ko'radi
+        floors_qs = self.get_floors_qs().order_by('number')
+
+        for floor in floors_qs:
             rooms_list = []
             rooms = Room.objects.filter(floor=floor).order_by('number')
 
             for room in rooms:
-                # Faqat aktiv talabalarni olamiz
                 active_students = room.students.filter(is_active=True)
 
-                # Qidiruv mantiqi
                 if search_query:
                     active_students = active_students.filter(
                         Q(first_name__icontains=search_query) |
@@ -64,8 +73,6 @@ class FinanceDashboardView(LoginRequiredMixin, TemplateView):
 
                 student_count = active_students.count()
 
-                # DIQQAT: Agar qidiruv bo'sh bo'lsa, xonani baribir chiqaramiz (talaba bo'lmasa ham)
-                # Agar qidiruvda ism yozilgan bo'lsa, faqat topilgan xonalarni chiqaramiz
                 if search_query and student_count == 0:
                     continue
 
@@ -78,7 +85,6 @@ class FinanceDashboardView(LoginRequiredMixin, TemplateView):
                     ).first()
                     students_data.append({'obj': student, 'payment': payment})
 
-                # Xonani ro'yxatga qo'shish (faqat talabasi bor yoki qidiruv bo'lmagan holatda)
                 if students_data or not search_query:
                     rooms_list.append({
                         'number': room.number,
@@ -86,7 +92,6 @@ class FinanceDashboardView(LoginRequiredMixin, TemplateView):
                         'rowspan': student_count if student_count > 0 else 1
                     })
 
-            # Qavatda xonalar bo'lsa, floors_data ga qo'shamiz
             if rooms_list:
                 floors_data.append({'floor': floor, 'rooms': rooms_list})
 
@@ -100,7 +105,7 @@ class FinanceDashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class InvoiceListView(LoginRequiredMixin, ListView):
+class InvoiceListView(BuildingStaffMixin, ListView):
     model = Invoice
     template_name = 'finance/invoice_list.html'
     context_object_name = 'invoices'
@@ -108,8 +113,10 @@ class InvoiceListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Invoice.objects.select_related('student', 'student__room')
+        bid = self.get_user_building_id()
+        if bid:
+            queryset = queryset.filter(student__room__floor__building_id=bid)
 
-        # Filtrlash
         status = self.request.GET.get('status')
         invoice_type = self.request.GET.get('type')
         student = self.request.GET.get('student')
@@ -130,10 +137,17 @@ class InvoiceListView(LoginRequiredMixin, ListView):
         return context
 
 
-class InvoiceDetailView(LoginRequiredMixin, DetailView):
+class InvoiceDetailView(BuildingStaffMixin, DetailView):
     model = Invoice
     template_name = 'finance/invoice_detail.html'
     context_object_name = 'invoice'
+
+    def get_queryset(self):
+        qs = Invoice.objects.all()
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(student__room__floor__building_id=bid)
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -141,10 +155,15 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class InvoiceCreateView(LoginRequiredMixin, CreateView):
+class InvoiceCreateView(BuildingStaffMixin, CreateView):
     model = Invoice
     form_class = InvoiceForm
     template_name = 'finance/invoice_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['building_id'] = self.get_user_building_id()
+        return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
@@ -161,10 +180,22 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
         return reverse('finance:invoice_detail', kwargs={'pk': self.object.pk})
 
 
-class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
+class InvoiceUpdateView(BuildingStaffMixin, UpdateView):
     model = Invoice
     form_class = InvoiceForm
     template_name = 'finance/invoice_form.html'
+
+    def get_queryset(self):
+        qs = Invoice.objects.all()
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(student__room__floor__building_id=bid)
+        return qs
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['building_id'] = self.get_user_building_id()
+        return kwargs
 
     def form_valid(self, form):
         messages.success(self.request, 'Hisob-faktura yangilandi')
@@ -174,27 +205,38 @@ class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('finance:invoice_detail', kwargs={'pk': self.object.pk})
 
 
-class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
+class InvoiceDeleteView(BuildingStaffMixin, DeleteView):
     model = Invoice
     template_name = 'finance/invoice_confirm_delete.html'
     success_url = reverse_lazy('finance:invoice_list')
+
+    def get_queryset(self):
+        qs = Invoice.objects.all()
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(student__room__floor__building_id=bid)
+        return qs
 
     def form_valid(self, form):
         messages.success(self.request, 'Hisob-faktura o\'chirildi')
         return super().form_valid(form)
 
 
-class BulkInvoiceCreateView(LoginRequiredMixin, View):
+class BulkInvoiceCreateView(BuildingStaffMixin, View):
     template_name = 'finance/invoice_bulk.html'
 
     def get(self, request):
-        form = BulkInvoiceForm()
+        form = BulkInvoiceForm(building_id=self.get_user_building_id())
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        form = BulkInvoiceForm(request.POST)
+        form = BulkInvoiceForm(request.POST, building_id=self.get_user_building_id())
         if form.is_valid():
             students = Student.objects.filter(is_active=True, room__isnull=False)
+
+            bid = self.get_user_building_id()
+            if bid:
+                students = students.filter(room__floor__building_id=bid)
 
             building = form.cleaned_data.get('building')
             floor = form.cleaned_data.get('floor')
@@ -223,7 +265,7 @@ class BulkInvoiceCreateView(LoginRequiredMixin, View):
         return render(request, self.template_name, {'form': form})
 
 
-class PaymentListView(LoginRequiredMixin, ListView):
+class PaymentListView(BuildingStaffMixin, ListView):
     model = Payment
     template_name = 'finance/payment_list.html'
     context_object_name = 'payments'
@@ -231,8 +273,10 @@ class PaymentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Payment.objects.select_related('student', 'invoice', 'received_by')
+        bid = self.get_user_building_id()
+        if bid:
+            queryset = queryset.filter(student__room__floor__building_id=bid)
 
-        # Filtrlash
         method = self.request.GET.get('method')
         status = self.request.GET.get('status')
         date_from = self.request.GET.get('date_from')
@@ -256,16 +300,28 @@ class PaymentListView(LoginRequiredMixin, ListView):
         return context
 
 
-class PaymentDetailView(LoginRequiredMixin, DetailView):
+class PaymentDetailView(BuildingStaffMixin, DetailView):
     model = Payment
     template_name = 'finance/payment_detail.html'
     context_object_name = 'payment'
 
+    def get_queryset(self):
+        qs = Payment.objects.all()
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(student__room__floor__building_id=bid)
+        return qs
 
-class PaymentCreateView(LoginRequiredMixin, CreateView):
+
+class PaymentCreateView(BuildingStaffMixin, CreateView):
     model = Payment
     form_class = PaymentForm
     template_name = 'finance/payment_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['building_id'] = self.get_user_building_id()
+        return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
@@ -286,17 +342,24 @@ class PaymentCreateView(LoginRequiredMixin, CreateView):
         return reverse('finance:payment_detail', kwargs={'pk': self.object.pk})
 
 
-class PaymentDeleteView(LoginRequiredMixin, DeleteView):
+class PaymentDeleteView(BuildingStaffMixin, DeleteView):
     model = Payment
     template_name = 'finance/payment_confirm_delete.html'
     success_url = reverse_lazy('finance:payment_list')
+
+    def get_queryset(self):
+        qs = Payment.objects.all()
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(student__room__floor__building_id=bid)
+        return qs
 
     def form_valid(self, form):
         messages.success(self.request, 'To\'lov o\'chirildi')
         return super().form_valid(form)
 
 
-class DebtorListView(LoginRequiredMixin, ListView):
+class DebtorListView(BuildingStaffMixin, ListView):
     template_name = 'finance/debtor_list.html'
     context_object_name = 'debtors'
     paginate_by = 20
@@ -304,9 +367,11 @@ class DebtorListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         from django.db.models.functions import Coalesce
         from django.db.models import DecimalField, Value
-        return Student.objects.filter(
-            is_active=True
-        ).annotate(
+        qs = Student.objects.filter(is_active=True)
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(room__floor__building_id=bid)
+        return qs.annotate(
             total_invoiced=Coalesce(Sum('invoices__amount'), Value(0, output_field=DecimalField())),
             total_paid=Coalesce(
                 Sum('payments__amount', filter=Q(payments__status='completed')),
@@ -319,12 +384,17 @@ class DebtorListView(LoginRequiredMixin, ListView):
         ).select_related('room', 'room__floor', 'room__floor__building').order_by('-debt')
 
 
-class FinanceReportView(LoginRequiredMixin, TemplateView):
+class FinanceReportView(BuildingStaffMixin, TemplateView):
     template_name = 'finance/reports.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = timezone.now().date()
+        bid = self.get_user_building_id()
+
+        bld_filter = {}
+        if bid:
+            bld_filter = {'student__room__floor__building_id': bid}
 
         # Yillik statistika
         context['yearly_stats'] = []
@@ -333,12 +403,14 @@ class FinanceReportView(LoginRequiredMixin, TemplateView):
                 'month': month,
                 'invoiced': Invoice.objects.filter(
                     issue_date__year=today.year,
-                    issue_date__month=month
+                    issue_date__month=month,
+                    **bld_filter
                 ).aggregate(total=Sum('amount'))['total'] or 0,
                 'collected': Payment.objects.filter(
                     payment_date__year=today.year,
                     payment_date__month=month,
-                    status='completed'
+                    status='completed',
+                    **bld_filter
                 ).aggregate(total=Sum('amount'))['total'] or 0
             }
             context['yearly_stats'].append(month_data)

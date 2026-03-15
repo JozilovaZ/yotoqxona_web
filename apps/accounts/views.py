@@ -6,8 +6,10 @@ from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from django.views import View
 from django.urls import reverse_lazy
+from django.db.models import Q
 from .models import User
 from .forms import LoginForm, UserForm, ProfileForm, PhoneRegistrationForm
+from .view_mixins import BuildingStaffMixin
 
 
 class LoginView(View):
@@ -78,41 +80,65 @@ class AdminRequiredMixin(UserPassesTestMixin):
         return self.request.user.is_admin
 
 
-class UserListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
+class UserListView(BuildingStaffMixin, AdminRequiredMixin, ListView):
     model = User
     template_name = 'accounts/user_list.html'
     context_object_name = 'users'
 
     def get_queryset(self):
-        return User.objects.all().order_by('-date_joined')
+        qs = User.objects.all().order_by('-date_joined')
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(Q(building_id=bid) | Q(id=self.request.user.id))
+        return qs
 
 
-class UserCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
+class UserCreateView(BuildingStaffMixin, AdminRequiredMixin, CreateView):
     model = User
     form_class = UserForm
     template_name = 'accounts/user_form.html'
     success_url = reverse_lazy('accounts:user_list')
 
     def form_valid(self, form):
+        user = form.save(commit=False)
+        bid = self.get_user_building_id()
+        if bid:
+            user.building_id = bid
+            user.is_staff = True
+        user.save()
         messages.success(self.request, 'Foydalanuvchi muvaffaqiyatli yaratildi')
-        return super().form_valid(form)
+        return redirect(self.success_url)
 
 
-class UserUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
+class UserUpdateView(BuildingStaffMixin, AdminRequiredMixin, UpdateView):
     model = User
     form_class = UserForm
     template_name = 'accounts/user_form.html'
     success_url = reverse_lazy('accounts:user_list')
+
+    def get_queryset(self):
+        qs = User.objects.all()
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(building_id=bid)
+        return qs
 
     def form_valid(self, form):
         messages.success(self.request, 'Foydalanuvchi muvaffaqiyatli yangilandi')
         return super().form_valid(form)
 
 
-class UserDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
+class UserDeleteView(BuildingStaffMixin, AdminRequiredMixin, DeleteView):
     model = User
     template_name = 'accounts/user_confirm_delete.html'
     success_url = reverse_lazy('accounts:user_list')
+
+    def get_queryset(self):
+        qs = User.objects.all()
+        bid = self.get_user_building_id()
+        if bid:
+            qs = qs.filter(building_id=bid)
+        return qs
 
     def form_valid(self, form):
         messages.success(self.request, 'Foydalanuvchi o\'chirildi')

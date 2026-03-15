@@ -22,8 +22,12 @@ class InvoiceForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        building_id = kwargs.pop('building_id', None)
         super().__init__(*args, **kwargs)
-        self.fields['student'].queryset = Student.objects.filter(is_active=True)
+        qs = Student.objects.filter(is_active=True)
+        if building_id:
+            qs = qs.filter(room__floor__building_id=building_id)
+        self.fields['student'].queryset = qs
 
 
 class PaymentForm(forms.ModelForm):
@@ -60,8 +64,12 @@ class PaymentForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        building_id = kwargs.pop('building_id', None)
         super().__init__(*args, **kwargs)
-        self.fields['student'].queryset = Student.objects.filter(is_active=True)
+        qs = Student.objects.filter(is_active=True)
+        if building_id:
+            qs = qs.filter(room__floor__building_id=building_id)
+        self.fields['student'].queryset = qs
         self.fields['invoice'].required = False
 
         # Hozirgi oyni avtomatik tanlab qo'yish
@@ -131,12 +139,17 @@ class BulkInvoiceForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        building_id = kwargs.pop('building_id', None)
         super().__init__(*args, **kwargs)
+        if building_id:
+            self.fields['building'].queryset = Building.objects.filter(id=building_id)
+            self.fields['building'].initial = building_id
+            self.fields['floor'].queryset = Floor.objects.filter(building_id=building_id, is_active=True)
         if 'building' in self.data:
             try:
-                building_id = int(self.data.get('building'))
+                bid = int(self.data.get('building'))
                 self.fields['floor'].queryset = Floor.objects.filter(
-                    building_id=building_id,
+                    building_id=bid,
                     is_active=True
                 )
             except (ValueError, TypeError):
