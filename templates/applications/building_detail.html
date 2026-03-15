@@ -258,45 +258,23 @@
                 {% endfor %}
             </div>
 
-            <!-- Har bir kategoriya uchun carousel -->
+            <!-- Har bir kategoriya uchun carousel (JS orqali to'ldiriladi) -->
             {% for cat in inventory_categories %}
             <div class="jihoz-carousel-section" id="jihoz-cat-{{ cat.id }}" {% if not forloop.first %}style="display:none;"{% endif %}>
                 {% if cat.description %}
                 <div class="jihoz-cat-description">{{ cat.description }}</div>
                 {% endif %}
-
-                {% if cat.items.count > 0 %}
                 <div class="jihoz-carousel-wrapper">
                     <button class="jihoz-carousel-btn jihoz-prev" onclick="jihozSlide({{ cat.id }}, -1)">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <div class="jihoz-carousel" id="jihoz-track-{{ cat.id }}">
-                        {% for item in cat.items.all %}
-                        <div class="jihoz-slide" onclick="showJihozDetail({{ cat.id }}, {{ forloop.counter0 }})">
-                            {% if item.image %}
-                            <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy">
-                            {% else %}
-                            <div class="jihoz-slide-placeholder">
-                                <i class="fas fa-{{ cat.icon|default:'cube' }}"></i>
-                            </div>
-                            {% endif %}
-                            <div class="jihoz-slide-overlay">
-                                <div class="jihoz-slide-name">{{ item.name }}</div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
+                    <div class="jihoz-carousel" id="jihoz-track-{{ cat.id }}"></div>
                     <button class="jihoz-carousel-btn jihoz-next" onclick="jihozSlide({{ cat.id }}, 1)">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
-                <!-- Dots -->
                 <div class="jihoz-dots" id="jihoz-dots-{{ cat.id }}"></div>
-                {% else %}
-                <div style="text-align:center;color:#9ca3af;padding:2rem;">
-                    Bu kategoriyada jihozlar yo'q
-                </div>
-                {% endif %}
+                <div class="jihoz-slide-counter" id="jihoz-counter-{{ cat.id }}"></div>
             </div>
             {% endfor %}
             {% else %}
@@ -406,6 +384,18 @@
             "name": "{{ item.name|escapejs }}",
             "description": "{{ item.description|escapejs }}",
             "image": "{% if item.image %}{{ item.image.url }}{% endif %}",
+            "images": [
+                {% if item.image %}"{{ item.image.url }}"{% if item.images.count > 0 %},{% endif %}{% endif %}
+                {% for img in item.images.all %}
+                "{{ img.image.url }}"{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            "captions": [
+                {% if item.image %}"{{ item.name|escapejs }}"{% if item.images.count > 0 %},{% endif %}{% endif %}
+                {% for img in item.images.all %}
+                "{{ img.caption|default:item.name|escapejs }}"{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
             "price": "{{ item.unit_price|floatformat:0 }}",
             "id": {{ item.id }}
         }{% if not forloop.last %},{% endif %}
@@ -916,6 +906,10 @@
     .jihoz-dot.active {
         background: #0C2F75; width: 28px; border-radius: 5px;
     }
+    .jihoz-slide-counter {
+        text-align: center; font-size: 0.75rem; color: #6b7280;
+        margin-top: 8px; font-weight: 600;
+    }
 
     /* Jihoz detail modal */
     .furn-modal-overlay {
@@ -1309,6 +1303,62 @@ var categoriesData = JSON.parse(document.getElementById('categoriesData').textCo
 var itemTotalsData = JSON.parse(document.getElementById('itemTotalsData').textContent);
 var jihozCurrentSlide = {};
 var jihozAutoTimers = {};
+var jihozSlideData = {}; // catId -> [{image, name, description, itemId, caption}, ...]
+
+// Barcha rasmlarni yig'ish (har bir item uchun barcha rasmlar)
+function buildSlideData() {
+    categoriesData.forEach(function(cat) {
+        var slides = [];
+        cat.items.forEach(function(item) {
+            var imgs = item.images || [];
+            if (imgs.length > 0) {
+                imgs.forEach(function(imgUrl, i) {
+                    slides.push({
+                        image: imgUrl,
+                        name: item.name,
+                        caption: (item.captions && item.captions[i]) || item.name,
+                        description: item.description,
+                        itemId: item.id,
+                        price: item.price
+                    });
+                });
+            } else if (item.image) {
+                slides.push({
+                    image: item.image,
+                    name: item.name,
+                    caption: item.name,
+                    description: item.description,
+                    itemId: item.id,
+                    price: item.price
+                });
+            }
+        });
+        jihozSlideData[cat.id] = slides;
+    });
+}
+
+// Carousel HTML qurish
+function buildCarouselHTML(catId) {
+    var slides = jihozSlideData[catId] || [];
+    var track = document.getElementById('jihoz-track-' + catId);
+    if (!track) return;
+
+    if (slides.length === 0) {
+        track.parentElement.parentElement.querySelector('.jihoz-carousel-wrapper').innerHTML =
+            '<div style="text-align:center;color:#9ca3af;padding:3rem;">Bu kategoriyada rasmlar yo\'q</div>';
+        return;
+    }
+
+    var html = '';
+    slides.forEach(function(slide, i) {
+        html += '<div class="jihoz-slide" onclick="showSlideDetail(' + catId + ',' + i + ')">'
+            + '<img src="' + slide.image + '" alt="' + slide.name + '" loading="lazy">'
+            + '<div class="jihoz-slide-overlay">'
+            + '<div class="jihoz-slide-name">' + slide.caption + '</div>'
+            + '</div></div>';
+    });
+    track.innerHTML = html;
+}
 
 // Tab switching
 function switchJihozTab(catId, btn) {
@@ -1318,51 +1368,61 @@ function switchJihozTab(catId, btn) {
     var section = document.getElementById('jihoz-cat-' + catId);
     if (section) {
         section.style.display = 'block';
-        initCarouselDots(catId);
+        initCarousel(catId);
         startAutoSlide(catId);
     }
 }
 
-// Initialize dots for a carousel
-function initCarouselDots(catId) {
-    var cat = categoriesData.find(function(c) { return c.id === catId; });
-    if (!cat || !cat.items.length) return;
+// Initialize carousel (build slides + dots)
+function initCarousel(catId) {
     var dotsEl = document.getElementById('jihoz-dots-' + catId);
-    if (!dotsEl || dotsEl.children.length > 0) return;
+    if (!dotsEl) return;
+    if (dotsEl.children.length > 0) return; // already initialized
+    buildCarouselHTML(catId);
+    var slides = jihozSlideData[catId] || [];
     jihozCurrentSlide[catId] = 0;
-    for (var i = 0; i < cat.items.length; i++) {
+    // Dots (max 20 dots visible, agar ko'p bo'lsa counter ko'rsatiladi)
+    var maxDots = Math.min(slides.length, 20);
+    for (var i = 0; i < maxDots; i++) {
         var dot = document.createElement('button');
         dot.className = 'jihoz-dot' + (i === 0 ? ' active' : '');
-        dot.setAttribute('data-index', i);
-        dot.onclick = (function(idx) {
-            return function() { goToSlide(catId, idx); };
-        })(i);
+        dot.onclick = (function(idx) { return function() { goToSlide(catId, idx); }; })(i);
         dotsEl.appendChild(dot);
+    }
+    updateCounter(catId);
+}
+
+// Counter update
+function updateCounter(catId) {
+    var counter = document.getElementById('jihoz-counter-' + catId);
+    var slides = jihozSlideData[catId] || [];
+    if (counter && slides.length > 0) {
+        counter.textContent = (jihozCurrentSlide[catId] + 1) + ' / ' + slides.length;
     }
 }
 
 // Go to specific slide
 function goToSlide(catId, idx) {
-    var cat = categoriesData.find(function(c) { return c.id === catId; });
-    if (!cat) return;
-    var total = cat.items.length;
+    var slides = jihozSlideData[catId] || [];
+    var total = slides.length;
     if (total === 0) return;
     idx = ((idx % total) + total) % total;
     jihozCurrentSlide[catId] = idx;
     var track = document.getElementById('jihoz-track-' + catId);
     if (track) track.style.transform = 'translateX(-' + (idx * 100) + '%)';
-    // Update dots
     var dots = document.querySelectorAll('#jihoz-dots-' + catId + ' .jihoz-dot');
+    var maxDots = dots.length;
     dots.forEach(function(d, i) {
-        d.classList.toggle('active', i === idx);
+        d.classList.toggle('active', i === (maxDots <= total ? idx % maxDots : idx));
     });
+    updateCounter(catId);
 }
 
 // Slide prev/next
 function jihozSlide(catId, dir) {
     var current = jihozCurrentSlide[catId] || 0;
     goToSlide(catId, current + dir);
-    startAutoSlide(catId); // restart auto
+    startAutoSlide(catId);
 }
 
 // Auto slide
@@ -1374,7 +1434,7 @@ function startAutoSlide(catId) {
     }, 4000);
 }
 
-// Touch/swipe support
+// Touch/swipe
 function initSwipe(catId) {
     var wrapper = document.querySelector('#jihoz-cat-' + catId + ' .jihoz-carousel-wrapper');
     if (!wrapper) return;
@@ -1387,44 +1447,39 @@ function initSwipe(catId) {
         diffX = e.touches[0].clientX - startX;
     }, {passive: true});
     wrapper.addEventListener('touchend', function() {
-        if (Math.abs(diffX) > 50) {
-            jihozSlide(catId, diffX > 0 ? -1 : 1);
-        }
+        if (Math.abs(diffX) > 50) jihozSlide(catId, diffX > 0 ? -1 : 1);
         startAutoSlide(catId);
         diffX = 0;
     });
 }
 
-// Show item detail modal
-function showJihozDetail(catId, itemIdx) {
+// Show slide detail modal
+function showSlideDetail(catId, slideIdx) {
+    var slides = jihozSlideData[catId] || [];
+    if (!slides[slideIdx]) return;
+    var slide = slides[slideIdx];
     var cat = categoriesData.find(function(c) { return c.id === catId; });
-    if (!cat || !cat.items[itemIdx]) return;
-    var item = cat.items[itemIdx];
-    var totals = itemTotalsData[item.id] || null;
+    var totals = itemTotalsData[slide.itemId] || null;
 
     var imgEl = document.getElementById('furnModalImg');
     var imgWrap = document.querySelector('.furn-modal-img-wrap');
-    if (item.image) {
-        imgEl.src = item.image;
-        imgEl.alt = item.name;
-        imgWrap.style.display = 'block';
-    } else {
-        imgWrap.style.display = 'none';
-    }
+    imgEl.src = slide.image;
+    imgEl.alt = slide.name;
+    imgWrap.style.display = 'block';
 
-    document.getElementById('furnModalCat').textContent = cat.name;
-    document.getElementById('furnModalName').textContent = item.name;
+    document.getElementById('furnModalCat').textContent = cat ? cat.name : '';
+    document.getElementById('furnModalName').textContent = slide.name;
     var descEl = document.getElementById('furnModalDesc');
-    descEl.textContent = item.description || '';
-    descEl.style.display = item.description ? 'block' : 'none';
+    descEl.textContent = slide.description || '';
+    descEl.style.display = slide.description ? 'block' : 'none';
 
     var statsHtml = '';
     if (totals) {
         statsHtml += '<div class="furn-stat"><i class="fas fa-cubes"></i> ' + totals.quantity + ' ta mavjud</div>';
         statsHtml += '<div class="furn-stat"><i class="fas fa-check-circle"></i> ' + totals.conditions + '</div>';
     }
-    if (item.price && item.price !== '0') {
-        statsHtml += '<div class="furn-stat"><i class="fas fa-tag"></i> ' + Number(item.price).toLocaleString() + ' so\'m</div>';
+    if (slide.price && slide.price !== '0') {
+        statsHtml += '<div class="furn-stat"><i class="fas fa-tag"></i> ' + Number(slide.price).toLocaleString() + ' so\'m</div>';
     }
     document.getElementById('furnModalStats').innerHTML = statsHtml;
 
@@ -1446,15 +1501,14 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Init first category on page load
+// Init
 (function() {
+    buildSlideData();
     if (categoriesData.length > 0) {
         var firstId = categoriesData[0].id;
-        initCarouselDots(firstId);
+        initCarousel(firstId);
         startAutoSlide(firstId);
-        categoriesData.forEach(function(cat) {
-            initSwipe(cat.id);
-        });
+        categoriesData.forEach(function(cat) { initSwipe(cat.id); });
     }
 })();
 </script>

@@ -58,6 +58,30 @@ class InventoryItem(models.Model):
         return f"{self.category.name if self.category else ''} - {self.name}"
 
 
+class InventoryItemImage(models.Model):
+    """Jihoz rasmlari (ko'p rasm)"""
+    item = models.ForeignKey(
+        InventoryItem,
+        on_delete=models.CASCADE,
+        related_name='images',
+        verbose_name="Jihoz"
+    )
+    image = models.ImageField(
+        upload_to='inventory/',
+        verbose_name="Rasm"
+    )
+    caption = models.CharField(max_length=200, blank=True, verbose_name="Izoh")
+    order = models.PositiveIntegerField(default=0, verbose_name="Tartib")
+
+    class Meta:
+        verbose_name = "Jihoz rasmi"
+        verbose_name_plural = "Jihoz rasmlari"
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return f"{self.item.name} - rasm #{self.order}"
+
+
 class RoomInventory(models.Model):
     """Xonadagi jihozlar"""
 

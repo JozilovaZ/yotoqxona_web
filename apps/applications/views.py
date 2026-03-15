@@ -8,7 +8,7 @@ from .models import Application, CarouselImage
 from .forms import ApplicationForm, ApplicationReviewForm
 from buildings.models import Building, Floor, Room
 from students.models import Student
-from inventory.models import InventoryItem, InventoryCategory, RoomInventory
+from inventory.models import InventoryItem, InventoryCategory, InventoryItemImage, RoomInventory
 
 
 class StudentHomeView(TemplateView):
@@ -103,8 +103,8 @@ class BuildingDetailForApplicantView(DetailView):
         ctx['total_capacity'] = total_capacity
         ctx['total_available'] = total_available
         ctx['total_rooms'] = sum(fd['total_rooms'] for fd in floors_data)
-        # Jihozlar: kategoriyalar va ularning itemlari
-        categories = InventoryCategory.objects.prefetch_related('items').all()
+        # Jihozlar: kategoriyalar va ularning itemlari + rasmlar
+        categories = InventoryCategory.objects.prefetch_related('items', 'items__images').all()
         # Binodagi xonalar uchun inventar ma'lumotlari
         building_rooms = Room.objects.filter(floor__building=building, is_active=True)
         room_inventory = RoomInventory.objects.filter(

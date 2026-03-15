@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.db.models import Sum
-from .models import InventoryCategory, InventoryItem, RoomInventory, InventoryLog
+from .models import InventoryCategory, InventoryItem, InventoryItemImage, RoomInventory, InventoryLog
 
 
 # --- INLINES ---
@@ -12,6 +12,20 @@ class InventoryItemInline(admin.TabularInline):
     extra = 0
     fields = ('name', 'image', 'unit_price')
     show_change_link = True
+
+
+class InventoryItemImageInline(admin.TabularInline):
+    """Jihoz ichida rasmlarni ko'rsatish (ko'p rasm)"""
+    model = InventoryItemImage
+    extra = 5
+    fields = ('image', 'image_preview', 'caption', 'order')
+    readonly_fields = ('image_preview',)
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="width:80px;height:60px;object-fit:cover;border-radius:6px;" />', obj.image.url)
+        return '-'
+    image_preview.short_description = "Ko'rinishi"
 
 
 class InventoryLogInline(admin.TabularInline):
@@ -42,16 +56,24 @@ class InventoryCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(InventoryItem)
 class InventoryItemAdmin(admin.ModelAdmin):
-    list_display = ('image_preview', 'name', 'category', 'unit_price_fmt', 'total_in_rooms')
+    list_display = ('image_preview', 'name', 'category', 'images_count', 'unit_price_fmt', 'total_in_rooms')
     list_filter = ('category',)
     search_fields = ('name', 'category__name')
     list_per_page = 20
+    inlines = [InventoryItemImageInline]
 
     def image_preview(self, obj):
         if obj.image:
             return format_html('<img src="{}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;" />', obj.image.url)
         return '-'
     image_preview.short_description = "Rasm"
+
+    def images_count(self, obj):
+        count = obj.images.count()
+        old = 1 if obj.image else 0
+        total = count + old
+        return f"{total} ta rasm"
+    images_count.short_description = "Rasmlar"
 
     def unit_price_fmt(self, obj):
         return f"{obj.unit_price:,.0f} so'm"
