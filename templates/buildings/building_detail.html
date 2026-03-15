@@ -15,9 +15,11 @@
                 <h2 class="fw-bold mb-1">{{ building.name }}</h2>
                 <p class="text-muted mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ building.address }}</p>
             </div>
+            {% if can_manage %}
             <a href="{% url 'buildings:floor_create' building.pk %}" class="btn btn-success shadow-sm">
                 <i class="fas fa-plus"></i> Yangi etaj qo'shish
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -27,10 +29,12 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold">{{ floor.number }}-qavat</h5>
+                    {% if can_manage %}
                     <div>
                         <a href="{% url 'buildings:room_create' floor.pk %}" class="btn btn-sm btn-outline-primary">+ Xona qo'shish</a>
                         <a href="{% url 'buildings:floor_update' floor.pk %}" class="btn btn-sm btn-link text-warning p-0 mx-2"><i class="fas fa-edit"></i></a>
                     </div>
+                    {% endif %}
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-3">

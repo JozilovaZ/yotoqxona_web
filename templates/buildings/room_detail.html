@@ -14,6 +14,7 @@
        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dark)';">
         <i class="fas fa-chevron-left" style="font-size:.7rem;"></i> Bino
     </a>
+    {% if can_manage %}
     <a href="{% url 'buildings:room_edit' room.pk %}" style="
         display:inline-flex;align-items:center;gap:6px;
         padding:8px 16px;border-radius:10px;
@@ -23,6 +24,7 @@
     " onmouseover="this.style.opacity='.85';" onmouseout="this.style.opacity='1';">
         <i class="fas fa-pen"></i> Tahrirlash
     </a>
+    {% endif %}
 </div>
 {% endblock %}
 
@@ -258,6 +260,7 @@
                 <span class="dp-icon"><i class="fas fa-users"></i></span>
                 Xonadagi talabalar
             </span>
+            {% if can_manage %}
             <a href="{% url 'students:student_create' %}?room={{ room.pk }}" style="
                 display:inline-flex;align-items:center;gap:5px;
                 padding:6px 12px;border-radius:8px;
@@ -268,6 +271,7 @@
                onmouseout="this.style.background='var(--p10)';this.style.color='var(--p)';">
                 <i class="fas fa-plus" style="font-size:.65rem;"></i> Talaba qo'shish
             </a>
+            {% endif %}
         </div>
 
         {% if students %}

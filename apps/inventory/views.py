@@ -8,7 +8,7 @@ from django.db.models import Sum, Count, F
 from .models import InventoryCategory, InventoryItem, RoomInventory, InventoryLog
 from .forms import CategoryForm, ItemForm, RoomInventoryForm
 from buildings.models import Room, Building
-from accounts.view_mixins import BuildingStaffMixin
+from accounts.view_mixins import BuildingStaffMixin, ManagePermissionMixin
 
 
 class InventoryDashboardView(BuildingStaffMixin, TemplateView):
@@ -47,7 +47,7 @@ class CategoryListView(BuildingStaffMixin, ListView):
     context_object_name = 'categories'
 
 
-class CategoryCreateView(BuildingStaffMixin, CreateView):
+class CategoryCreateView(ManagePermissionMixin, BuildingStaffMixin, CreateView):
     model = InventoryCategory
     form_class = CategoryForm
     template_name = 'inventory/category_form.html'
@@ -58,7 +58,7 @@ class CategoryCreateView(BuildingStaffMixin, CreateView):
         return super().form_valid(form)
 
 
-class CategoryUpdateView(BuildingStaffMixin, UpdateView):
+class CategoryUpdateView(ManagePermissionMixin, BuildingStaffMixin, UpdateView):
     model = InventoryCategory
     form_class = CategoryForm
     template_name = 'inventory/category_form.html'
@@ -69,7 +69,7 @@ class CategoryUpdateView(BuildingStaffMixin, UpdateView):
         return super().form_valid(form)
 
 
-class CategoryDeleteView(BuildingStaffMixin, DeleteView):
+class CategoryDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
     model = InventoryCategory
     template_name = 'inventory/category_confirm_delete.html'
     success_url = reverse_lazy('inventory:category_list')
@@ -99,7 +99,7 @@ class ItemListView(BuildingStaffMixin, ListView):
         return context
 
 
-class ItemCreateView(BuildingStaffMixin, CreateView):
+class ItemCreateView(ManagePermissionMixin, BuildingStaffMixin, CreateView):
     model = InventoryItem
     form_class = ItemForm
     template_name = 'inventory/item_form.html'
@@ -110,7 +110,7 @@ class ItemCreateView(BuildingStaffMixin, CreateView):
         return super().form_valid(form)
 
 
-class ItemUpdateView(BuildingStaffMixin, UpdateView):
+class ItemUpdateView(ManagePermissionMixin, BuildingStaffMixin, UpdateView):
     model = InventoryItem
     form_class = ItemForm
     template_name = 'inventory/item_form.html'
@@ -121,7 +121,7 @@ class ItemUpdateView(BuildingStaffMixin, UpdateView):
         return super().form_valid(form)
 
 
-class ItemDeleteView(BuildingStaffMixin, DeleteView):
+class ItemDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
     model = InventoryItem
     template_name = 'inventory/item_confirm_delete.html'
     success_url = reverse_lazy('inventory:item_list')
@@ -143,7 +143,7 @@ class RoomInventoryView(BuildingStaffMixin, TemplateView):
         return context
 
 
-class RoomInventoryAddView(BuildingStaffMixin, CreateView):
+class RoomInventoryAddView(ManagePermissionMixin, BuildingStaffMixin, CreateView):
     model = RoomInventory
     form_class = RoomInventoryForm
     template_name = 'inventory/room_inventory_form.html'
@@ -171,7 +171,7 @@ class RoomInventoryAddView(BuildingStaffMixin, CreateView):
         return reverse('inventory:room_inventory', kwargs={'room_pk': self.kwargs['room_pk']})
 
 
-class RoomInventoryUpdateView(BuildingStaffMixin, UpdateView):
+class RoomInventoryUpdateView(ManagePermissionMixin, BuildingStaffMixin, UpdateView):
     model = RoomInventory
     form_class = RoomInventoryForm
     template_name = 'inventory/room_inventory_form.html'
@@ -196,7 +196,7 @@ class RoomInventoryUpdateView(BuildingStaffMixin, UpdateView):
         return reverse('inventory:room_inventory', kwargs={'room_pk': self.object.room.pk})
 
 
-class RoomInventoryDeleteView(BuildingStaffMixin, DeleteView):
+class RoomInventoryDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
     model = RoomInventory
     template_name = 'inventory/room_inventory_confirm_delete.html'
 

@@ -12,7 +12,7 @@ from .models import Attendance, AttendanceReport
 from .forms import AttendanceForm, BulkAttendanceForm
 from students.models import Student
 from buildings.models import Building, Floor, Room
-from accounts.view_mixins import BuildingStaffMixin
+from accounts.view_mixins import BuildingStaffMixin, ManagePermissionMixin
 
 
 class AttendanceDashboardView(BuildingStaffMixin, TemplateView):
@@ -115,7 +115,7 @@ class DailyAttendanceView(BuildingStaffMixin, TemplateView):
         return context
 
 
-class MarkAttendanceView(BuildingStaffMixin, View):
+class MarkAttendanceView(ManagePermissionMixin, BuildingStaffMixin, View):
     def get(self, request):
         today = timezone.now().date()
         date_str = request.GET.get('date')

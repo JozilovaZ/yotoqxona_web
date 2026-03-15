@@ -7,7 +7,7 @@ from django.db.models import Q
 
 from .models import Announcement
 from .forms import AnnouncementForm
-from accounts.view_mixins import BuildingStaffMixin
+from accounts.view_mixins import BuildingStaffMixin, ManagePermissionMixin
 
 
 class AnnouncementListView(BuildingStaffMixin, ListView):
@@ -38,7 +38,7 @@ class AnnouncementListView(BuildingStaffMixin, ListView):
         return ctx
 
 
-class AnnouncementCreateView(BuildingStaffMixin, CreateView):
+class AnnouncementCreateView(ManagePermissionMixin, BuildingStaffMixin, CreateView):
     """Admin: yangi e'lon yaratish"""
     model = Announcement
     form_class = AnnouncementForm
@@ -64,7 +64,7 @@ class AnnouncementCreateView(BuildingStaffMixin, CreateView):
         return super().form_valid(form)
 
 
-class AnnouncementUpdateView(BuildingStaffMixin, UpdateView):
+class AnnouncementUpdateView(ManagePermissionMixin, BuildingStaffMixin, UpdateView):
     """Admin: e'lonni tahrirlash"""
     model = Announcement
     form_class = AnnouncementForm
@@ -91,7 +91,7 @@ class AnnouncementUpdateView(BuildingStaffMixin, UpdateView):
         return super().form_valid(form)
 
 
-class AnnouncementDeleteView(BuildingStaffMixin, DeleteView):
+class AnnouncementDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
     """Admin: e'lonni o'chirish"""
     model = Announcement
     template_name = 'announcements/announcement_confirm_delete.html'

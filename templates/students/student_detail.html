@@ -3,6 +3,7 @@
 {% block page_title %}{{ student.full_name }}{% endblock %}
 {% block page_sub %}<p class="page-sub">Talaba kartasi · {{ student.student_id }}</p>{% endblock %}
 {% block page_actions %}
+{% if can_manage %}
 <div style="display:flex;gap:8px;">
     <a href="{% url 'students:student_update' student.pk %}" style="
         display:inline-flex;align-items:center;gap:6px;
@@ -22,6 +23,7 @@
         <i class="fas fa-right-left"></i> Xona almashtirish
     </a>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -370,6 +372,7 @@
         {% endif %}
 
         <!-- Xavfli zona -->
+        {% if can_manage %}
         <div class="danger-zone">
             <div>
                 <div class="dz-text">Talabani chiqarish</div>
@@ -387,6 +390,7 @@
                 <i class="fas fa-door-open me-1"></i> Chiqarish
             </a>
         </div>
+        {% endif %}
     </div>
 
     <!-- O'NG: Tab paneli -->

@@ -10,7 +10,7 @@ from datetime import timedelta
 from .models import Invoice, Payment, FinancialSummary
 from .forms import InvoiceForm, PaymentForm, BulkInvoiceForm
 from students.models import Student
-from accounts.view_mixins import BuildingStaffMixin
+from accounts.view_mixins import BuildingStaffMixin, ManagePermissionMixin
 
 from django.db.models import Prefetch
 
@@ -155,7 +155,7 @@ class InvoiceDetailView(BuildingStaffMixin, DetailView):
         return context
 
 
-class InvoiceCreateView(BuildingStaffMixin, CreateView):
+class InvoiceCreateView(ManagePermissionMixin, BuildingStaffMixin, CreateView):
     model = Invoice
     form_class = InvoiceForm
     template_name = 'finance/invoice_form.html'
@@ -180,7 +180,7 @@ class InvoiceCreateView(BuildingStaffMixin, CreateView):
         return reverse('finance:invoice_detail', kwargs={'pk': self.object.pk})
 
 
-class InvoiceUpdateView(BuildingStaffMixin, UpdateView):
+class InvoiceUpdateView(ManagePermissionMixin, BuildingStaffMixin, UpdateView):
     model = Invoice
     form_class = InvoiceForm
     template_name = 'finance/invoice_form.html'
@@ -205,7 +205,7 @@ class InvoiceUpdateView(BuildingStaffMixin, UpdateView):
         return reverse('finance:invoice_detail', kwargs={'pk': self.object.pk})
 
 
-class InvoiceDeleteView(BuildingStaffMixin, DeleteView):
+class InvoiceDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
     model = Invoice
     template_name = 'finance/invoice_confirm_delete.html'
     success_url = reverse_lazy('finance:invoice_list')
@@ -222,7 +222,7 @@ class InvoiceDeleteView(BuildingStaffMixin, DeleteView):
         return super().form_valid(form)
 
 
-class BulkInvoiceCreateView(BuildingStaffMixin, View):
+class BulkInvoiceCreateView(ManagePermissionMixin, BuildingStaffMixin, View):
     template_name = 'finance/invoice_bulk.html'
 
     def get(self, request):
@@ -313,7 +313,7 @@ class PaymentDetailView(BuildingStaffMixin, DetailView):
         return qs
 
 
-class PaymentCreateView(BuildingStaffMixin, CreateView):
+class PaymentCreateView(ManagePermissionMixin, BuildingStaffMixin, CreateView):
     model = Payment
     form_class = PaymentForm
     template_name = 'finance/payment_form.html'
@@ -342,7 +342,7 @@ class PaymentCreateView(BuildingStaffMixin, CreateView):
         return reverse('finance:payment_detail', kwargs={'pk': self.object.pk})
 
 
-class PaymentDeleteView(BuildingStaffMixin, DeleteView):
+class PaymentDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
     model = Payment
     template_name = 'finance/payment_confirm_delete.html'
     success_url = reverse_lazy('finance:payment_list')

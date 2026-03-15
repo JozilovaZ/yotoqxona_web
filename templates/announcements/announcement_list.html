@@ -5,7 +5,7 @@
 {% block page_sub %}<p class="page-sub">Yotoqxona ichki xabarlari va e'lonlari</p>{% endblock %}
 
 {% block page_actions %}
-{% if user.is_staff_member %}
+{% if can_manage %}
 <a href="{% url 'announcements:create' %}" class="btn btn-accent">
     <i class="fas fa-plus me-1"></i> Yangi e'lon
 </a>
@@ -69,7 +69,7 @@
                     </div>
                 </div>
 
-                {% if user.is_staff_member %}
+                {% if can_manage %}
                 <div class="d-flex gap-1">
                     <a href="{% url 'announcements:update' ann.pk %}" class="btn btn-sm btn-outline-primary" title="Tahrirlash">
                         <i class="fas fa-edit"></i>

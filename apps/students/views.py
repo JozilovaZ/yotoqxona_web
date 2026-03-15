@@ -9,7 +9,7 @@ from django.utils import timezone
 from .models import Student, RoomTransfer
 from .forms import StudentForm, StudentTransferForm
 from buildings.models import Room, Building, Floor
-from accounts.view_mixins import BuildingStaffMixin
+from accounts.view_mixins import BuildingStaffMixin, ManagePermissionMixin
 
 
 class StudentListView(BuildingStaffMixin, ListView):
@@ -91,7 +91,7 @@ class StudentDetailView(BuildingStaffMixin, DetailView):
         return context
 
 
-class StudentCreateView(BuildingStaffMixin, CreateView):
+class StudentCreateView(ManagePermissionMixin, BuildingStaffMixin, CreateView):
     model = Student
     form_class = StudentForm
     template_name = 'students/student_form.html'
@@ -109,7 +109,7 @@ class StudentCreateView(BuildingStaffMixin, CreateView):
         return reverse('students:student_detail', kwargs={'pk': self.object.pk})
 
 
-class StudentUpdateView(BuildingStaffMixin, UpdateView):
+class StudentUpdateView(ManagePermissionMixin, BuildingStaffMixin, UpdateView):
     model = Student
     form_class = StudentForm
     template_name = 'students/student_form.html'
@@ -131,7 +131,7 @@ class StudentUpdateView(BuildingStaffMixin, UpdateView):
         return reverse('students:student_detail', kwargs={'pk': self.object.pk})
 
 
-class StudentDeleteView(BuildingStaffMixin, DeleteView):
+class StudentDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
     model = Student
     template_name = 'students/student_confirm_delete.html'
     success_url = reverse_lazy('students:student_list')
@@ -145,7 +145,7 @@ class StudentDeleteView(BuildingStaffMixin, DeleteView):
         return super().form_valid(form)
 
 
-class StudentTransferView(BuildingStaffMixin, View):
+class StudentTransferView(ManagePermissionMixin, BuildingStaffMixin, View):
     template_name = 'students/student_transfer.html'
 
     def get(self, request, pk):
@@ -182,7 +182,7 @@ class StudentTransferView(BuildingStaffMixin, View):
         return render(request, self.template_name, {'student': student, 'form': form})
 
 
-class StudentCheckoutView(BuildingStaffMixin, View):
+class StudentCheckoutView(ManagePermissionMixin, BuildingStaffMixin, View):
     template_name = 'students/student_checkout.html'
 
     def get(self, request, pk):

@@ -13,7 +13,7 @@ from .forms import BuildingForm, FloorForm, RoomForm
 from students.models import Student
 from finance.models import Payment, Invoice
 from attendance.models import Attendance
-from accounts.view_mixins import BuildingStaffMixin
+from accounts.view_mixins import BuildingStaffMixin, ManagePermissionMixin, SuperuserRequiredMixin
 
 
 class DashboardView(BuildingStaffMixin, TemplateView):
@@ -151,7 +151,7 @@ class BuildingDetailView(BuildingStaffMixin, DetailView):
         context['floors'] = self.object.floors.filter(is_active=True).prefetch_related('rooms')
         return context
 
-class BuildingCreateView(BuildingStaffMixin, CreateView):
+class BuildingCreateView(SuperuserRequiredMixin, BuildingStaffMixin, CreateView):
     model = Building
     form_class = BuildingForm
     template_name = 'buildings/building_form.html'
@@ -162,7 +162,7 @@ class BuildingCreateView(BuildingStaffMixin, CreateView):
         return super().form_valid(form)
 
 
-class BuildingUpdateView(BuildingStaffMixin, UpdateView):
+class BuildingUpdateView(SuperuserRequiredMixin, BuildingStaffMixin, UpdateView):
     model = Building
     form_class = BuildingForm
     template_name = 'buildings/building_form.html'
@@ -176,7 +176,7 @@ class BuildingUpdateView(BuildingStaffMixin, UpdateView):
         return super().form_valid(form)
 
 
-class BuildingDeleteView(BuildingStaffMixin, DeleteView):
+class BuildingDeleteView(SuperuserRequiredMixin, BuildingStaffMixin, DeleteView):
     model = Building
     template_name = 'buildings/building_confirm_delete.html'
     success_url = reverse_lazy('buildings:building_list')
@@ -205,7 +205,7 @@ class FloorListView(BuildingStaffMixin, ListView):
         return context
 
 
-class FloorCreateView(BuildingStaffMixin, CreateView):
+class FloorCreateView(ManagePermissionMixin, BuildingStaffMixin, CreateView):
     model = Floor
     form_class = FloorForm
     template_name = 'buildings/floor_form.html'
@@ -229,7 +229,7 @@ class FloorCreateView(BuildingStaffMixin, CreateView):
         return reverse('buildings:building_detail', kwargs={'pk': self.kwargs['building_pk']})
 
 
-class FloorUpdateView(BuildingStaffMixin, UpdateView):
+class FloorUpdateView(ManagePermissionMixin, BuildingStaffMixin, UpdateView):
     model = Floor
     form_class = FloorForm
     template_name = 'buildings/floor_form.html'
@@ -242,7 +242,7 @@ class FloorUpdateView(BuildingStaffMixin, UpdateView):
         return reverse('buildings:building_detail', kwargs={'pk': self.object.building.pk})
 
 
-class FloorDeleteView(BuildingStaffMixin, DeleteView):
+class FloorDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
     model = Floor
     template_name = 'buildings/floor_confirm_delete.html'
 
@@ -322,7 +322,7 @@ class RoomDetailView(BuildingStaffMixin, DetailView):
         return context
 
 
-class RoomCreateView(BuildingStaffMixin, CreateView):
+class RoomCreateView(ManagePermissionMixin, BuildingStaffMixin, CreateView):
     model = Room
     form_class = RoomForm
     template_name = 'buildings/room_form.html'
@@ -341,7 +341,7 @@ class RoomCreateView(BuildingStaffMixin, CreateView):
         return reverse('buildings:building_detail', kwargs={'pk': self.object.floor.building.pk})
 
 
-class RoomUpdateView(BuildingStaffMixin, UpdateView):
+class RoomUpdateView(ManagePermissionMixin, BuildingStaffMixin, UpdateView):
     model = Room
     form_class = RoomForm
     template_name = 'buildings/room_form.html'
@@ -354,7 +354,7 @@ class RoomUpdateView(BuildingStaffMixin, UpdateView):
         return reverse('buildings:room_detail', kwargs={'pk': self.object.pk})
 
 
-class RoomDeleteView(BuildingStaffMixin, DeleteView):
+class RoomDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
     model = Room
     template_name = 'buildings/room_confirm_delete.html'
 

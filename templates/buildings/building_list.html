@@ -3,9 +3,11 @@
 {% block page_title %}Binolar{% endblock %}
 {% block page_sub %}<p class="page-sub">Barcha yotoqxona binolari</p>{% endblock %}
 {% block page_actions %}
+{% if request.user.is_superuser %}
 <a href="{% url 'buildings:building_create' %}" class="btn btn-primary btn-sm px-3">
     <i class="fas fa-plus me-1"></i> Yangi bino
 </a>
+{% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -199,9 +201,11 @@
                 <a href="{% url 'buildings:building_detail' building.pk %}" class="bld-btn-main">
                     Batafsil <i class="fas fa-arrow-right ms-1" style="font-size:.65rem;"></i>
                 </a>
+                {% if request.user.is_superuser %}
                 <a href="{% url 'buildings:building_update' building.pk %}" class="bld-btn-ico" title="Tahrirlash">
                     <i class="fas fa-pen"></i>
                 </a>
+                {% endif %}
             </div>
 
         </div>
@@ -212,9 +216,11 @@
         <i class="fas fa-city" style="font-size:2.5rem;color:#D0D3D9;display:block;margin-bottom:14px;"></i>
         <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:6px;">Binolar topilmadi</div>
         <div style="font-size:.85rem;color:var(--gray);margin-bottom:20px;">Hozircha hech qanday bino qo'shilmagan</div>
+        {% if request.user.is_superuser %}
         <a href="{% url 'buildings:building_create' %}" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i> Bino qo'shish
         </a>
+        {% endif %}
     </div>
     {% endfor %}
 </div>
