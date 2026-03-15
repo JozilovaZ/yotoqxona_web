@@ -25,6 +25,15 @@ class Building(models.Model):
     )
     latitude = models.FloatField(blank=True, null=True, verbose_name="Kenglik (latitude)")
     longitude = models.FloatField(blank=True, null=True, verbose_name="Uzunlik (longitude)")
+    payment_deadline_day = models.PositiveIntegerField(
+        default=10,
+        verbose_name="To'lov muddati (har oyning nechanchisigacha)"
+    )
+    payment_terms = models.TextField(
+        blank=True,
+        verbose_name="To'lov shartlari",
+        help_text="Har bir shart yangi qatordan yoziladi"
+    )
     description = models.TextField(blank=True, verbose_name="Tavsif")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
     created_at = models.DateTimeField(auto_now_add=True)

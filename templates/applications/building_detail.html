@@ -287,31 +287,65 @@
         <!-- ══ SAHIFA: NARX ══ -->
         <div class="bd-page" id="page-narx" style="display:none;">
             <div class="bd-page-title">
-                <i class="fas fa-tag"></i> Narxlar
+                <i class="fas fa-tag"></i> Narxlar va to'lov shartlari
             </div>
-            <div class="bd-price-cards">
+
+            {% if building.monthly_price > 0 or building.daily_price > 0 %}
+            <!-- Narx kartalari -->
+            <div class="narx-hero">
                 {% if building.monthly_price > 0 %}
-                <div class="bd-price-card">
-                    <div class="bd-price-icon"><i class="fas fa-calendar-alt"></i></div>
-                    <div class="bd-price-type">Oylik to'lov</div>
-                    <div class="bd-price-amount">{{ building.monthly_price|floatformat:0 }} <span>so'm</span></div>
-                    <div class="bd-price-note">Har oyda to'lanadi</div>
+                <div class="narx-card narx-main">
+                    <div class="narx-card-ribbon">Oylik</div>
+                    <div class="narx-card-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="narx-card-amount">{{ building.monthly_price|floatformat:0 }}</div>
+                    <div class="narx-card-currency">so'm / oy</div>
+                    <div class="narx-card-note">Har oyda to'lanadi</div>
                 </div>
                 {% endif %}
                 {% if building.daily_price > 0 %}
-                <div class="bd-price-card">
-                    <div class="bd-price-icon"><i class="fas fa-clock"></i></div>
-                    <div class="bd-price-type">Kunlik to'lov</div>
-                    <div class="bd-price-amount">{{ building.daily_price|floatformat:0 }} <span>so'm</span></div>
-                    <div class="bd-price-note">Har kuni to'lanadi</div>
-                </div>
-                {% endif %}
-                {% if building.monthly_price == 0 and building.daily_price == 0 %}
-                <div class="bd-page-card" style="text-align:center;color:#6b7280;padding:2rem;">
-                    Narx hali belgilanmagan
+                <div class="narx-card">
+                    <div class="narx-card-ribbon narx-ribbon-alt">Kunlik</div>
+                    <div class="narx-card-icon"><i class="fas fa-clock"></i></div>
+                    <div class="narx-card-amount">{{ building.daily_price|floatformat:0 }}</div>
+                    <div class="narx-card-currency">so'm / kun</div>
+                    <div class="narx-card-note">Har kuni to'lanadi</div>
                 </div>
                 {% endif %}
             </div>
+
+            <!-- To'lov muddati -->
+            <div class="narx-deadline">
+                <div class="narx-deadline-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="narx-deadline-info">
+                    <div class="narx-deadline-title">To'lov muddati</div>
+                    <div class="narx-deadline-text">
+                        Har oyning <strong>{{ building.payment_deadline_day }}-sanasigacha</strong> to'lov amalga oshirilishi kerak
+                    </div>
+                </div>
+            </div>
+
+            <!-- To'lov shartlari -->
+            {% if building.payment_terms %}
+            <div class="narx-section-label">To'lov shartlari</div>
+            <div class="narx-terms">
+                {% for term in building.payment_terms.splitlines %}
+                {% if term.strip %}
+                <div class="narx-term-item">
+                    <div class="narx-term-num">{{ forloop.counter }}</div>
+                    <div class="narx-term-text">{{ term }}</div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div style="text-align:center;color:#6b7280;padding:2rem;">
+                Narx hali belgilanmagan
+            </div>
+            {% endif %}
         </div>
 
         <!-- ══ SAHIFA: ALOQA ══ -->
@@ -849,7 +883,8 @@
     }
     .jihoz-slide {
         min-width: 100%; position: relative;
-        aspect-ratio: 3/2; cursor: pointer; overflow: hidden;
+        aspect-ratio: 16/9; cursor: pointer; overflow: hidden;
+        max-height: 280px;
     }
     .jihoz-slide img {
         width: 100%; height: 100%; object-fit: cover;
@@ -942,8 +977,8 @@
     }
     .furn-modal-close:hover { background: rgba(0,0,0,.7); }
     .furn-modal-img-wrap {
-        width: 100%; aspect-ratio: 3/2; overflow: hidden;
-        background: #f3f4f6;
+        width: 100%; aspect-ratio: 16/9; overflow: hidden;
+        background: #f3f4f6; max-height: 260px;
     }
     .furn-modal-img-wrap img {
         width: 100%; height: 100%; object-fit: cover;
@@ -972,22 +1007,96 @@
     .furn-stat i { color: #0C2F75; }
 
     /* ═══ NARX ═══ */
-    .bd-price-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-    .bd-price-card {
-        background: #fff; border: 1.5px solid #D0D3D9;
-        border-radius: 14px; padding: 24px; text-align: center;
+    .narx-hero {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px; margin-bottom: 20px;
     }
-    .bd-price-icon {
-        width: 52px; height: 52px; border-radius: 14px;
+    .narx-card {
+        background: #fff; border: 1.5px solid #D0D3D9;
+        border-radius: 16px; padding: 28px 20px; text-align: center;
+        position: relative; overflow: hidden;
+        transition: box-shadow .2s, transform .2s;
+    }
+    .narx-card:hover {
+        box-shadow: 0 6px 20px rgba(12,47,117,.12);
+        transform: translateY(-2px);
+    }
+    .narx-main { border-color: #0C2F75; }
+    .narx-card-ribbon {
+        position: absolute; top: 14px; right: -28px;
+        background: #0C2F75; color: #fff;
+        font-size: 0.65rem; font-weight: 700;
+        padding: 3px 32px; transform: rotate(45deg);
+        letter-spacing: .5px;
+    }
+    .narx-ribbon-alt { background: #6b7280; }
+    .narx-card-icon {
+        width: 52px; height: 52px; border-radius: 50%;
         background: rgba(12,47,117,.08);
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.3rem; color: #0C2F75;
-        margin: 0 auto 12px;
+        font-size: 1.2rem; color: #0C2F75;
+        margin: 0 auto 14px;
     }
-    .bd-price-type { font-size: 0.8rem; color: #6b7280; font-weight: 600; margin-bottom: 6px; }
-    .bd-price-amount { font-size: 1.4rem; font-weight: 900; color: #0C2F75; }
-    .bd-price-amount span { font-size: 0.8rem; font-weight: 600; }
-    .bd-price-note { font-size: 0.7rem; color: #6b7280; margin-top: 6px; }
+    .narx-card-amount {
+        font-size: 1.6rem; font-weight: 900; color: #0C2F75;
+        line-height: 1;
+    }
+    .narx-card-currency {
+        font-size: 0.78rem; color: #6b7280; font-weight: 600;
+        margin-top: 4px;
+    }
+    .narx-card-note {
+        font-size: 0.7rem; color: #9ca3af; margin-top: 10px;
+    }
+
+    /* To'lov muddati */
+    .narx-deadline {
+        display: flex; align-items: center; gap: 16px;
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        border: 1.5px solid #f59e0b;
+        border-radius: 14px; padding: 18px 20px;
+        margin-bottom: 20px;
+    }
+    .narx-deadline-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        background: rgba(245,158,11,.2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; color: #b45309; flex-shrink: 0;
+    }
+    .narx-deadline-title {
+        font-size: 0.82rem; font-weight: 700; color: #92400e;
+        margin-bottom: 2px;
+    }
+    .narx-deadline-text {
+        font-size: 0.78rem; color: #78350f; line-height: 1.4;
+    }
+    .narx-deadline-text strong {
+        color: #b45309; font-size: 0.88rem;
+    }
+
+    /* To'lov shartlari */
+    .narx-section-label {
+        font-size: 0.85rem; font-weight: 700; color: #1a1a2e;
+        margin-bottom: 12px;
+    }
+    .narx-terms {
+        display: flex; flex-direction: column; gap: 10px;
+    }
+    .narx-term-item {
+        display: flex; align-items: flex-start; gap: 14px;
+        background: #f9fafb; border: 1px solid #e5e7eb;
+        border-radius: 12px; padding: 14px 16px;
+    }
+    .narx-term-num {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: #0C2F75; color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+    }
+    .narx-term-text {
+        font-size: 0.82rem; color: #374151; line-height: 1.5;
+        padding-top: 3px;
+    }
 
     /* ═══ ALOQA ═══ */
     .bd-contact-list { display: flex; flex-direction: column; gap: 12px; }
