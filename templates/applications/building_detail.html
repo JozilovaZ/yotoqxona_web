@@ -248,23 +248,57 @@
             </div>
 
             {% if inventory_categories %}
-            <div class="bd-jihoz-cats-grid">
+            <!-- Kategoriya tablari -->
+            <div class="jihoz-tabs">
                 {% for cat in inventory_categories %}
-                <div class="bd-jihoz-cat-card" onclick="showCategoryDetail({{ cat.id }})">
-                    <div class="bd-jihoz-cat-icon">
-                        <i class="fas fa-{{ cat.icon|default:'box' }}"></i>
-                    </div>
-                    <div class="bd-jihoz-cat-info">
-                        <div class="bd-jihoz-cat-name">{{ cat.name }}</div>
-                        {% if cat.description %}
-                        <div class="bd-jihoz-cat-desc">{{ cat.description }}</div>
-                        {% endif %}
-                        <div class="bd-jihoz-cat-count">{{ cat.items.count }} ta jihoz</div>
-                    </div>
-                    <div class="bd-jihoz-cat-arrow"><i class="fas fa-chevron-right"></i></div>
-                </div>
+                <button class="jihoz-tab {% if forloop.first %}active{% endif %}" onclick="switchJihozTab({{ cat.id }}, this)">
+                    <i class="fas fa-{{ cat.icon|default:'box' }}"></i>
+                    <span>{{ cat.name }}</span>
+                </button>
                 {% endfor %}
             </div>
+
+            <!-- Har bir kategoriya uchun carousel -->
+            {% for cat in inventory_categories %}
+            <div class="jihoz-carousel-section" id="jihoz-cat-{{ cat.id }}" {% if not forloop.first %}style="display:none;"{% endif %}>
+                {% if cat.description %}
+                <div class="jihoz-cat-description">{{ cat.description }}</div>
+                {% endif %}
+
+                {% if cat.items.count > 0 %}
+                <div class="jihoz-carousel-wrapper">
+                    <button class="jihoz-carousel-btn jihoz-prev" onclick="jihozSlide({{ cat.id }}, -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="jihoz-carousel" id="jihoz-track-{{ cat.id }}">
+                        {% for item in cat.items.all %}
+                        <div class="jihoz-slide" onclick="showJihozDetail({{ cat.id }}, {{ forloop.counter0 }})">
+                            {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy">
+                            {% else %}
+                            <div class="jihoz-slide-placeholder">
+                                <i class="fas fa-{{ cat.icon|default:'cube' }}"></i>
+                            </div>
+                            {% endif %}
+                            <div class="jihoz-slide-overlay">
+                                <div class="jihoz-slide-name">{{ item.name }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="jihoz-carousel-btn jihoz-next" onclick="jihozSlide({{ cat.id }}, 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <!-- Dots -->
+                <div class="jihoz-dots" id="jihoz-dots-{{ cat.id }}"></div>
+                {% else %}
+                <div style="text-align:center;color:#9ca3af;padding:2rem;">
+                    Bu kategoriyada jihozlar yo'q
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
             {% else %}
             <div style="text-align:center;color:#6b7280;padding:2rem;">
                 Jihozlar hali qo'shilmagan
@@ -341,19 +375,18 @@
     </main>
 </div>
 
-<!-- Jihozlar kategoriya detail modal -->
+<!-- Jihozlar detail modal -->
 <div class="furn-modal-overlay" id="furnModal" onclick="closeFurnitureDetail(event)">
     <div class="furn-modal furn-modal-wide">
         <button class="furn-modal-close" onclick="closeFurnitureDetail(event)"><i class="fas fa-times"></i></button>
+        <div class="furn-modal-img-wrap">
+            <img id="furnModalImg" src="" alt="">
+        </div>
         <div class="furn-modal-body">
-            <div class="furn-modal-header">
-                <div class="furn-modal-cat-icon" id="furnModalIcon"></div>
-                <div>
-                    <div class="furn-modal-name" id="furnModalName"></div>
-                    <div class="furn-modal-cat" id="furnModalCat"></div>
-                </div>
-            </div>
-            <div class="furn-modal-items" id="furnModalItems"></div>
+            <div class="furn-modal-cat-badge" id="furnModalCat"></div>
+            <div class="furn-modal-name" id="furnModalName"></div>
+            <div class="furn-modal-desc" id="furnModalDesc"></div>
+            <div class="furn-modal-stats" id="furnModalStats"></div>
         </div>
     </div>
 </div>
@@ -789,48 +822,107 @@
     .bd-amenity-name { font-size: 0.8rem; font-weight: 700; color: #000; margin-bottom: 2px; }
     .bd-amenity-desc { font-size: 0.65rem; color: #6b7280; }
 
-    /* Jihozlar kategoriya kartochkalari */
-    .bd-jihoz-cats-grid {
-        display: flex; flex-direction: column; gap: 12px;
+    /* ═══ JIHOZLAR TABS + CAROUSEL ═══ */
+    .jihoz-tabs {
+        display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
     }
-    .bd-jihoz-cat-card {
-        display: flex; align-items: center; gap: 16px;
-        background: #fff; border: 1.5px solid #D0D3D9;
-        border-radius: 14px; padding: 18px 20px;
-        cursor: pointer; transition: box-shadow .15s, transform .15s;
+    .jihoz-tab {
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 20px; border: 2px solid #D0D3D9;
+        border-radius: 50px; background: #fff;
+        cursor: pointer; font-size: 0.82rem; font-weight: 600;
+        color: #4b5563; transition: all .2s;
+        white-space: nowrap;
     }
-    .bd-jihoz-cat-card:hover {
-        box-shadow: 0 4px 15px rgba(0,0,0,.08);
-        transform: translateY(-1px);
+    .jihoz-tab i { font-size: 0.9rem; }
+    .jihoz-tab:hover {
+        border-color: #0C2F75; color: #0C2F75;
+        background: rgba(12,47,117,.04);
     }
-    .bd-jihoz-cat-icon {
-        width: 52px; height: 52px; border-radius: 14px;
-        background: rgba(12,47,117,.08);
+    .jihoz-tab.active {
+        background: #0C2F75; color: #fff;
+        border-color: #0C2F75;
+    }
+    .jihoz-cat-description {
+        font-size: 0.8rem; color: #6b7280; margin-bottom: 16px;
+        line-height: 1.5;
+    }
+
+    /* Carousel */
+    .jihoz-carousel-wrapper {
+        position: relative; overflow: hidden;
+        border-radius: 14px; background: #f3f4f6;
+    }
+    .jihoz-carousel {
+        display: flex; transition: transform .5s cubic-bezier(.4,0,.2,1);
+        will-change: transform;
+    }
+    .jihoz-slide {
+        min-width: 100%; position: relative;
+        aspect-ratio: 3/2; cursor: pointer; overflow: hidden;
+    }
+    .jihoz-slide img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform .6s ease;
+    }
+    .jihoz-slide:hover img {
+        transform: scale(1.08);
+    }
+    .jihoz-slide-placeholder {
+        width: 100%; height: 100%;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.3rem; color: #0C2F75; flex-shrink: 0;
+        background: rgba(12,47,117,.06);
+        font-size: 4rem; color: rgba(12,47,117,.2);
     }
-    .bd-jihoz-cat-info { flex: 1; min-width: 0; }
-    .bd-jihoz-cat-name {
-        font-size: 0.95rem; font-weight: 700; color: #1a1a2e; margin-bottom: 2px;
+    .jihoz-slide-overlay {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,.7));
+        padding: 40px 20px 18px;
     }
-    .bd-jihoz-cat-desc {
-        font-size: 0.75rem; color: #6b7280; line-height: 1.4;
-        overflow: hidden; text-overflow: ellipsis;
-        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    .jihoz-slide-name {
+        font-size: 1.05rem; font-weight: 700; color: #fff;
+        text-shadow: 0 1px 4px rgba(0,0,0,.3);
     }
-    .bd-jihoz-cat-count {
-        font-size: 0.7rem; color: #0C2F75; font-weight: 600; margin-top: 4px;
+
+    /* Carousel buttons */
+    .jihoz-carousel-btn {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        z-index: 5; width: 40px; height: 40px;
+        border-radius: 50%; border: none;
+        background: rgba(255,255,255,.9); color: #1a1a2e;
+        cursor: pointer; font-size: 0.9rem;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,.15);
+        transition: all .2s; opacity: 0;
     }
-    .bd-jihoz-cat-arrow {
-        color: #9ca3af; font-size: 0.85rem; flex-shrink: 0;
+    .jihoz-carousel-wrapper:hover .jihoz-carousel-btn { opacity: 1; }
+    .jihoz-carousel-btn:hover {
+        background: #fff; transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    }
+    .jihoz-prev { left: 12px; }
+    .jihoz-next { right: 12px; }
+
+    /* Dots */
+    .jihoz-dots {
+        display: flex; justify-content: center;
+        gap: 8px; margin-top: 14px;
+    }
+    .jihoz-dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        background: #D0D3D9; border: none; cursor: pointer;
+        transition: all .25s; padding: 0;
+    }
+    .jihoz-dot.active {
+        background: #0C2F75; width: 28px; border-radius: 5px;
     }
 
     /* Jihoz detail modal */
     .furn-modal-overlay {
         display: none; position: fixed; inset: 0;
-        background: rgba(0,0,0,.5); z-index: 9999;
+        background: rgba(0,0,0,.55); z-index: 9999;
         justify-content: center; align-items: center;
-        padding: 20px;
+        padding: 20px; backdrop-filter: blur(4px);
     }
     .furn-modal-overlay.active { display: flex; }
     .furn-modal {
@@ -838,84 +930,52 @@
         max-width: 500px; width: 100%; max-height: 90vh;
         box-shadow: 0 20px 60px rgba(0,0,0,.3);
         position: relative;
-        animation: furnSlideUp .25s ease;
+        animation: furnSlideUp .3s ease;
         overflow-y: auto;
     }
-    .furn-modal-wide { max-width: 600px; }
+    .furn-modal-wide { max-width: 540px; }
     @keyframes furnSlideUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(30px) scale(.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
     }
     .furn-modal-close {
         position: absolute; top: 12px; right: 12px; z-index: 10;
         width: 36px; height: 36px; border-radius: 50%;
-        background: rgba(0,0,0,.15); color: #333;
+        background: rgba(0,0,0,.5); color: #fff;
         border: none; cursor: pointer; font-size: 1rem;
         display: flex; align-items: center; justify-content: center;
         transition: background .15s;
     }
-    .furn-modal-close:hover { background: rgba(0,0,0,.25); }
-    .furn-modal-body { padding: 24px; }
-    .furn-modal-header {
-        display: flex; align-items: center; gap: 16px;
-        margin-bottom: 20px; padding-bottom: 16px;
-        border-bottom: 1.5px solid #e5e7eb;
+    .furn-modal-close:hover { background: rgba(0,0,0,.7); }
+    .furn-modal-img-wrap {
+        width: 100%; aspect-ratio: 3/2; overflow: hidden;
+        background: #f3f4f6;
     }
-    .furn-modal-cat-icon {
-        width: 56px; height: 56px; border-radius: 14px;
-        background: rgba(12,47,117,.08);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.5rem; color: #0C2F75; flex-shrink: 0;
-    }
-    .furn-modal-name {
-        font-size: 1.15rem; font-weight: 800; color: #1a1a2e; margin-bottom: 4px;
-    }
-    .furn-modal-cat {
-        font-size: 0.78rem; color: #6b7280; line-height: 1.4;
-    }
-    .furn-modal-items {
-        display: flex; flex-direction: column; gap: 12px;
-    }
-    .furn-item-card {
-        display: flex; align-items: center; gap: 14px;
-        background: #f9fafb; border: 1px solid #e5e7eb;
-        border-radius: 12px; padding: 14px;
-        transition: background .15s;
-    }
-    .furn-item-card:hover { background: #f3f4f6; }
-    .furn-item-img {
-        width: 64px; height: 64px; border-radius: 10px;
-        overflow: hidden; background: #e5e7eb; flex-shrink: 0;
-    }
-    .furn-item-img img {
+    .furn-modal-img-wrap img {
         width: 100%; height: 100%; object-fit: cover;
     }
-    .furn-item-placeholder {
-        width: 64px; height: 64px; border-radius: 10px;
-        background: rgba(12,47,117,.08); flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.3rem; color: #0C2F75;
+    .furn-modal-body { padding: 20px 24px 24px; }
+    .furn-modal-cat-badge {
+        font-size: 0.7rem; color: #0C2F75; font-weight: 600;
+        background: rgba(12,47,117,.08); display: inline-block;
+        padding: 3px 12px; border-radius: 20px; margin-bottom: 10px;
     }
-    .furn-item-info { flex: 1; min-width: 0; }
-    .furn-item-name {
-        font-size: 0.88rem; font-weight: 700; color: #1a1a2e; margin-bottom: 3px;
+    .furn-modal-name {
+        font-size: 1.2rem; font-weight: 800; color: #1a1a2e; margin-bottom: 8px;
     }
-    .furn-item-desc {
-        font-size: 0.75rem; color: #6b7280; line-height: 1.4;
-        overflow: hidden; text-overflow: ellipsis;
-        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    .furn-modal-desc {
+        font-size: 0.85rem; color: #4b5563; line-height: 1.6; margin-bottom: 14px;
     }
-    .furn-item-meta {
-        display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap;
+    .furn-modal-stats {
+        display: flex; gap: 12px; flex-wrap: wrap;
     }
-    .furn-item-badge {
-        font-size: 0.65rem; font-weight: 600;
-        padding: 2px 8px; border-radius: 6px;
-        background: rgba(12,47,117,.08); color: #0C2F75;
+    .furn-stat {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 0.78rem; font-weight: 600;
+        padding: 6px 14px; border-radius: 10px;
+        background: #f3f4f6; color: #374151;
     }
-    .furn-item-badge.green {
-        background: rgba(16,185,129,.1); color: #059669;
-    }
+    .furn-stat i { color: #0C2F75; }
 
     /* ═══ NARX ═══ */
     .bd-price-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
@@ -1244,46 +1304,130 @@ showPage = function(name, btn) {
     }
 };
 
-// ═══ Jihozlar kategoriya detail modal ═══
+// ═══ Jihozlar Carousel + Tabs ═══
 var categoriesData = JSON.parse(document.getElementById('categoriesData').textContent);
 var itemTotalsData = JSON.parse(document.getElementById('itemTotalsData').textContent);
+var jihozCurrentSlide = {};
+var jihozAutoTimers = {};
 
-function showCategoryDetail(catId) {
+// Tab switching
+function switchJihozTab(catId, btn) {
+    document.querySelectorAll('.jihoz-tab').forEach(function(t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.jihoz-carousel-section').forEach(function(s) { s.style.display = 'none'; });
+    var section = document.getElementById('jihoz-cat-' + catId);
+    if (section) {
+        section.style.display = 'block';
+        initCarouselDots(catId);
+        startAutoSlide(catId);
+    }
+}
+
+// Initialize dots for a carousel
+function initCarouselDots(catId) {
+    var cat = categoriesData.find(function(c) { return c.id === catId; });
+    if (!cat || !cat.items.length) return;
+    var dotsEl = document.getElementById('jihoz-dots-' + catId);
+    if (!dotsEl || dotsEl.children.length > 0) return;
+    jihozCurrentSlide[catId] = 0;
+    for (var i = 0; i < cat.items.length; i++) {
+        var dot = document.createElement('button');
+        dot.className = 'jihoz-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('data-index', i);
+        dot.onclick = (function(idx) {
+            return function() { goToSlide(catId, idx); };
+        })(i);
+        dotsEl.appendChild(dot);
+    }
+}
+
+// Go to specific slide
+function goToSlide(catId, idx) {
     var cat = categoriesData.find(function(c) { return c.id === catId; });
     if (!cat) return;
-
-    document.getElementById('furnModalIcon').innerHTML = '<i class="fas fa-' + (cat.icon || 'box') + '"></i>';
-    document.getElementById('furnModalName').textContent = cat.name;
-    document.getElementById('furnModalCat').textContent = cat.description || '';
-
-    var itemsHtml = '';
-    cat.items.forEach(function(item) {
-        var totals = itemTotalsData[item.id] || null;
-        var imgHtml = item.image
-            ? '<div class="furn-item-img"><img src="' + item.image + '" alt="' + item.name + '" loading="lazy"></div>'
-            : '<div class="furn-item-placeholder"><i class="fas fa-cube"></i></div>';
-
-        var metaHtml = '';
-        if (totals) {
-            metaHtml += '<span class="furn-item-badge green">' + totals.quantity + ' ta mavjud</span>';
-            metaHtml += '<span class="furn-item-badge">' + totals.conditions + '</span>';
-        }
-
-        itemsHtml += '<div class="furn-item-card">'
-            + imgHtml
-            + '<div class="furn-item-info">'
-            + '<div class="furn-item-name">' + item.name + '</div>'
-            + (item.description ? '<div class="furn-item-desc">' + item.description + '</div>' : '')
-            + (metaHtml ? '<div class="furn-item-meta">' + metaHtml + '</div>' : '')
-            + '</div>'
-            + '</div>';
+    var total = cat.items.length;
+    if (total === 0) return;
+    idx = ((idx % total) + total) % total;
+    jihozCurrentSlide[catId] = idx;
+    var track = document.getElementById('jihoz-track-' + catId);
+    if (track) track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+    // Update dots
+    var dots = document.querySelectorAll('#jihoz-dots-' + catId + ' .jihoz-dot');
+    dots.forEach(function(d, i) {
+        d.classList.toggle('active', i === idx);
     });
+}
 
-    if (!cat.items.length) {
-        itemsHtml = '<div style="text-align:center;color:#9ca3af;padding:20px;">Bu kategoriyada jihozlar yo\'q</div>';
+// Slide prev/next
+function jihozSlide(catId, dir) {
+    var current = jihozCurrentSlide[catId] || 0;
+    goToSlide(catId, current + dir);
+    startAutoSlide(catId); // restart auto
+}
+
+// Auto slide
+function startAutoSlide(catId) {
+    if (jihozAutoTimers[catId]) clearInterval(jihozAutoTimers[catId]);
+    jihozAutoTimers[catId] = setInterval(function() {
+        var current = jihozCurrentSlide[catId] || 0;
+        goToSlide(catId, current + 1);
+    }, 4000);
+}
+
+// Touch/swipe support
+function initSwipe(catId) {
+    var wrapper = document.querySelector('#jihoz-cat-' + catId + ' .jihoz-carousel-wrapper');
+    if (!wrapper) return;
+    var startX = 0, diffX = 0;
+    wrapper.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        if (jihozAutoTimers[catId]) clearInterval(jihozAutoTimers[catId]);
+    }, {passive: true});
+    wrapper.addEventListener('touchmove', function(e) {
+        diffX = e.touches[0].clientX - startX;
+    }, {passive: true});
+    wrapper.addEventListener('touchend', function() {
+        if (Math.abs(diffX) > 50) {
+            jihozSlide(catId, diffX > 0 ? -1 : 1);
+        }
+        startAutoSlide(catId);
+        diffX = 0;
+    });
+}
+
+// Show item detail modal
+function showJihozDetail(catId, itemIdx) {
+    var cat = categoriesData.find(function(c) { return c.id === catId; });
+    if (!cat || !cat.items[itemIdx]) return;
+    var item = cat.items[itemIdx];
+    var totals = itemTotalsData[item.id] || null;
+
+    var imgEl = document.getElementById('furnModalImg');
+    var imgWrap = document.querySelector('.furn-modal-img-wrap');
+    if (item.image) {
+        imgEl.src = item.image;
+        imgEl.alt = item.name;
+        imgWrap.style.display = 'block';
+    } else {
+        imgWrap.style.display = 'none';
     }
 
-    document.getElementById('furnModalItems').innerHTML = itemsHtml;
+    document.getElementById('furnModalCat').textContent = cat.name;
+    document.getElementById('furnModalName').textContent = item.name;
+    var descEl = document.getElementById('furnModalDesc');
+    descEl.textContent = item.description || '';
+    descEl.style.display = item.description ? 'block' : 'none';
+
+    var statsHtml = '';
+    if (totals) {
+        statsHtml += '<div class="furn-stat"><i class="fas fa-cubes"></i> ' + totals.quantity + ' ta mavjud</div>';
+        statsHtml += '<div class="furn-stat"><i class="fas fa-check-circle"></i> ' + totals.conditions + '</div>';
+    }
+    if (item.price && item.price !== '0') {
+        statsHtml += '<div class="furn-stat"><i class="fas fa-tag"></i> ' + Number(item.price).toLocaleString() + ' so\'m</div>';
+    }
+    document.getElementById('furnModalStats').innerHTML = statsHtml;
+
     document.getElementById('furnModal').classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -1301,5 +1445,17 @@ document.addEventListener('keydown', function(e) {
         document.body.style.overflow = '';
     }
 });
+
+// Init first category on page load
+(function() {
+    if (categoriesData.length > 0) {
+        var firstId = categoriesData[0].id;
+        initCarouselDots(firstId);
+        startAutoSlide(firstId);
+        categoriesData.forEach(function(cat) {
+            initSwipe(cat.id);
+        });
+    }
+})();
 </script>
 {% endblock %}
