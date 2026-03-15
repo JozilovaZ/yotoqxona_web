@@ -23,6 +23,7 @@
             --bg:      #FAF9F5;
             --nav-h:   56px;
             --nav-bg:  #FFFFFF;
+            --sb-w:    260px;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,154 +35,185 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ═══ TOPNAV ═══ */
+        /* ═══ TOPNAV (PUBLIC) ═══ */
         .topnav-wrap {
             position: sticky; top: 0; z-index: 999;
             padding: 10px 16px 0;
         }
         .topnav {
-            max-width: 1300px;
-            margin: 0 auto;
-            height: var(--nav-h);
-            background: var(--nav-bg);
-            border-radius: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 8px;
-            gap: 0;
+            max-width: 1300px; margin: 0 auto; height: var(--nav-h);
+            background: var(--nav-bg); border-radius: 100px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 8px; gap: 0;
             box-shadow: 0 2px 16px rgba(0,0,0,.08);
-            border: none;
             flex-wrap: nowrap;
         }
-
-        /* BRAND */
         .nav-brand {
             display: flex; align-items: center; gap: 8px;
-            text-decoration: none; margin-right: 20px; flex-shrink: 0;
-            padding-left: 12px;
+            text-decoration: none; margin-right: 20px; flex-shrink: 0; padding-left: 12px;
         }
         .brand-logo { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .brand-logo svg { width: 32px; height: 32px; }
-        .brand-name {
-            font-size: 1.05rem; font-weight: 900;
-            letter-spacing: -0.5px; color: #000000;
-            line-height: 1;
-        }
+        .brand-name { font-size: 1.05rem; font-weight: 900; letter-spacing: -0.5px; color: #000; line-height: 1; }
 
-        /* NAV LINKS */
-        .nav-links {
-            display: flex; align-items: center; gap: 2px;
-            list-style: none; flex: 1;
-            justify-content: center;
-        }
+        .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; flex: 1; justify-content: center; }
         .nav-links li a {
-            display: flex; align-items: center;
-            justify-content: center;
-            padding: 7px 14px;
-            border-radius: 100px;
-            font-size: 0.82rem; font-weight: 600;
-            color: rgba(0,0,0,.6);
-            text-decoration: none;
-            transition: color .15s, background .15s;
-            white-space: nowrap;
-            line-height: 1;
+            display: flex; align-items: center; justify-content: center;
+            padding: 7px 14px; border-radius: 100px;
+            font-size: 0.82rem; font-weight: 600; color: rgba(0,0,0,.6);
+            text-decoration: none; transition: color .15s, background .15s;
+            white-space: nowrap; line-height: 1;
         }
-        .nav-links li a:hover {
-            color: #000;
-            background: #F2F2F2;
-        }
-        .nav-links li.active a {
-            color: #0C2F75;
-            background: #F2F2F2;
-            border-radius: 100px;
-            font-weight: 700;
-        }
+        .nav-links li a:hover { color: #000; background: #F2F2F2; }
+        .nav-links li.active a { color: #0C2F75; background: #F2F2F2; font-weight: 700; }
 
-        /* NAV RIGHT */
         .nav-right { display: flex; align-items: center; gap: 6px; margin-left: auto; padding-right: 4px; }
-
         .user-btn {
             display: flex; align-items: center; gap: 6px;
-            padding: 4px 10px 4px 4px;
-            border: 1.5px solid #D0D3D9;
-            border-radius: 50px;
-            text-decoration: none; cursor: pointer;
+            padding: 4px 10px 4px 4px; border: 1.5px solid #D0D3D9;
+            border-radius: 50px; text-decoration: none; cursor: pointer;
             transition: border-color .15s, background .15s;
         }
         .user-btn:hover { border-color: #0C2F75; background: #F2F2F2; }
         .u-avatar {
-            width: 26px; height: 26px; border-radius: 50%;
-            background: #fff;
+            width: 26px; height: 26px; border-radius: 50%; background: #fff;
             display: flex; align-items: center; justify-content: center;
             font-size: 0.7rem; font-weight: 800; color: #0C2F75; flex-shrink: 0;
         }
         .u-name { font-size: 0.8rem; font-weight: 600; color: #000; }
         .u-arrow { color: rgba(0,0,0,.4); font-size: 0.55rem; }
 
-        /* AUTH BUTTONS */
         .nav-auth-btn {
-            padding: 6px 14px;
-            border-radius: 100px;
-            font-size: 0.8rem; font-weight: 600;
-            color: #000;
-            text-decoration: none;
-            transition: background .15s;
+            padding: 6px 14px; border-radius: 100px; font-size: 0.8rem; font-weight: 600;
+            color: #000; text-decoration: none; transition: background .15s;
         }
         .nav-auth-btn:hover { background: #F2F2F2; color: #000; }
-        .nav-auth-primary {
-            background: rgb(0, 43, 127);
-            color: #fff !important;
-            padding: 6px 16px;
-            font-weight: 700;
-        }
-        .nav-auth-primary:hover { opacity: .9; background: rgb(0, 43, 127); }
+        .nav-auth-primary { background: rgb(0,43,127); color: #fff !important; padding: 6px 16px; font-weight: 700; }
+        .nav-auth-primary:hover { opacity: .9; background: rgb(0,43,127); }
 
         /* DROPDOWN */
         .dropdown-menu {
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(18,0,42,.12);
-            padding: 6px;
-            min-width: 170px;
+            background: #fff; border: 1px solid var(--border); border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(18,0,42,.12); padding: 6px; min-width: 170px;
         }
-        .dropdown-item {
-            border-radius: 8px;
-            font-size: 0.85rem; font-weight: 600;
-            padding: 9px 14px;
-            color: var(--dark);
-        }
+        .dropdown-item { border-radius: 8px; font-size: 0.85rem; font-weight: 600; padding: 9px 14px; color: var(--dark); }
         .dropdown-item:hover { background: var(--p10); color: var(--p); }
         .dropdown-item.text-danger:hover { background: var(--err10); color: var(--err); }
         .dropdown-divider { border-color: var(--border); margin: 4px 0; }
 
-        /* ═══ MAIN ═══ */
-        .main-wrap { max-width: 1300px; margin: 0 auto; padding: 28px 32px 48px; }
+        /* ═══════════ SIDEBAR (ADMIN) ═══════════ */
+        .sidebar {
+            width: var(--sb-w); background: #fff;
+            border-right: 1.5px solid var(--border);
+            position: fixed; top: 0; left: 0; bottom: 0;
+            display: flex; flex-direction: column;
+            z-index: 1000; transition: transform .3s;
+        }
+        .sb-brand {
+            display: flex; align-items: center; gap: 10px;
+            padding: 22px 22px 18px; text-decoration: none;
+            border-bottom: 1.5px solid var(--border);
+        }
+        .sb-brand-name { font-size: 1.1rem; font-weight: 900; color: #000; }
+        .sb-brand-sub { font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); }
 
-        .page-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin-bottom: 26px;
-}
+        .sb-nav { flex: 1; padding: 14px 12px; overflow-y: auto; }
+        .sb-section { margin-bottom: 18px; }
+        .sb-section-title {
+            font-size: .62rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1.2px; color: var(--gray); padding: 0 12px; margin-bottom: 6px;
+        }
+        .sb-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 14px; border-radius: 10px;
+            text-decoration: none; color: var(--gray);
+            font-size: .875rem; font-weight: 600;
+            transition: all .15s; margin-bottom: 2px;
+        }
+        .sb-link:hover { background: var(--bg); color: var(--dark); }
+        .sb-link.active { background: var(--p); color: #fff; }
+        .sb-link.active i { color: #fff; }
+        .sb-link i { width: 20px; text-align: center; font-size: .85rem; color: var(--gray); transition: color .15s; }
+        .sb-link:hover i { color: var(--dark); }
 
-.page-header > * {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-        align-items: center;
+        .sb-footer { padding: 14px 16px; border-top: 1.5px solid var(--border); }
+        .sb-user {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px; border-radius: 10px;
+            text-decoration: none; cursor: pointer; transition: background .15s;
+        }
+        .sb-user:hover { background: var(--bg); }
+        .sb-user-avatar {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: var(--p); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .8rem; font-weight: 800; flex-shrink: 0;
+        }
+        .sb-user-name { font-size: .85rem; font-weight: 700; color: var(--dark); }
+        .sb-user-role { font-size: .68rem; color: var(--gray); font-weight: 500; }
 
-}
+        .sb-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.4); z-index: 999;
+        }
+        .sb-mob-toggle {
+            display: none; background: none; border: none;
+            font-size: 1.2rem; color: var(--dark); cursor: pointer; padding: 4px;
+        }
+
+        /* ═══ CONTENT WRAPPER — shared, styled by body class ═══ */
+        .content-wrap {
+            max-width: 1300px; margin: 0 auto; padding: 28px 32px 48px;
+        }
+        body.is-admin .content-wrap {
+            max-width: none; margin-left: var(--sb-w); padding: 0;
+        }
+
+        /* Content header: public = centered page header, admin = sticky topbar */
+        .content-header {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; margin-bottom: 26px;
+        }
+        .content-header > * {
+            width: 100%; display: flex; justify-content: center; align-items: center;
+        }
+        body.is-admin .content-header {
+            flex-direction: row; text-align: left;
+            justify-content: space-between; margin-bottom: 0;
+            padding: 16px 32px; border-bottom: 1.5px solid var(--border);
+            background: #fff; position: sticky; top: 0; z-index: 100;
+        }
+        body.is-admin .content-header > * {
+            width: auto; justify-content: flex-start;
+        }
+
+        .content-body { }
+        body.is-admin .content-body { padding: 24px 32px 48px; }
+
         .page-title {
             font-size: 1.55rem; font-weight: 900;
             letter-spacing: -0.7px; color: var(--dark); line-height: 1.1;
         }
+        body.is-admin .page-title {
+            font-size: 1.1rem; font-weight: 800; letter-spacing: 0;
+        }
         .page-sub {
             font-size: 0.82rem; color: var(--gray);
             margin: 4px 0 0; font-weight: 400;
+        }
+        body.is-admin .page-sub {
+            font-size: .78rem; margin: 2px 0 0;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,.15); }
+            .sb-overlay.open { display: block; }
+            body.is-admin .content-wrap { margin-left: 0; }
+            body.is-admin .content-body { padding: 20px 16px 40px; }
+            body.is-admin .content-header { padding: 12px 16px; }
+            .sb-mob-toggle { display: block; }
         }
 
         /* ═══ COMPONENTS ═══ */
@@ -247,16 +279,12 @@
 
         /* ═══ FOOTER ═══ */
         .site-footer {
-            background: #0a0a0a;
-            color: rgba(255,255,255,.6);
-            margin-top: 60px;
+            background: #0a0a0a; color: rgba(255,255,255,.6); margin-top: 60px;
         }
         .footer-inner { max-width: 1300px; margin: 0 auto; padding: 48px 32px 0; }
         .footer-top {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr 1fr;
-            gap: 40px;
-            padding-bottom: 36px;
+            display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 40px; padding-bottom: 36px;
             border-bottom: 1px solid rgba(255,255,255,.08);
         }
         .footer-desc { font-size: .84rem; line-height: 1.7; color: rgba(255,255,255,.4); max-width: 280px; }
@@ -285,68 +313,106 @@
             .nav-links.open {
                 display: flex; flex-direction: column; gap: 4px;
                 position: fixed; top: 72px; left: 10px; right: 10px;
-                background: #FFFFFF;
-                padding: 16px 20px;
-                border-radius: 18px;
-                border: 1px solid #D0D3D9;
-                box-shadow: 0 8px 32px rgba(0,0,0,.1);
-                z-index: 998;
+                background: #FFFFFF; padding: 16px 20px;
+                border-radius: 18px; border: 1px solid #D0D3D9;
+                box-shadow: 0 8px 32px rgba(0,0,0,.1); z-index: 998;
             }
             .mob-toggle { display: block; margin-right: 6px; }
-            .main-wrap { padding: 20px 16px 40px; }
+            .content-wrap { padding: 20px 16px 40px; }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="{% if user.is_authenticated and user.is_staff_member %}is-admin{% endif %}">
 
+{% if user.is_authenticated and user.is_staff_member %}
+<!-- ═══════════ ADMIN SIDEBAR ═══════════ -->
+<div class="sb-overlay" id="sbOverlay"></div>
+<aside class="sidebar" id="sidebar">
+    <a class="sb-brand" href="{% url 'dashboard' %}">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+            <rect width="34" height="34" rx="9" fill="#0C2F75"/>
+            <path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+            <div class="sb-brand-name">Makon</div>
+            <div class="sb-brand-sub">Boshqaruv paneli</div>
+        </div>
+    </a>
+
+    <nav class="sb-nav">
+        <div class="sb-section">
+            <div class="sb-section-title">Asosiy</div>
+            <a href="{% url 'dashboard' %}" class="sb-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-home"></i> Bosh sahifa
+            </a>
+            <a href="{% url 'buildings:building_list' %}" class="sb-link {% if 'buildings' in request.path %}active{% endif %}">
+                <i class="fas fa-building"></i> Binolar
+            </a>
+            <a href="{% url 'students:student_list' %}" class="sb-link {% if 'students' in request.path %}active{% endif %}">
+                <i class="fas fa-user-graduate"></i> Talabalar
+            </a>
+            <a href="{% url 'finance:dashboard' %}" class="sb-link {% if 'finance' in request.path %}active{% endif %}">
+                <i class="fas fa-wallet"></i> To'lovlar
+            </a>
+            <a href="{% url 'applications:admin_list' %}" class="sb-link {% if 'applications' in request.path %}active{% endif %}">
+                <i class="fas fa-file-alt"></i> Arizalar
+            </a>
+            <a href="{% url 'announcements:list' %}" class="sb-link {% if 'announcements' in request.path %}active{% endif %}">
+                <i class="fas fa-bullhorn"></i> E'lonlar
+            </a>
+        </div>
+
+        <div class="sb-section">
+            <div class="sb-section-title">Qo'shimcha</div>
+            <a href="{% url 'attendance:mark' %}" class="sb-link {% if 'attendance' in request.path %}active{% endif %}">
+                <i class="fas fa-clipboard-check"></i> Davomat
+            </a>
+            <a href="{% url 'inventory:dashboard' %}" class="sb-link {% if 'inventory' in request.path %}active{% endif %}">
+                <i class="fas fa-boxes-stacked"></i> Inventar
+            </a>
+            {% if user.is_admin %}
+            <a href="{% url 'accounts:user_list' %}" class="sb-link {% if 'accounts' in request.path %}active{% endif %}">
+                <i class="fas fa-users-gear"></i> Xodimlar
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="sb-footer">
+        <div class="dropdown">
+            <div class="sb-user" data-bs-toggle="dropdown" role="button">
+                <div class="sb-user-avatar">{{ user.username|first|upper }}</div>
+                <div style="flex:1;min-width:0;">
+                    <div class="sb-user-name">{{ user.username }}</div>
+                    <div class="sb-user-role">{% if user.is_admin %}Administrator{% else %}Xodim{% endif %}</div>
+                </div>
+                <i class="fas fa-ellipsis-vertical" style="color:var(--gray);font-size:.8rem;"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end mb-2">
+                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-user me-2" style="font-size:.8rem;"></i>Profil</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-right-from-bracket me-2" style="font-size:.8rem;"></i>Chiqish</a></li>
+            </ul>
+        </div>
+    </div>
+</aside>
+
+{% else %}
+<!-- ═══════════ PUBLIC TOP NAV ═══════════ -->
 <div class="topnav-wrap">
 <nav class="topnav">
     <button class="mob-toggle" id="mobBtn"><i class="fas fa-bars"></i></button>
 
-    <a class="nav-brand" href="{% url 'dashboard' %}">
+    <a class="nav-brand" href="{% url 'applications:home' %}">
         <div class="brand-logo">
-            <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="34" height="34" rx="9" fill="#0C2F75"/>
-                <path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <svg viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0C2F75"/><path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <span class="brand-name">Makon</span>
     </a>
 
     <ul class="nav-links" id="navLinks">
-        {% if user.is_authenticated and user.is_staff_member %}
-        <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-            <a href="{% url 'dashboard' %}">Bosh sahifa</a>
-        </li>
-        <li class="{% if 'buildings' in request.path %}active{% endif %}">
-            <a href="{% url 'buildings:building_list' %}">Binolar</a>
-        </li>
-        <li class="{% if 'students' in request.path %}active{% endif %}">
-            <a href="{% url 'students:student_list' %}">Talabalar</a>
-        </li>
-        <li class="{% if 'finance' in request.path %}active{% endif %}">
-            <a href="{% url 'finance:dashboard' %}">To'lovlar</a>
-        </li>
-        <li class="{% if 'attendance' in request.path %}active{% endif %}">
-            <a href="{% url 'attendance:mark' %}">Davomat</a>
-        </li>
-        <li class="{% if 'inventory' in request.path %}active{% endif %}">
-            <a href="{% url 'inventory:dashboard' %}">Inventar</a>
-        </li>
-        <li class="{% if 'applications' in request.path %}active{% endif %}">
-            <a href="{% url 'applications:admin_list' %}">Arizalar</a>
-        </li>
-        <li class="{% if 'announcements' in request.path %}active{% endif %}">
-            <a href="{% url 'announcements:list' %}">E'lonlar</a>
-        </li>
-        {% if user.is_admin %}
-        <li class="{% if 'accounts' in request.path %}active{% endif %}">
-            <a href="{% url 'accounts:user_list' %}">Xodimlar</a>
-        </li>
-        {% endif %}
-
-        {% elif user.is_authenticated %}
+        {% if user.is_authenticated %}
         <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <a href="{% url 'applications:home' %}">Bosh sahifa</a>
         </li>
@@ -362,7 +428,6 @@
         <li class="{% if 'announcements' in request.path %}active{% endif %}">
             <a href="{% url 'announcements:list' %}">E'lonlar</a>
         </li>
-
         {% else %}
         <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <a href="{% url 'applications:home' %}">Bosh sahifa</a>
@@ -370,9 +435,7 @@
         <li class="{% if 'rooms' in request.path %}active{% endif %}">
             <a href="{% url 'applications:available_rooms' %}">Yotoqxonalar</a>
         </li>
-        <li>
-            <a href="{% url 'accounts:register' %}">Ariza topshirish</a>
-        </li>
+        <li><a href="{% url 'accounts:register' %}">Ariza topshirish</a></li>
         {% endif %}
     </ul>
 
@@ -397,19 +460,29 @@
     </div>
 </nav>
 </div>
+{% endif %}
 
-<div class="main-wrap">
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">{% block page_title %}{% block header %}{% endblock %}{% endblock %}</h1>
-            {% block page_sub %}{% endblock %}
+<!-- ═══════════ SHARED CONTENT AREA ═══════════ -->
+<div class="content-wrap">
+    <div class="content-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+            {% if user.is_authenticated and user.is_staff_member %}
+            <button class="sb-mob-toggle" id="sbToggle"><i class="fas fa-bars"></i></button>
+            {% endif %}
+            <div>
+                <h1 class="page-title">{% block page_title %}{% block header %}{% endblock %}{% endblock %}</h1>
+                {% block page_sub %}{% endblock %}
+            </div>
         </div>
         {% block page_actions %}{% endblock %}
     </div>
 
-    {% block content %}{% endblock %}
+    <div class="content-body">
+        {% block content %}{% endblock %}
+    </div>
 </div>
 
+{% if not user.is_authenticated or not user.is_staff_member %}
 {% block footer %}
 <footer class="site-footer">
     <div class="footer-inner">
@@ -452,6 +525,7 @@
     </div>
 </footer>
 {% endblock %}
+{% endif %}
 
 {% if messages %}
 <div class="alert-stack">
@@ -468,9 +542,19 @@
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>AOS.init({duration: 700, once: true, offset: 80});</script>
 <script>
+    // Public topnav mobile toggle
     const mobBtn = document.getElementById('mobBtn');
     const navLinks = document.getElementById('navLinks');
     if (mobBtn) mobBtn.onclick = () => navLinks.classList.toggle('open');
+
+    // Admin sidebar mobile toggle
+    const sbToggle = document.getElementById('sbToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sbOverlay = document.getElementById('sbOverlay');
+    if (sbToggle && sidebar) {
+        sbToggle.onclick = () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('open'); };
+        sbOverlay.onclick = () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('open'); };
+    }
 
     setTimeout(() => {
         document.querySelectorAll('.alert').forEach(a => {
