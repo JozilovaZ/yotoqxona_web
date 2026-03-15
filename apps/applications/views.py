@@ -8,7 +8,7 @@ from .models import Application, CarouselImage
 from .forms import ApplicationForm, ApplicationReviewForm
 from buildings.models import Building, Floor, Room
 from students.models import Student
-from inventory.models import InventoryItem
+from inventory.models import InventoryItem, InventoryCategory, RoomInventory
 
 
 class StudentHomeView(TemplateView):
@@ -103,9 +103,23 @@ class BuildingDetailForApplicantView(DetailView):
         ctx['total_capacity'] = total_capacity
         ctx['total_available'] = total_available
         ctx['total_rooms'] = sum(fd['total_rooms'] for fd in floors_data)
-        ctx['inventory_items'] = InventoryItem.objects.filter(
-            image__isnull=False
-        ).exclude(image='').select_related('category')
+        # Jihozlar: kategoriyalar va ularning itemlari
+        categories = InventoryCategory.objects.prefetch_related('items').all()
+        # Binodagi xonalar uchun inventar ma'lumotlari
+        building_rooms = Room.objects.filter(floor__building=building, is_active=True)
+        room_inventory = RoomInventory.objects.filter(
+            room__in=building_rooms
+        ).select_related('item', 'item__category')
+        # Har bir item uchun umumiy soni
+        item_totals = {}
+        for ri in room_inventory:
+            key = ri.item_id
+            if key not in item_totals:
+                item_totals[key] = {'quantity': 0, 'conditions': []}
+            item_totals[key]['quantity'] += ri.quantity
+            item_totals[key]['conditions'].append(ri.get_condition_display())
+        ctx['inventory_categories'] = categories
+        ctx['item_totals'] = item_totals
         return ctx
 
 
