@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
-from django.db.models import Sum, Count, Q, F, Exists, OuterRef
+from django.db.models import Sum, Count, Q, F, Exists, OuterRef, DecimalField, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from .models import Building, Floor, Room
@@ -124,6 +125,26 @@ class DashboardView(BuildingStaffMixin, TemplateView):
         context['rooms_by_status'] = rooms_qs.values('status').annotate(
             count=Count('id')
         )
+
+        # Qarzdorlar ro'yxati (bino bo'yicha filter bilan)
+        selected_building = self.request.GET.get('debtor_building', '')
+        debtors_qs = Student.objects.filter(is_active=True, **student_bld_filter)
+        if selected_building:
+            debtors_qs = debtors_qs.filter(room__floor__building_id=selected_building)
+        debtors_qs = debtors_qs.annotate(
+            total_invoiced=Coalesce(Sum('invoices__amount'), Value(0, output_field=DecimalField())),
+            total_paid=Coalesce(
+                Sum('payments__amount', filter=Q(payments__status='completed')),
+                Value(0, output_field=DecimalField())
+            )
+        ).annotate(
+            debt=F('total_invoiced') - F('total_paid')
+        ).filter(
+            debt__gt=0
+        ).select_related('room', 'room__floor', 'room__floor__building').order_by('-debt')[:20]
+        context['debtors_list'] = debtors_qs
+        context['selected_debtor_building'] = selected_building
+        context['all_buildings'] = Building.objects.filter(is_active=True, **bld_filter)
 
         return context
 

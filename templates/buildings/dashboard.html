@@ -204,13 +204,13 @@
     <div class="kpi">
         <div class="kpi-top">
             <div>
-                <div class="kpi-label" style="margin-bottom:6px;">Jami talabalar</div>
-                <div class="kpi-value">{{ total_students }}</div>
+                <div class="kpi-label" style="margin-bottom:6px;">Jami yotoqxonalar</div>
+                <div class="kpi-value">{{ total_buildings }}</div>
             </div>
-            <div class="kpi-icon"><i class="fas fa-users"></i></div>
+            <div class="kpi-icon"><i class="fas fa-building"></i></div>
         </div>
         <span class="kpi-badge">
-            <i class="fas fa-bed" style="font-size:.6rem;"></i> {{ free_beds }} bo'sh o'rin
+            <i class="fas fa-door-open" style="font-size:.6rem;"></i> {{ total_rooms }} xona &middot; {{ total_capacity }} o'rin
         </span>
     </div>
 
@@ -422,6 +422,62 @@
         </div>
     </div>
 
+</div>
+
+<!-- ══════════════════════════════════════════════
+     QARZDORLAR RO'YXATI
+══════════════════════════════════════════════ -->
+<div class="panel" style="margin-top:16px;">
+    <div class="panel-head">
+        <span class="ph-title">
+            <span class="ph-icon"><i class="fas fa-triangle-exclamation"></i></span>
+            Qarzdorlar ro'yxati
+        </span>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <form method="get" style="display:flex;align-items:center;gap:8px;" id="debtorFilterForm">
+                <select name="debtor_building" onchange="document.getElementById('debtorFilterForm').submit();"
+                    style="padding:6px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.8rem;font-weight:600;background:#fff;color:var(--dark);cursor:pointer;">
+                    <option value="">Barcha yotoqxonalar</option>
+                    {% for b in all_buildings %}
+                    <option value="{{ b.id }}" {% if selected_debtor_building == b.id|stringformat:"d" %}selected{% endif %}>{{ b.name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <a href="{% url 'finance:debtor_list' %}" class="ph-link">Barchasini ko'rish &rarr;</a>
+        </div>
+    </div>
+    <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+            <thead>
+                <tr style="background:#F8F9FA;border-bottom:1.5px solid var(--border);">
+                    <th style="padding:10px 20px;text-align:left;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">#</th>
+                    <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Talaba</th>
+                    <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Yotoqxona</th>
+                    <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Xona</th>
+                    <th style="padding:10px 12px;text-align:right;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Qarz summasi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in debtors_list %}
+                <tr style="border-bottom:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='#F8F9FA'" onmouseout="this.style.background='transparent'">
+                    <td style="padding:10px 20px;color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
+                    <td style="padding:10px 12px;font-weight:700;color:var(--dark);">{{ d.last_name }} {{ d.first_name }}</td>
+                    <td style="padding:10px 12px;color:var(--gray);font-weight:600;">
+                        {% if d.room and d.room.floor %}{{ d.room.floor.building.name }}{% else %}—{% endif %}
+                    </td>
+                    <td style="padding:10px 12px;color:var(--gray);font-weight:600;">
+                        {% if d.room %}{{ d.room.number }}-xona{% else %}—{% endif %}
+                    </td>
+                    <td style="padding:10px 20px;text-align:right;font-weight:800;color:#DC2626;">{{ d.debt|floatformat:0 }} so'm</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-dash">Qarzdorlar topilmadi</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
