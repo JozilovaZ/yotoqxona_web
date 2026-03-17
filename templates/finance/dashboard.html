@@ -453,62 +453,6 @@
 
 {% block content %}
 
-<!-- KPI -->
-<div class="fin-kpi">
-    <div class="fkpi">
-        <div class="fkpi-top">
-            <div>
-                <div class="fkpi-label">Bugungi tushum</div>
-                <div class="fkpi-value">{{ today_payments|floatformat:0 }}<span class="unit"> so'm</span></div>
-            </div>
-            <div class="fkpi-icon"><i class="fas fa-money-bill-wave"></i></div>
-        </div>
-    </div>
-    <div class="fkpi">
-        <div class="fkpi-top">
-            <div>
-                <div class="fkpi-label">{{ selected_month_name }} oyi</div>
-                <div class="fkpi-value">{{ month_payments|floatformat:0 }}<span class="unit"> so'm</span></div>
-            </div>
-            <div class="fkpi-icon"><i class="fas fa-chart-line"></i></div>
-        </div>
-    </div>
-    <div class="fkpi">
-        <div class="fkpi-top">
-            <div>
-                <div class="fkpi-label">Kutilayotgan</div>
-                <div class="fkpi-value">{{ pending_invoices|floatformat:0 }}<span class="unit"> so'm</span></div>
-            </div>
-            <div class="fkpi-icon"><i class="fas fa-clock"></i></div>
-        </div>
-    </div>
-    <div class="fkpi">
-        <div class="fkpi-top">
-            <div>
-                <div class="fkpi-label">Muddati o'tgan</div>
-                <div class="fkpi-value">{{ overdue_invoices }}<span class="unit"> ta</span></div>
-            </div>
-            <div class="fkpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
-        </div>
-    </div>
-</div>
-
-<!-- TEZKOR HAVOLALAR -->
-<div class="quick-links">
-    <a href="{% url 'finance:invoice_list' %}" class="qlink">
-        <div class="qlink-icon"><i class="fas fa-file-invoice"></i></div>
-        Barcha hisoblar
-    </a>
-    <a href="{% url 'finance:debtor_list' %}" class="qlink">
-        <div class="qlink-icon" style="background:rgba(0,0,0,.08);color:#000;"><i class="fas fa-users"></i></div>
-        <span style="color:var(--dark);">Qarzdorlar ro'yxati</span>
-    </a>
-    <a href="{% url 'finance:reports' %}" class="qlink">
-        <div class="qlink-icon"><i class="fas fa-chart-bar"></i></div>
-        <span style="color:var(--dark);">Moliyaviy hisobot</span>
-    </a>
-</div>
-
 <div class="fin-layout">
     <!-- ASOSIY KONTENT -->
     <div class="fin-main">
@@ -533,6 +477,68 @@
                     Tozalash
                 </a>
             </form>
+        </div>
+
+        <!-- STATISTIKA PANELI (sidebar orqali ochiladi) -->
+        <div id="stats-panel" class="floor-panel">
+            <div class="section-label"><i class="fas fa-chart-pie me-1"></i> To'lov statistikasi</div>
+
+            <!-- KPI -->
+            <div class="fin-kpi">
+                <div class="fkpi">
+                    <div class="fkpi-top">
+                        <div>
+                            <div class="fkpi-label">Bugungi tushum</div>
+                            <div class="fkpi-value">{{ today_payments|floatformat:0 }}<span class="unit"> so'm</span></div>
+                        </div>
+                        <div class="fkpi-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    </div>
+                </div>
+                <div class="fkpi">
+                    <div class="fkpi-top">
+                        <div>
+                            <div class="fkpi-label">{{ selected_month_name }} oyi</div>
+                            <div class="fkpi-value">{{ month_payments|floatformat:0 }}<span class="unit"> so'm</span></div>
+                        </div>
+                        <div class="fkpi-icon"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                </div>
+                <div class="fkpi">
+                    <div class="fkpi-top">
+                        <div>
+                            <div class="fkpi-label">Kutilayotgan</div>
+                            <div class="fkpi-value">{{ pending_invoices|floatformat:0 }}<span class="unit"> so'm</span></div>
+                        </div>
+                        <div class="fkpi-icon"><i class="fas fa-clock"></i></div>
+                    </div>
+                </div>
+                <div class="fkpi">
+                    <div class="fkpi-top">
+                        <div>
+                            <div class="fkpi-label">Muddati o'tgan</div>
+                            <div class="fkpi-value">{{ overdue_invoices }}<span class="unit"> ta</span></div>
+                        </div>
+                        <div class="fkpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TEZKOR HAVOLALAR -->
+            <div class="section-label" style="margin-top:6px;">Tezkor havolalar</div>
+            <div class="quick-links">
+                <a href="{% url 'finance:invoice_list' %}" class="qlink">
+                    <div class="qlink-icon"><i class="fas fa-file-invoice"></i></div>
+                    Barcha hisoblar
+                </a>
+                <a href="{% url 'finance:debtor_list' %}" class="qlink">
+                    <div class="qlink-icon" style="background:rgba(0,0,0,.08);color:#000;"><i class="fas fa-users"></i></div>
+                    <span style="color:var(--dark);">Qarzdorlar ro'yxati</span>
+                </a>
+                <a href="{% url 'finance:reports' %}" class="qlink">
+                    <div class="qlink-icon"><i class="fas fa-chart-bar"></i></div>
+                    <span style="color:var(--dark);">Moliyaviy hisobot</span>
+                </a>
+            </div>
         </div>
 
         <!-- BARCHA QAVATLAR (default ko'rinish) -->
@@ -741,6 +747,10 @@
                 <div class="rsb-title">Qavatlar</div>
             </div>
             <div class="rsb-list">
+                <div class="rsb-link" data-target="stats-panel" onclick="showPanel('stats-panel', this)">
+                    <div class="rsb-num"><i class="fas fa-chart-pie" style="font-size:0.65rem;"></i></div>
+                    <span class="rsb-floor-name">Statistika</span>
+                </div>
                 <div class="rsb-link active" data-target="all-panel" onclick="showPanel('all-panel', this)">
                     <div class="rsb-num"><i class="fas fa-list" style="font-size:0.65rem;"></i></div>
                     <span class="rsb-floor-name">Barchasi</span>
