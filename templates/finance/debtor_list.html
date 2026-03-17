@@ -1,45 +1,191 @@
 {% extends "base.html" %}
 
+{% block page_title %}Qarzdorlar{% endblock %}
+{% block page_sub %}<p class="page-sub">Qarzi bor talabalar ro'yxati</p>{% endblock %}
+
+{% block extra_css %}
+<style>
+.table-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+.table-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.table-card-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--dark);
+}
+.table-card-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: rgba(0,0,0,.08);
+    color: #000;
+    padding: 3px 10px;
+    border-radius: 6px;
+}
+
+.compact-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.compact-table thead th {
+    background: #FAFAFA;
+    padding: 8px 12px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+.compact-table tbody tr {
+    transition: background .15s;
+}
+.compact-table tbody tr:hover {
+    background: #FAFAFA;
+}
+.compact-table tbody td {
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    border-bottom: 1px solid #F3F3F3;
+    vertical-align: middle;
+}
+.compact-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.sm-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--p10);
+    color: var(--p);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.6rem;
+    flex-shrink: 0;
+}
+.sm-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sm-name {
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--dark);
+}
+.sm-id {
+    font-size: 0.62rem;
+    color: var(--gray);
+}
+
+.debt-amount {
+    font-weight: 800;
+    color: #000;
+}
+.paid-amount {
+    color: var(--p);
+    font-weight: 700;
+}
+
+.pay-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 7px;
+    background: var(--p10);
+    color: var(--p);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all .15s;
+}
+.pay-btn:hover {
+    background: var(--p);
+    color: #fff;
+}
+
+.students-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+}
+
+@media(max-width:600px){
+    .table-card { overflow-x: auto; }
+    .compact-table { min-width: 600px; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-exclamation-circle text-danger me-2"></i>Qarzdorlar Ro'yxati</h4>
-            <span class="badge bg-danger">{{ debtors.count }} ta talaba</span>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-3">Talaba</th>
-                        <th>Bino / Xona</th>
-                        <th>Umumiy Hisob</th>
-                        <th>To'langan</th>
-                        <th class="text-danger">Qarz miqdori</th>
-                        <th>Amallar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for student in debtors %}
-                    <tr>
-                        <td class="ps-3">
-                            <div class="fw-bold">{{ student.get_full_name }}</div>
-                            <div class="small text-muted">{{ student.phone_number }}</div>
-                        </td>
-                        <td>{{ student.room.floor.building.name }} / {{ student.room.number }}</td>
-                        <td>{{ student.total_invoiced }}</td>
-                        <td class="text-success">{{ student.total_paid }}</td>
-                        <td class="fw-bold text-danger">{{ student.debt }}</td>
-                        <td>
-                            <a href="{% url 'finance:payment_create' %}?student={{ student.id }}" class="btn btn-sm btn-outline-success">
-                                To'lov olish
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+
+<div class="table-card">
+    <div class="table-card-header">
+        <span class="table-card-title"><i class="fas fa-exclamation-circle me-1" style="color:var(--gray);"></i> Qarzdorlar ro'yxati</span>
+        <span class="table-card-badge">{{ debtors|length }} ta</span>
     </div>
+    {% if debtors %}
+    <table class="compact-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Talaba</th>
+                <th>Bino / Xona</th>
+                <th>Umumiy hisob</th>
+                <th>To'langan</th>
+                <th>Qarz</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in debtors %}
+            <tr>
+                <td style="color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
+                <td>
+                    <div class="sm-name-cell">
+                        <div class="sm-avatar">
+                            {{ student.first_name|first }}{{ student.last_name|first }}
+                        </div>
+                        <div>
+                            <div class="sm-name">{{ student.last_name }} {{ student.first_name }}</div>
+                            <div class="sm-id">{{ student.phone_number }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ student.room.floor.building.name }} / {{ student.room.number }}-xona</td>
+                <td style="font-weight:600;">{{ student.total_invoiced|floatformat:0 }}</td>
+                <td class="paid-amount">{{ student.total_paid|floatformat:0 }}</td>
+                <td class="debt-amount">{{ student.debt|floatformat:0 }}</td>
+                <td style="text-align:right;">
+                    <a href="{% url 'finance:payment_create' %}?student={{ student.id }}" class="pay-btn">
+                        <i class="fas fa-money-bill-wave" style="font-size:0.6rem;"></i> To'lov olish
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="students-empty">
+        <i class="fas fa-check-circle me-1"></i> Qarzdor talabalar yo'q
+    </div>
+    {% endif %}
 </div>
+
 {% endblock %}

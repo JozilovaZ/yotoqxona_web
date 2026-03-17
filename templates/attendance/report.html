@@ -1,51 +1,222 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Oylik Davomat Hisoboti</h2>
-        <div class="text-muted">{{ month_name }} / {{ year }}</div>
-    </div>
+{% block page_title %}Davomat Hisoboti{% endblock %}
+{% block page_sub %}<p class="page-sub">{{ month_name }} / {{ year }}</p>{% endblock %}
 
-    <div class="card border-0 shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle border-top">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-3">#</th>
-                        <th>Talaba</th>
-                        <th>Xona</th>
-                        <th>Jami kunlar</th>
-                        <th class="text-success">Kelgan</th>
-                        <th class="text-danger">Kelmagan</th>
-                        <th class="text-warning">Kechikkan</th>
-                        <th>Foiz (%)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for stat in student_stats %}
-                    <tr>
-                        <td class="ps-3">{{ forloop.counter }}</td>
-                        <td><strong>{{ stat.student.get_full_name }}</strong></td>
-                        <td>{{ stat.student.room.number }}</td>
-                        <td>{{ stat.total }}</td>
-                        <td class="text-success">{{ stat.present }}</td>
-                        <td class="text-danger">{{ stat.absent }}</td>
-                        <td class="text-warning">{{ stat.late }}</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="progress flex-grow-1" style="height: 10px;">
-                                    <div class="progress-bar {% if stat.rate > 80 %}bg-success{% elif stat.rate > 50 %}bg-warning{% else %}bg-danger{% endif %}"
-                                         role="progressbar" style="width: {{ stat.rate }}%"></div>
-                                </div>
-                                <span class="fw-bold small">{{ stat.rate }}%</span>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+{% block extra_css %}
+<style>
+.table-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+.table-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.table-card-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--dark);
+}
+.table-card-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: var(--p10);
+    color: var(--p);
+    padding: 3px 10px;
+    border-radius: 6px;
+}
+
+.compact-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.compact-table thead th {
+    background: #FAFAFA;
+    padding: 8px 12px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+.compact-table tbody tr {
+    transition: background .15s;
+}
+.compact-table tbody tr:hover {
+    background: #FAFAFA;
+}
+.compact-table tbody td {
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    border-bottom: 1px solid #F3F3F3;
+    vertical-align: middle;
+}
+.compact-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.sm-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--p10);
+    color: var(--p);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.6rem;
+    flex-shrink: 0;
+}
+.sm-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sm-name {
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--dark);
+}
+.sm-id {
+    font-size: 0.62rem;
+    color: var(--gray);
+}
+
+/* Stats pills */
+.stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+.stat-present {
+    background: rgba(112,0,255,.1);
+    color: #7000FF;
+}
+.stat-absent {
+    background: rgba(0,0,0,.08);
+    color: #000;
+}
+.stat-late {
+    background: rgba(208,211,217,.3);
+    color: var(--gray);
+}
+
+/* Progress bar */
+.rate-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.rate-bar {
+    flex: 1;
+    height: 6px;
+    background: #F0F0F0;
+    border-radius: 99px;
+    overflow: hidden;
+    min-width: 60px;
+}
+.rate-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width .4s;
+}
+.rate-high { background: var(--p); }
+.rate-mid  { background: var(--gray); }
+.rate-low  { background: #000; }
+.rate-num {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--dark);
+    white-space: nowrap;
+}
+
+.students-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+}
+
+@media(max-width:600px){
+    .table-card { overflow-x: auto; }
+    .compact-table { min-width: 600px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="table-card">
+    <div class="table-card-header">
+        <span class="table-card-title"><i class="fas fa-calendar-check me-1" style="color:var(--gray);"></i> Oylik davomat</span>
+        <span class="table-card-badge">{{ student_stats|length }} ta talaba</span>
     </div>
+    {% if student_stats %}
+    <table class="compact-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Talaba</th>
+                <th>Xona</th>
+                <th>Jami</th>
+                <th>Kelgan</th>
+                <th>Kelmagan</th>
+                <th>Kechikkan</th>
+                <th>Foiz</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in student_stats %}
+            <tr>
+                <td style="color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
+                <td>
+                    <div class="sm-name-cell">
+                        <div class="sm-avatar">
+                            {{ stat.student.first_name|first }}{{ stat.student.last_name|first }}
+                        </div>
+                        <div>
+                            <div class="sm-name">{{ stat.student.last_name }} {{ stat.student.first_name }}</div>
+                            <div class="sm-id">{{ stat.student.student_id }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-weight:600;">{{ stat.student.room.number }}-xona</td>
+                <td style="font-weight:700;">{{ stat.total }}</td>
+                <td><span class="stat-pill stat-present">{{ stat.present }}</span></td>
+                <td><span class="stat-pill stat-absent">{{ stat.absent }}</span></td>
+                <td><span class="stat-pill stat-late">{{ stat.late }}</span></td>
+                <td>
+                    <div class="rate-bar-wrap">
+                        <div class="rate-bar">
+                            <div class="rate-fill {% if stat.rate > 80 %}rate-high{% elif stat.rate > 50 %}rate-mid{% else %}rate-low{% endif %}"
+                                 style="width:{{ stat.rate }}%;"></div>
+                        </div>
+                        <span class="rate-num">{{ stat.rate }}%</span>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="students-empty">
+        <i class="fas fa-clipboard-check me-1"></i> Davomat ma'lumotlari topilmadi
+    </div>
+    {% endif %}
 </div>
+
 {% endblock %}
