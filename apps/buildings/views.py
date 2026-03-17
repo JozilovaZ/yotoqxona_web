@@ -9,6 +9,8 @@ from django.db.models import Sum, Count, Q, F, Exists, OuterRef, DecimalField, V
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
+from itertools import groupby
+
 from .models import Building, Floor, Room
 from .forms import BuildingForm, FloorForm, RoomForm
 from students.models import Student
@@ -169,7 +171,39 @@ class BuildingDetailView(BuildingStaffMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['floors'] = self.object.floors.filter(is_active=True).prefetch_related('rooms')
+        building = self.object
+
+        floors_qs = building.floors.filter(is_active=True).order_by('number')
+
+        floor_data = []
+        for floor in floors_qs:
+            students = list(Student.objects.filter(
+                room__floor=floor, is_active=True
+            ).select_related('room').order_by('room__number', 'last_name'))
+
+            rooms_grouped = []
+            for room, room_students in groupby(students, key=lambda s: s.room):
+                rooms_grouped.append({
+                    'room': room,
+                    'students': list(room_students),
+                })
+
+            floor_data.append({
+                'floor': floor,
+                'student_count': len(students),
+                'rooms_grouped': rooms_grouped,
+                'total_rooms': floor.total_rooms,
+                'total_capacity': floor.total_capacity,
+                'occupied_beds': floor.occupied_beds,
+            })
+
+        context['floor_data'] = floor_data
+
+        # Oxirgi 20 ta talaba (shu bino uchun)
+        context['recent_students'] = Student.objects.filter(
+            is_active=True, room__floor__building=building
+        ).select_related('room', 'room__floor').order_by('-id')[:20]
+
         return context
 
 class BuildingCreateView(SuperuserRequiredMixin, BuildingStaffMixin, CreateView):
