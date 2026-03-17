@@ -13,137 +13,201 @@
 {% block extra_css %}
 <style>
 
-/* ══ FILTER BAR ══ */
-.filter-bar {
-    background: #fff;
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 16px 20px;
-    margin-bottom: 24px;
-}
-.filter-grid {
-    display: grid;
-    grid-template-columns: 1fr 120px;
-    gap: 12px;
-    align-items: center;
-}
-@media(max-width:750px){ .filter-grid{ grid-template-columns: 1fr; } }
-
-/* ══ FLOOR CARDS ══ */
-.floor-section {
-    margin-bottom: 18px;
-}
-
-.floor-card {
-    background: #fff;
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    color: inherit;
-    transition: all .2s ease;
+/* ══ LAYOUT ══ */
+.students-layout {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    cursor: pointer;
-    position: relative;
+    gap: 0;
+    min-height: calc(100vh - 140px);
+}
+.students-main {
+    flex: 1;
+    min-width: 0;
+    padding-right: 20px;
+}
+
+/* ══ RIGHT SIDEBAR ══ */
+.right-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+.rsb-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
     overflow: hidden;
 }
-.floor-card:hover {
-    border-color: var(--p);
-    box-shadow: 0 4px 20px rgba(112, 0, 255, 0.1);
+.rsb-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1.5px solid var(--border);
 }
-.floor-card:hover .floor-card-icon {
+.rsb-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray);
+}
+.rsb-list {
+    padding: 8px 8px;
+}
+.rsb-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--gray);
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all .15s;
+    cursor: pointer;
+    margin-bottom: 2px;
+}
+.rsb-link:hover {
+    background: var(--bg);
+    color: var(--dark);
+}
+.rsb-link.active {
     background: var(--p);
     color: #fff;
 }
-
-.floor-card.active {
-    border-color: var(--p);
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom: none;
+.rsb-link.active .rsb-num {
+    background: rgba(255,255,255,.2);
+    color: #fff;
 }
-
-.floor-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.rsb-link.active .rsb-count {
+    background: rgba(255,255,255,.2);
+    color: #fff;
 }
-
-.floor-card-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+.rsb-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
     background: var(--p10);
     color: var(--p);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    transition: all .2s ease;
-}
-
-.floor-card-badge {
-    background: var(--dark);
-    color: #fff;
-    border-radius: 9px;
-    padding: 5px 14px;
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: .8px;
-    text-transform: uppercase;
-}
-
-.floor-card-building {
     font-size: 0.78rem;
-    color: var(--gray);
-    font-weight: 600;
+    font-weight: 800;
+    flex-shrink: 0;
+    transition: all .15s;
 }
-
-.floor-card-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 10px;
+.rsb-link:hover .rsb-num {
+    background: var(--p);
+    color: #fff;
 }
-@media(max-width:600px){ .floor-card-stats{ grid-template-columns: 1fr 1fr; } }
-
-.floor-stat {
-    background: #F8F9FA;
-    border-radius: 10px;
-    padding: 10px 14px;
-    text-align: center;
+.rsb-floor-name {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.floor-stat-val {
-    font-size: 1.3rem;
-    font-weight: 900;
-    color: var(--dark);
-    line-height: 1;
-}
-.floor-stat-lbl {
+.rsb-count {
     font-size: 0.65rem;
-    font-weight: 600;
+    font-weight: 700;
+    background: #F0F0F0;
+    color: var(--gray);
+    padding: 2px 7px;
+    border-radius: 6px;
+    transition: all .15s;
+}
+
+/* ══ FILTER BAR ══ */
+.filter-bar {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+}
+.filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 110px;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ══ SECTION TITLE ══ */
+.section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray);
+    margin-bottom: 10px;
+    padding-left: 2px;
+}
+
+/* ══ COMPACT TABLE ══ */
+.table-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+.table-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.table-card-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--dark);
+}
+.table-card-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: var(--p10);
+    color: var(--p);
+    padding: 3px 10px;
+    border-radius: 6px;
+}
+
+.compact-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.compact-table thead th {
+    background: #FAFAFA;
+    padding: 8px 12px;
+    font-size: 0.65rem;
+    font-weight: 700;
     color: var(--gray);
     text-transform: uppercase;
     letter-spacing: .5px;
-    margin-top: 4px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+.compact-table tbody tr {
+    transition: background .15s;
+    cursor: pointer;
+}
+.compact-table tbody tr:hover {
+    background: #FAFAFA;
+}
+.compact-table tbody td {
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    border-bottom: 1px solid #F3F3F3;
+    vertical-align: middle;
+}
+.compact-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
-.floor-card-bar {
-    height: 6px;
-    background: #EEE;
-    border-radius: 99px;
-    overflow: hidden;
-}
-.floor-card-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    transition: width .3s ease;
-}
-
-.floor-card-toggle {
-    position: absolute;
-    bottom: 24px;
-    right: 24px;
+.sm-avatar {
     width: 28px;
     height: 28px;
     border-radius: 8px;
@@ -152,270 +216,367 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: .7rem;
-    transition: all .2s ease;
-}
-.floor-card.active .floor-card-toggle {
-    transform: rotate(90deg);
-}
-
-/* ══ STUDENTS TABLE ══ */
-.floor-students-panel {
-    display: none;
-    background: #fff;
-    border: 1.5px solid var(--p);
-    border-top: none;
-    border-radius: 0 0 16px 16px;
-    padding: 0;
-    overflow: hidden;
-    animation: slideDown .3s ease;
-}
-.floor-students-panel.show {
-    display: block;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; max-height: 0; }
-    to { opacity: 1; max-height: 2000px; }
-}
-
-.students-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-.students-table thead th {
-    background: #F8F9FA;
-    padding: 12px 16px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--gray);
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-}
-.students-table tbody tr {
-    transition: background .15s ease;
-}
-.students-table tbody tr:hover {
-    background: #F8F9FA;
-}
-.students-table tbody td {
-    padding: 12px 16px;
-    font-size: 0.88rem;
-    border-bottom: 1px solid #F0F0F0;
-    vertical-align: middle;
-}
-.students-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.student-name-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.student-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: var(--p10);
-    color: var(--p);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-weight: 800;
-    font-size: 0.75rem;
+    font-size: 0.6rem;
     flex-shrink: 0;
 }
-.student-avatar img {
+.sm-avatar img {
     width: 100%;
     height: 100%;
-    border-radius: 10px;
+    border-radius: 8px;
     object-fit: cover;
 }
-
-.room-badge {
-    background: var(--p10);
-    color: var(--p);
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 0.78rem;
+.sm-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sm-name {
     font-weight: 700;
-    white-space: nowrap;
+    font-size: 0.78rem;
+    color: var(--dark);
+}
+.sm-id {
+    font-size: 0.62rem;
+    color: var(--gray);
 }
 
-.students-empty {
-    padding: 40px 20px;
+/* ══ FLOOR PANEL (shown when floor selected) ══ */
+.floor-panel {
+    display: none;
+}
+.floor-panel.show {
+    display: block;
+    animation: fadeIn .25s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.floor-stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.floor-stat-mini {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
     text-align: center;
+}
+.floor-stat-mini-val {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1;
+}
+.floor-stat-mini-lbl {
+    font-size: 0.58rem;
+    font-weight: 600;
     color: var(--gray);
-    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    margin-top: 3px;
+}
+
+/* ══ ROOM DIVIDER ══ */
+.room-divider-row {
+    cursor: default !important;
+}
+.room-divider-row:hover {
+    background: transparent !important;
+}
+.room-divider-row td {
+    padding: 0 !important;
+    border-bottom: none !important;
+}
+.room-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--p10);
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--p);
+    border-top: 1.5px solid var(--border);
+}
+.room-divider-row:first-child .room-divider {
+    border-top: none;
+}
+.room-divider i {
+    font-size: 0.7rem;
+}
+.room-divider-count {
+    margin-left: auto;
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--gray);
 }
 
 /* BO'SH HOLAT */
 .empty-panel {
     background: #fff; border: 1.5px solid var(--border);
-    border-radius: 16px; padding: 70px 20px;
+    border-radius: 14px; padding: 50px 20px;
     text-align: center;
 }
-.empty-panel i { font-size: 2.5rem; color: #D0D3D9; display: block; margin-bottom: 14px; }
+.empty-panel i { font-size: 2rem; color: #D0D3D9; display: block; margin-bottom: 12px; }
 
-/* Mobile table scroll */
-@media(max-width:750px){
-    .floor-students-panel { overflow-x: auto; }
-    .students-table { min-width: 600px; }
+.students-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:900px){
+    .students-layout { flex-direction: column-reverse; }
+    .students-main { padding-right: 0; }
+    .right-sidebar {
+        width: 100%;
+        position: static;
+        max-height: none;
+        margin-bottom: 20px;
+    }
+    .rsb-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 10px;
+    }
+    .rsb-link {
+        padding: 6px 10px;
+        margin-bottom: 0;
+    }
+    .rsb-floor-name { display: none; }
+    .rsb-count { display: none; }
+}
+@media(max-width:600px){
+    .filter-grid { grid-template-columns: 1fr; }
+    .floor-stats-row { grid-template-columns: 1fr 1fr; }
+    .table-card { overflow-x: auto; }
+    .compact-table { min-width: 500px; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- FILTER -->
-<div class="filter-bar">
-    <form method="get" class="filter-grid">
-        <select name="building" class="form-select">
-            <option value="">Barcha binolar</option>
-            {% for b in buildings %}
-            <option value="{{ b.id }}" {% if request.GET.building == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-dark" style="white-space:nowrap;">
-            <i class="fas fa-filter me-1"></i> Saralash
-        </button>
-    </form>
-</div>
+<div class="students-layout">
+    <!-- ASOSIY KONTENT -->
+    <div class="students-main">
 
-<!-- QAVATLAR -->
-{% if floor_data %}
-{% for item in floor_data %}
-<div class="floor-section">
-    <div class="floor-card" onclick="toggleFloor(this)" id="floor-card-{{ item.floor.id }}">
-        <div class="floor-card-top">
-            <div class="floor-card-icon">
-                <i class="fas fa-layer-group"></i>
-            </div>
-            <span class="floor-card-badge">{{ item.floor.number }}-qavat</span>
+        <!-- FILTER -->
+        <div class="filter-bar">
+            <form method="get" class="filter-grid">
+                <select name="building" class="form-select form-select-sm">
+                    <option value="">Barcha binolar</option>
+                    {% for b in buildings %}
+                    <option value="{{ b.id }}" {% if request.GET.building == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-dark btn-sm" style="white-space:nowrap;">
+                    <i class="fas fa-filter me-1"></i> Saralash
+                </button>
+            </form>
         </div>
 
-        <div class="floor-card-building">
-            <i class="fas fa-building me-1"></i> {{ item.floor.building.name }}
+        <!-- OXIRGI 20 TA TALABA (default ko'rinish) -->
+        <div id="recent-panel" class="floor-panel show">
+            <div class="section-label">Oxirgi qo'shilganlar</div>
+            <div class="table-card">
+                <div class="table-card-header">
+                    <span class="table-card-title"><i class="fas fa-clock me-1" style="color:var(--gray);"></i> Yangi talabalar</span>
+                    <span class="table-card-badge">Oxirgi 20 ta</span>
+                </div>
+                {% if recent_students %}
+                <table class="compact-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Talaba</th>
+                            <th>Xona</th>
+                            <th>Qavat</th>
+                            <th>Telefon</th>
+                            <th>Kurs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in recent_students %}
+                        <tr onclick="window.location='{% url 'students:student_detail' student.pk %}'">
+                            <td style="color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="sm-name-cell">
+                                    <div class="sm-avatar">
+                                        {% if student.photo %}
+                                        <img src="{{ student.photo.url }}" alt="">
+                                        {% else %}
+                                        {{ student.first_name|first }}{{ student.last_name|first }}
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="sm-name">{{ student.last_name }} {{ student.first_name }}</div>
+                                        <div class="sm-id">{{ student.student_id }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="font-weight:700;">{{ student.room.number }}-xona</td>
+                            <td>{{ student.room.floor.number }}-qavat</td>
+                            <td>{{ student.phone }}</td>
+                            <td style="font-weight:700;">{{ student.course }}-kurs</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="students-empty">
+                    <i class="fas fa-user-slash me-1"></i> Talabalar topilmadi
+                </div>
+                {% endif %}
+            </div>
         </div>
 
-        <div class="floor-card-stats">
-            <div class="floor-stat">
-                <div class="floor-stat-val">{{ item.student_count }}</div>
-                <div class="floor-stat-lbl">Talabalar</div>
+        <!-- QAVAT PANELLARI (sidebar bosilganda ko'rinadi) -->
+        {% for item in floor_data %}
+        <div class="floor-panel" id="floor-panel-{{ item.floor.id }}" data-floor-id="{{ item.floor.id }}">
+            <div class="section-label">
+                <i class="fas fa-layer-group me-1"></i> {{ item.floor.number }}-qavat · {{ item.floor.building.name }}
             </div>
-            <div class="floor-stat">
-                <div class="floor-stat-val">{{ item.total_rooms }}</div>
-                <div class="floor-stat-lbl">Xonalar</div>
+
+            <div class="floor-stats-row">
+                <div class="floor-stat-mini">
+                    <div class="floor-stat-mini-val">{{ item.student_count }}</div>
+                    <div class="floor-stat-mini-lbl">Talabalar</div>
+                </div>
+                <div class="floor-stat-mini">
+                    <div class="floor-stat-mini-val">{{ item.total_rooms }}</div>
+                    <div class="floor-stat-mini-lbl">Xonalar</div>
+                </div>
+                <div class="floor-stat-mini">
+                    <div class="floor-stat-mini-val">{{ item.occupied_beds }}</div>
+                    <div class="floor-stat-mini-lbl">Band joy</div>
+                </div>
+                <div class="floor-stat-mini">
+                    <div class="floor-stat-mini-val">{{ item.total_capacity }}</div>
+                    <div class="floor-stat-mini-lbl">Jami joy</div>
+                </div>
             </div>
-            <div class="floor-stat">
-                <div class="floor-stat-val">{{ item.occupied_beds }}</div>
-                <div class="floor-stat-lbl">Band joy</div>
-            </div>
-            <div class="floor-stat">
-                <div class="floor-stat-val">{{ item.total_capacity }}</div>
-                <div class="floor-stat-lbl">Jami joy</div>
+
+            <div class="table-card">
+                <div class="table-card-header">
+                    <span class="table-card-title"><i class="fas fa-users me-1" style="color:var(--gray);"></i> {{ item.floor.number }}-qavat talabalari</span>
+                    <span class="table-card-badge">{{ item.student_count }} ta</span>
+                </div>
+                {% if item.rooms_grouped %}
+                <table class="compact-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Talaba</th>
+                            <th>Telefon</th>
+                            <th>Fakultet</th>
+                            <th>Kurs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rg in item.rooms_grouped %}
+                        <tr class="room-divider-row">
+                            <td colspan="5">
+                                <div class="room-divider">
+                                    <i class="fas fa-door-open"></i>
+                                    <span>{{ rg.room.number }}-xona</span>
+                                    <span class="room-divider-count">{{ rg.students|length }} talaba</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% for student in rg.students %}
+                        <tr onclick="window.location='{% url 'students:student_detail' student.pk %}'">
+                            <td style="color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="sm-name-cell">
+                                    <div class="sm-avatar">
+                                        {% if student.photo %}
+                                        <img src="{{ student.photo.url }}" alt="">
+                                        {% else %}
+                                        {{ student.first_name|first }}{{ student.last_name|first }}
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="sm-name">{{ student.last_name }} {{ student.first_name }}</div>
+                                        <div class="sm-id">{{ student.student_id }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ student.phone }}</td>
+                            <td>{{ student.faculty|default:"-" }}</td>
+                            <td style="font-weight:700;">{{ student.course }}-kurs</td>
+                        </tr>
+                        {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="students-empty">
+                    <i class="fas fa-user-slash me-1"></i> Bu qavatda talabalar yo'q
+                </div>
+                {% endif %}
             </div>
         </div>
+        {% endfor %}
 
-        {% if item.total_capacity > 0 %}
-        <div class="floor-card-bar">
-            {% widthratio item.occupied_beds item.total_capacity 100 as fill_pct %}
-            <div class="floor-card-bar-fill" style="width:{% widthratio item.occupied_beds item.total_capacity 100 %}%;background:{% if fill_pct >= 90 %}#dc3545{% elif fill_pct >= 60 %}#fd7e14{% else %}var(--p){% endif %};"></div>
+        {% if not floor_data %}
+        <div class="empty-panel">
+            <i class="fas fa-layer-group"></i>
+            <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:6px;">Qavatlar topilmadi</div>
+            <div style="font-size:0.82rem;color:var(--gray);">Bino tanlang yoki qavatlar qo'shilmagan.</div>
         </div>
         {% endif %}
-
-        <div class="floor-card-toggle">
-            <i class="fas fa-chevron-right"></i>
-        </div>
     </div>
 
-    <!-- Talabalar jadvali -->
-    <div class="floor-students-panel" id="floor-panel-{{ item.floor.id }}">
-        {% if item.students %}
-        <table class="students-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Talaba</th>
-                    <th>Xona</th>
-                    <th>Telefon</th>
-                    <th>Fakultet</th>
-                    <th>Kurs</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for student in item.students %}
-                <tr onclick="window.location='{% url 'students:student_detail' student.pk %}'" style="cursor:pointer;">
-                    <td style="color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
-                    <td>
-                        <div class="student-name-cell">
-                            <div class="student-avatar">
-                                {% if student.photo %}
-                                <img src="{{ student.photo.url }}" alt="">
-                                {% else %}
-                                {{ student.first_name|first }}{{ student.last_name|first }}
-                                {% endif %}
-                            </div>
-                            <div>
-                                <div style="font-weight:700;">{{ student.last_name }} {{ student.first_name }}</div>
-                                <div style="font-size:0.72rem;color:var(--gray);">{{ student.student_id }}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="room-badge">{{ student.room.number }}-xona</span></td>
-                    <td style="font-size:0.82rem;">{{ student.phone }}</td>
-                    <td style="font-size:0.82rem;">{{ student.faculty|default:"-" }}</td>
-                    <td style="font-weight:700;">{{ student.course }}-kurs</td>
-                </tr>
+    <!-- O'NG SIDEBAR -->
+    {% if floor_data %}
+    <div class="right-sidebar">
+        <div class="rsb-card">
+            <div class="rsb-header">
+                <div class="rsb-title">Qavatlar</div>
+            </div>
+            <div class="rsb-list">
+                <div class="rsb-link active" data-target="recent-panel" onclick="showPanel('recent-panel', this)">
+                    <div class="rsb-num"><i class="fas fa-clock" style="font-size:0.65rem;"></i></div>
+                    <span class="rsb-floor-name">Oxirgi 20 ta</span>
+                </div>
+                {% for item in floor_data %}
+                <div class="rsb-link" data-target="floor-panel-{{ item.floor.id }}" onclick="showPanel('floor-panel-{{ item.floor.id }}', this)">
+                    <div class="rsb-num">{{ item.floor.number }}</div>
+                    <span class="rsb-floor-name">{{ item.floor.number }}-qavat</span>
+                    <span class="rsb-count">{{ item.student_count }}</span>
+                </div>
                 {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="students-empty">
-            <i class="fas fa-user-slash" style="margin-right:6px;"></i> Bu qavatda talabalar yo'q
+            </div>
         </div>
-        {% endif %}
     </div>
+    {% endif %}
 </div>
-{% endfor %}
-{% else %}
-<div class="empty-panel">
-    <i class="fas fa-layer-group"></i>
-    <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:6px;">Qavatlar topilmadi</div>
-    <div style="font-size:0.85rem;color:var(--gray);margin-bottom:20px;">
-        Bino tanlang yoki qavatlar qo'shilmagan.
-    </div>
-</div>
-{% endif %}
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function toggleFloor(card) {
-    const section = card.closest('.floor-section');
-    const panel = section.querySelector('.floor-students-panel');
-    const isActive = card.classList.contains('active');
+function showPanel(panelId, btn) {
+    // Barcha panellarni yashirish
+    document.querySelectorAll('.floor-panel').forEach(p => p.classList.remove('show'));
 
-    // Boshqa ochiq panellarni yopish
-    document.querySelectorAll('.floor-card.active').forEach(c => {
-        if (c !== card) {
-            c.classList.remove('active');
-            c.closest('.floor-section').querySelector('.floor-students-panel').classList.remove('show');
-        }
-    });
+    // Tanlangan panelni ko'rsatish
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('show');
 
-    // Toggle
-    if (isActive) {
-        card.classList.remove('active');
-        panel.classList.remove('show');
-    } else {
-        card.classList.add('active');
-        panel.classList.add('show');
-    }
+    // Sidebar active holatini yangilash
+    document.querySelectorAll('.rsb-link').forEach(l => l.classList.remove('active'));
+    if (btn) btn.classList.add('active');
 }
 </script>
 {% endblock %}

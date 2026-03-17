@@ -5,6 +5,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy, reverse
 from django.db.models import Q
 from django.utils import timezone
+from itertools import groupby
 
 from .models import Student, RoomTransfer
 from .forms import StudentForm, StudentTransferForm
@@ -52,19 +53,44 @@ class StudentListView(BuildingStaffMixin, ListView):
         # Har bir qavat uchun statistika va talabalar
         floor_data = []
         for floor in floors_qs:
-            students = Student.objects.filter(
+            students = list(Student.objects.filter(
                 room__floor=floor, is_active=True
-            ).select_related('room').order_by('room__number', 'last_name')
+            ).select_related('room').order_by('room__number', 'last_name'))
+
+            # Xona bo'yicha guruhlash
+            rooms_grouped = []
+            for room, room_students in groupby(students, key=lambda s: s.room):
+                rooms_grouped.append({
+                    'room': room,
+                    'students': list(room_students),
+                })
+
             floor_data.append({
                 'floor': floor,
-                'student_count': students.count(),
+                'student_count': len(students),
                 'students': students,
+                'rooms_grouped': rooms_grouped,
                 'total_rooms': floor.total_rooms,
                 'total_capacity': floor.total_capacity,
                 'occupied_beds': floor.occupied_beds,
             })
 
         context['floor_data'] = floor_data
+
+        # Oxirgi 20 ta qo'shilgan talabalar
+        recent_qs = Student.objects.filter(is_active=True).select_related(
+            'room', 'room__floor', 'room__floor__building'
+        ).order_by('-id')[:20]
+        if bid:
+            recent_qs = Student.objects.filter(
+                is_active=True, room__floor__building_id=bid
+            ).select_related('room', 'room__floor', 'room__floor__building').order_by('-id')[:20]
+        if building_id:
+            recent_qs = Student.objects.filter(
+                is_active=True, room__floor__building_id=building_id
+            ).select_related('room', 'room__floor', 'room__floor__building').order_by('-id')[:20]
+        context['recent_students'] = recent_qs
+
         return context
 
 

@@ -7,6 +7,9 @@ urlpatterns = [
     # Ro'yxat va qidiruv
     path('', views.StudentListView.as_view(), name='student_list'),
 
+    # Qavat bo'yicha talabalar
+    path('floor/<int:floor_id>/', views.FloorStudentsView.as_view(), name='floor_students'),
+
     # Yangi talaba qo'shish
     path('create/', views.StudentCreateView.as_view(), name='student_create'),
 
