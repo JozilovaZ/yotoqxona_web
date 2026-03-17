@@ -25,6 +25,113 @@
 {% block extra_css %}
 <style>
 
+/* ══ LAYOUT ══ */
+.fin-layout {
+    display: flex;
+    gap: 0;
+    min-height: calc(100vh - 140px);
+}
+.fin-main {
+    flex: 1;
+    min-width: 0;
+    padding-right: 20px;
+}
+
+/* ══ RIGHT SIDEBAR ══ */
+.right-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+.rsb-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.rsb-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1.5px solid var(--border);
+}
+.rsb-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray);
+}
+.rsb-list {
+    padding: 8px 8px;
+}
+.rsb-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--gray);
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all .15s;
+    cursor: pointer;
+    margin-bottom: 2px;
+}
+.rsb-link:hover {
+    background: var(--bg);
+    color: var(--dark);
+}
+.rsb-link.active {
+    background: var(--p);
+    color: #fff;
+}
+.rsb-link.active .rsb-num {
+    background: rgba(255,255,255,.2);
+    color: #fff;
+}
+.rsb-link.active .rsb-count {
+    background: rgba(255,255,255,.2);
+    color: #fff;
+}
+.rsb-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--p10);
+    color: var(--p);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    transition: all .15s;
+}
+.rsb-link:hover .rsb-num {
+    background: var(--p);
+    color: #fff;
+}
+.rsb-floor-name {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.rsb-count {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: #F0F0F0;
+    color: var(--gray);
+    padding: 2px 7px;
+    border-radius: 6px;
+    transition: all .15s;
+}
+
 /* ══ KPI QATOR ══ */
 .fin-kpi {
     display: grid;
@@ -61,115 +168,23 @@
 .fkpi-value { font-size: 1.55rem; font-weight: 900; color: var(--dark); letter-spacing: -1px; line-height: 1.1; }
 .fkpi-value .unit { font-size: .78rem; font-weight: 600; letter-spacing: 0; color: var(--gray); }
 
-/* ══ FILTR ══ */
+/* ══ FILTER BAR ══ */
 .filter-bar {
     background: #fff;
     border: 1.5px solid var(--border);
     border-radius: 14px;
-    padding: 14px 18px;
-    margin-bottom: 18px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
 }
 .filter-grid {
     display: grid;
-    grid-template-columns: 1fr 200px 130px 110px;
+    grid-template-columns: 1fr 180px 100px 90px;
     gap: 10px;
     align-items: center;
 }
-@media(max-width:800px){ .filter-grid{ grid-template-columns: 1fr 1fr; } }
-@media(max-width:500px){ .filter-grid{ grid-template-columns: 1fr; } }
-
 .search-wrap { position: relative; }
 .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray); font-size: .78rem; pointer-events: none; }
 .search-wrap input { padding-left: 34px !important; }
-
-/* ══ QAVAT PANEL ══ */
-.fin-block {
-    background: #fff;
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 16px;
-}
-.fin-block-head {
-    padding: 12px 18px;
-    background: #FFFFFF;
-    border-bottom: 1.5px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-}
-.fin-floor-badge {
-    background: var(--dark); color: #fff;
-    border-radius: 8px; padding: 4px 12px;
-    font-size: .72rem; font-weight: 800;
-    letter-spacing: .5px;
-}
-.fin-bname {
-    font-size: .875rem; font-weight: 700; color: var(--dark);
-}
-.fin-block-head-right {
-    margin-left: auto;
-    font-size: .72rem; color: var(--gray); font-weight: 600;
-}
-
-/* ══ JADVAL ══ */
-.fin-tbl { width: 100%; border-collapse: collapse; }
-.fin-tbl thead th {
-    padding: 9px 16px; font-size: .67rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .5px;
-    color: var(--gray); background: #FFFFFF;
-    border-bottom: 1.5px solid var(--border);
-}
-.fin-tbl tbody td {
-    padding: 12px 16px; font-size: .855rem;
-    border-bottom: 1px solid #D0D3D9; vertical-align: middle;
-}
-.fin-tbl tbody tr:last-child td { border-bottom: none; }
-.fin-tbl tbody tr:hover td { background: #FFFFFF; }
-
-.room-cell {
-    background: #FFFFFF !important;
-    text-align: center; vertical-align: middle !important;
-    border-right: 1.5px solid var(--border) !important;
-    min-width: 70px;
-}
-.room-num { font-size: 1.1rem; font-weight: 900; color: var(--dark); }
-.room-sub { font-size: .6rem; font-weight: 600; color: var(--gray); }
-
-.stu-link-wrap { display: flex; align-items: center; gap: 10px; }
-.stu-av-sm {
-    width: 30px; height: 30px; border-radius: 8px;
-    background: var(--p); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .65rem; font-weight: 800; flex-shrink: 0;
-}
-.stu-link { color: var(--dark); text-decoration: none; font-weight: 700; font-size: .875rem; }
-.stu-link:hover { color: var(--p); }
-.pay-hint { font-size: .7rem; color: var(--p); margin-top: 1px; font-weight: 600; }
-
-.amount-val { font-weight: 800; color: #000; font-size: .9rem; }
-
-.paid-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: rgba(112,0,255,.1); color: #7000FF;
-    border-radius: 7px; padding: 4px 10px;
-    font-size: .71rem; font-weight: 700;
-}
-.unpaid-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: rgba(208,211,217,.3); color: #000;
-    border-radius: 7px; padding: 4px 10px;
-    font-size: .71rem; font-weight: 600;
-}
-.debt-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: rgba(0,0,0,.08); color: #000;
-    border-radius: 7px; padding: 4px 10px;
-    font-size: .71rem; font-weight: 700;
-}
-
-.empty-fin {
-    padding: 60px 20px; text-align: center; color: var(--gray);
-}
-.empty-fin i { font-size: 2rem; color: #D0D3D9; display: block; margin-bottom: 10px; }
 
 /* ══ HAVOLALAR ROW ══ */
 .quick-links {
@@ -193,6 +208,246 @@
     font-size: .85rem; flex-shrink: 0;
 }
 
+/* ══ SECTION TITLE ══ */
+.section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray);
+    margin-bottom: 10px;
+    padding-left: 2px;
+}
+
+/* ══ COMPACT TABLE ══ */
+.table-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+.table-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.table-card-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--dark);
+}
+.table-card-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: var(--p10);
+    color: var(--p);
+    padding: 3px 10px;
+    border-radius: 6px;
+}
+
+.compact-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.compact-table thead th {
+    background: #FAFAFA;
+    padding: 8px 12px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+.compact-table tbody tr {
+    transition: background .15s;
+}
+.compact-table tbody tr:hover {
+    background: #FAFAFA;
+}
+.compact-table tbody td {
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    border-bottom: 1px solid #F3F3F3;
+    vertical-align: middle;
+}
+.compact-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.sm-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--p10);
+    color: var(--p);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.6rem;
+    flex-shrink: 0;
+}
+.sm-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.sm-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sm-name {
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--dark);
+}
+.sm-id {
+    font-size: 0.62rem;
+    color: var(--gray);
+}
+
+/* ══ ROOM DIVIDER ══ */
+.room-divider-row {
+    cursor: default !important;
+}
+.room-divider-row:hover {
+    background: transparent !important;
+}
+.room-divider-row td {
+    padding: 0 !important;
+    border-bottom: none !important;
+}
+.room-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--p10);
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--p);
+    border-top: 1.5px solid var(--border);
+}
+.room-divider-row:first-child .room-divider {
+    border-top: none;
+}
+.room-divider i {
+    font-size: 0.7rem;
+}
+.room-divider-count {
+    margin-left: auto;
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--gray);
+}
+
+/* ══ BADGES ══ */
+.paid-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(12,47,117,.1); color: var(--p);
+    border-radius: 7px; padding: 3px 8px;
+    font-size: .65rem; font-weight: 700;
+}
+.unpaid-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(208,211,217,.3); color: #000;
+    border-radius: 7px; padding: 3px 8px;
+    font-size: .65rem; font-weight: 600;
+}
+
+/* ══ FLOOR PANEL ══ */
+.floor-panel {
+    display: none;
+}
+.floor-panel.show {
+    display: block;
+    animation: fadeIn .25s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.floor-stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.floor-stat-mini {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+}
+.floor-stat-mini-val {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1;
+}
+.floor-stat-mini-lbl {
+    font-size: 0.58rem;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    margin-top: 3px;
+}
+
+/* BO'SH HOLAT */
+.empty-panel {
+    background: #fff; border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 50px 20px;
+    text-align: center;
+}
+.empty-panel i { font-size: 2rem; color: #D0D3D9; display: block; margin-bottom: 12px; }
+
+.students-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.82rem;
+}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:900px){
+    .fin-layout { flex-direction: column-reverse; }
+    .fin-main { padding-right: 0; }
+    .right-sidebar {
+        width: 100%;
+        position: static;
+        max-height: none;
+        margin-bottom: 20px;
+    }
+    .rsb-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 10px;
+    }
+    .rsb-link {
+        padding: 6px 10px;
+        margin-bottom: 0;
+    }
+    .rsb-floor-name { display: none; }
+    .rsb-count { display: none; }
+}
+@media(max-width:800px){ .filter-grid{ grid-template-columns: 1fr 1fr; } }
+@media(max-width:500px){ .filter-grid{ grid-template-columns: 1fr; } }
+@media(max-width:600px){
+    .floor-stats-row { grid-template-columns: 1fr 1fr; }
+    .table-card { overflow-x: auto; }
+    .compact-table { min-width: 500px; }
+}
 </style>
 {% endblock %}
 
@@ -200,7 +455,7 @@
 
 <!-- KPI -->
 <div class="fin-kpi">
-    <div class="fkpi" >
+    <div class="fkpi">
         <div class="fkpi-top">
             <div>
                 <div class="fkpi-label">Bugungi tushum</div>
@@ -209,7 +464,7 @@
             <div class="fkpi-icon"><i class="fas fa-money-bill-wave"></i></div>
         </div>
     </div>
-    <div class="fkpi" >
+    <div class="fkpi">
         <div class="fkpi-top">
             <div>
                 <div class="fkpi-label">{{ selected_month_name }} oyi</div>
@@ -218,7 +473,7 @@
             <div class="fkpi-icon"><i class="fas fa-chart-line"></i></div>
         </div>
     </div>
-    <div class="fkpi" >
+    <div class="fkpi">
         <div class="fkpi-top">
             <div>
                 <div class="fkpi-label">Kutilayotgan</div>
@@ -227,7 +482,7 @@
             <div class="fkpi-icon"><i class="fas fa-clock"></i></div>
         </div>
     </div>
-    <div class="fkpi" >
+    <div class="fkpi">
         <div class="fkpi-top">
             <div>
                 <div class="fkpi-label">Muddati o'tgan</div>
@@ -249,97 +504,212 @@
         <span style="color:var(--dark);">Qarzdorlar ro'yxati</span>
     </a>
     <a href="{% url 'finance:reports' %}" class="qlink">
-        <div class="qlink-icon" ><i class="fas fa-chart-bar"></i></div>
+        <div class="qlink-icon"><i class="fas fa-chart-bar"></i></div>
         <span style="color:var(--dark);">Moliyaviy hisobot</span>
     </a>
 </div>
 
-<!-- FILTR -->
-<div class="filter-bar">
-    <form method="GET" class="filter-grid">
-        <div class="search-wrap">
-            <i class="fas fa-search"></i>
-            <input type="text" name="search" class="form-control"
-                   placeholder="Ism yoki familiya..." value="{{ search_query }}">
-        </div>
-        <select name="month" class="form-select" onchange="this.form.submit()">
-            {% for m_num, m_name in months_range %}
-            <option value="{{ m_num }}" {% if selected_month == m_num %}selected{% endif %}>{{ m_name }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-filter me-1"></i> Saralash
-        </button>
-        <a href="?" class="btn" style="border:1.5px solid var(--border);background:#fff;font-weight:700;color:var(--dark);">
-            Tozalash
-        </a>
-    </form>
-</div>
+<div class="fin-layout">
+    <!-- ASOSIY KONTENT -->
+    <div class="fin-main">
 
-<!-- TO'LOV JADVALI -->
-{% if floors_data %}
-    {% for floor_info in floors_data %}
-    <div class="fin-block">
-        <div class="fin-block-head">
-            <span class="fin-floor-badge">{{ floor_info.floor.number }}-qavat</span>
-            <span class="fin-bname">{{ floor_info.floor.building.name }}</span>
-            <span class="fin-block-head-right">
-                {% with total=floor_info.rooms|length %}{{ total }} xona{% endwith %}
-            </span>
+        <!-- FILTR -->
+        <div class="filter-bar">
+            <form method="GET" class="filter-grid">
+                <div class="search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" class="form-control form-control-sm"
+                           placeholder="Ism yoki familiya..." value="{{ search_query }}">
+                </div>
+                <select name="month" class="form-select form-select-sm" onchange="this.form.submit()">
+                    {% for m_num, m_name in months_range %}
+                    <option value="{{ m_num }}" {% if selected_month == m_num %}selected{% endif %}>{{ m_name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-dark btn-sm" style="white-space:nowrap;">
+                    <i class="fas fa-filter me-1"></i> Saralash
+                </button>
+                <a href="?" class="btn btn-sm" style="border:1.5px solid var(--border);background:#fff;font-weight:700;color:var(--dark);white-space:nowrap;">
+                    Tozalash
+                </a>
+            </form>
         </div>
-        <div class="table-responsive">
-            <table class="fin-tbl">
-                <thead>
-                    <tr>
-                        <th style="width:70px;text-align:center;">Xona</th>
-                        <th>Talaba</th>
-                        <th>To'langan summa</th>
-                        <th>Holat</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for room in floor_info.rooms %}
+
+        <!-- BARCHA QAVATLAR (default ko'rinish) -->
+        <div id="all-panel" class="floor-panel show">
+            <div class="section-label">Barcha qavatlar</div>
+            {% if floors_data %}
+                {% for floor_info in floors_data %}
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <span class="table-card-title"><i class="fas fa-layer-group me-1" style="color:var(--gray);"></i> {{ floor_info.floor.number }}-qavat · {{ floor_info.floor.building.name }}</span>
+                        <span class="table-card-badge">{{ floor_info.rooms|length }} xona</span>
+                    </div>
+                    <table class="compact-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Talaba</th>
+                                <th>To'langan</th>
+                                <th>Holat</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for room in floor_info.rooms %}
+                            <tr class="room-divider-row">
+                                <td colspan="5">
+                                    <div class="room-divider">
+                                        <i class="fas fa-door-open"></i>
+                                        <span>{{ room.number }}-xona</span>
+                                        <span class="room-divider-count">{{ room.students|length }} talaba</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% for s_data in room.students %}
+                            <tr>
+                                <td style="color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="sm-name-cell">
+                                        <div class="sm-avatar">
+                                            {{ s_data.obj.first_name|first|upper }}{{ s_data.obj.last_name|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="sm-name">{{ s_data.obj.last_name }} {{ s_data.obj.first_name }}</div>
+                                            <div class="sm-id">{{ s_data.obj.student_id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if s_data.payment %}
+                                    <span style="font-weight:800;font-size:.78rem;">{{ s_data.payment.amount|floatformat:0 }} so'm</span>
+                                    {% else %}
+                                    <span style="color:var(--gray);">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s_data.payment %}
+                                    <span class="paid-badge"><i class="fas fa-check" style="font-size:.55rem;"></i> To'langan</span>
+                                    {% else %}
+                                    <span class="unpaid-badge"><i class="fas fa-minus" style="font-size:.55rem;"></i> To'lanmagan</span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align:right;">
+                                    {% if can_manage %}
+                                    <a href="{% url 'finance:payment_create' %}?student={{ s_data.obj.id }}&reference={{ selected_month_name }}" style="
+                                        width:26px;height:26px;border-radius:7px;
+                                        border:1.5px solid var(--border);color:var(--gray);
+                                        display:inline-flex;align-items:center;justify-content:center;
+                                        text-decoration:none;font-size:.6rem;transition:all .15s;
+                                    " title="To'lov qabul qilish"
+                                       onmouseover="this.style.background='var(--p)';this.style.borderColor='var(--p)';this.style.color='#fff';"
+                                       onmouseout="this.style.background='';this.style.borderColor='var(--border)';this.style.color='var(--gray)';">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-panel">
+                <i class="fas fa-magnifying-glass"></i>
+                <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:6px;">Ma'lumot topilmadi</div>
+                <div style="font-size:0.82rem;color:var(--gray);">
+                    <a href="?" class="btn btn-primary btn-sm mt-2">Barchasini ko'rsatish</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- QAVAT PANELLARI (sidebar bosilganda ko'rinadi) -->
+        {% for floor_info in floors_data %}
+        <div class="floor-panel" id="floor-panel-{{ floor_info.floor.id }}" data-floor-id="{{ floor_info.floor.id }}">
+            <div class="section-label">
+                <i class="fas fa-layer-group me-1"></i> {{ floor_info.floor.number }}-qavat · {{ floor_info.floor.building.name }}
+            </div>
+
+            <div class="floor-stats-row">
+                <div class="floor-stat-mini">
+                    <div class="floor-stat-mini-val">{{ floor_info.rooms|length }}</div>
+                    <div class="floor-stat-mini-lbl">Xonalar</div>
+                </div>
+                <div class="floor-stat-mini">
+                    <div class="floor-stat-mini-val">{{ floor_info.paid_count }}</div>
+                    <div class="floor-stat-mini-lbl">To'lagan</div>
+                </div>
+                <div class="floor-stat-mini">
+                    <div class="floor-stat-mini-val">{{ floor_info.unpaid_count }}</div>
+                    <div class="floor-stat-mini-lbl">To'lamagan</div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-card-header">
+                    <span class="table-card-title"><i class="fas fa-wallet me-1" style="color:var(--gray);"></i> {{ floor_info.floor.number }}-qavat to'lovlari</span>
+                    <span class="table-card-badge">{{ floor_info.student_count }} talaba</span>
+                </div>
+                {% if floor_info.rooms %}
+                <table class="compact-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Talaba</th>
+                            <th>To'langan</th>
+                            <th>Holat</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for room in floor_info.rooms %}
+                        <tr class="room-divider-row">
+                            <td colspan="5">
+                                <div class="room-divider">
+                                    <i class="fas fa-door-open"></i>
+                                    <span>{{ room.number }}-xona</span>
+                                    <span class="room-divider-count">{{ room.students|length }} talaba</span>
+                                </div>
+                            </td>
+                        </tr>
                         {% for s_data in room.students %}
                         <tr>
-                            {% if forloop.first %}
-                            <td rowspan="{{ room.rowspan }}" class="room-cell">
-                                <div class="room-num">{{ room.number }}</div>
-                                <div class="room-sub">xona</div>
-                            </td>
-                            {% endif %}
+                            <td style="color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
                             <td>
-                                <div class="stu-link-wrap">
-                                    <div class="stu-av-sm">
+                                <div class="sm-name-cell">
+                                    <div class="sm-avatar">
                                         {{ s_data.obj.first_name|first|upper }}{{ s_data.obj.last_name|first|upper }}
                                     </div>
                                     <div>
-                                        <div class="stu-link">{{ s_data.obj.last_name }} {{ s_data.obj.first_name }}</div>
-                                        <div class="pay-hint">To'lov qilish uchun bosing →</div>
+                                        <div class="sm-name">{{ s_data.obj.last_name }} {{ s_data.obj.first_name }}</div>
+                                        <div class="sm-id">{{ s_data.obj.student_id }}</div>
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 {% if s_data.payment %}
-                                <span class="amount-val">{{ s_data.payment.amount|floatformat:0 }} so'm</span>
+                                <span style="font-weight:800;font-size:.78rem;">{{ s_data.payment.amount|floatformat:0 }} so'm</span>
                                 {% else %}
-                                <span style="color:var(--gray);font-size:.82rem;">—</span>
+                                <span style="color:var(--gray);">—</span>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if s_data.payment %}
-                                <span class="paid-badge"><i class="fas fa-check" style="font-size:.6rem;"></i> To'langan</span>
+                                <span class="paid-badge"><i class="fas fa-check" style="font-size:.55rem;"></i> To'langan</span>
                                 {% else %}
-                                <span class="unpaid-badge"><i class="fas fa-minus" style="font-size:.6rem;"></i> To'lanmagan</span>
+                                <span class="unpaid-badge"><i class="fas fa-minus" style="font-size:.55rem;"></i> To'lanmagan</span>
                                 {% endif %}
                             </td>
-                            <td style="text-align:right;padding-right:14px;">
+                            <td style="text-align:right;">
                                 {% if can_manage %}
                                 <a href="{% url 'finance:payment_create' %}?student={{ s_data.obj.id }}&reference={{ selected_month_name }}" style="
-                                    width:30px;height:30px;border-radius:8px;
+                                    width:26px;height:26px;border-radius:7px;
                                     border:1.5px solid var(--border);color:var(--gray);
                                     display:inline-flex;align-items:center;justify-content:center;
-                                    text-decoration:none;font-size:.68rem;transition:all .15s;
+                                    text-decoration:none;font-size:.6rem;transition:all .15s;
                                 " title="To'lov qabul qilish"
                                    onmouseover="this.style.background='var(--p)';this.style.borderColor='var(--p)';this.style.color='#fff';"
                                    onmouseout="this.style.background='';this.style.borderColor='var(--border)';this.style.color='var(--gray)';">
@@ -349,22 +719,55 @@
                             </td>
                         </tr>
                         {% endfor %}
-                    {% endfor %}
-                </tbody>
-            </table>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="students-empty">
+                    <i class="fas fa-wallet me-1"></i> Bu qavatda talabalar yo'q
+                </div>
+                {% endif %}
+            </div>
         </div>
-    </div>
-    {% endfor %}
-{% else %}
-<div class="fin-block">
-    <div class="empty-fin">
-        <i class="fas fa-magnifying-glass"></i>
-        Ma'lumot topilmadi
-        <div style="margin-top:10px;">
-            <a href="?" class="btn btn-primary btn-sm">Barchasini ko'rsatish</a>
-        </div>
-    </div>
-</div>
-{% endif %}
+        {% endfor %}
 
+    </div>
+
+    <!-- O'NG SIDEBAR -->
+    {% if floors_data %}
+    <div class="right-sidebar">
+        <div class="rsb-card">
+            <div class="rsb-header">
+                <div class="rsb-title">Qavatlar</div>
+            </div>
+            <div class="rsb-list">
+                <div class="rsb-link active" data-target="all-panel" onclick="showPanel('all-panel', this)">
+                    <div class="rsb-num"><i class="fas fa-list" style="font-size:0.65rem;"></i></div>
+                    <span class="rsb-floor-name">Barchasi</span>
+                </div>
+                {% for floor_info in floors_data %}
+                <div class="rsb-link" data-target="floor-panel-{{ floor_info.floor.id }}" onclick="showPanel('floor-panel-{{ floor_info.floor.id }}', this)">
+                    <div class="rsb-num">{{ floor_info.floor.number }}</div>
+                    <span class="rsb-floor-name">{{ floor_info.floor.number }}-qavat</span>
+                    <span class="rsb-count">{{ floor_info.student_count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showPanel(panelId, btn) {
+    document.querySelectorAll('.floor-panel').forEach(p => p.classList.remove('show'));
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('show');
+    document.querySelectorAll('.rsb-link').forEach(l => l.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+}
+</script>
 {% endblock %}

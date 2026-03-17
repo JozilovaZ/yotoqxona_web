@@ -93,7 +93,16 @@ class FinanceDashboardView(BuildingStaffMixin, TemplateView):
                     })
 
             if rooms_list:
-                floors_data.append({'floor': floor, 'rooms': rooms_list})
+                floor_student_count = sum(len(r['students']) for r in rooms_list)
+                floor_paid = sum(1 for r in rooms_list for s in r['students'] if s['payment'])
+                floor_unpaid = floor_student_count - floor_paid
+                floors_data.append({
+                    'floor': floor,
+                    'rooms': rooms_list,
+                    'student_count': floor_student_count,
+                    'paid_count': floor_paid,
+                    'unpaid_count': floor_unpaid,
+                })
 
         context.update({
             'floors_data': floors_data,
