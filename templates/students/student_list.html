@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block page_title %}Talabalar{% endblock %}
-{% block page_sub %}<p class="page-sub">Barcha faol talabalar ro'yxati</p>{% endblock %}
+{% block page_sub %}<p class="page-sub">Qavatlar bo'yicha talabalar</p>{% endblock %}
 {% block page_actions %}
 {% if can_manage %}
 <a href="{% url 'students:student_create' %}" class="btn btn-primary btn-sm px-3">
@@ -19,36 +19,71 @@
     border: 1.5px solid var(--border);
     border-radius: 16px;
     padding: 16px 20px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 .filter-grid {
     display: grid;
-    grid-template-columns: 1fr 220px 120px;
+    grid-template-columns: 1fr 120px;
     gap: 12px;
     align-items: center;
 }
 @media(max-width:750px){ .filter-grid{ grid-template-columns: 1fr; } }
 
-.search-wrap {
-    position: relative;
-}
-.search-wrap .search-icon {
-    position: absolute; left: 12px; top: 50%;
-    transform: translateY(-50%);
-    color: var(--gray); font-size: .8rem; pointer-events: none;
-}
-.search-wrap input {
-    padding-left: 36px !important;
+/* ══ FLOOR CARDS ══ */
+.floor-section {
+    margin-bottom: 18px;
 }
 
-/* ══ QAVAT SARLAVHASI ══ */
-.floor-header {
+.floor-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    color: inherit;
+    transition: all .2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+.floor-card:hover {
+    border-color: var(--p);
+    box-shadow: 0 4px 20px rgba(112, 0, 255, 0.1);
+}
+.floor-card:hover .floor-card-icon {
+    background: var(--p);
+    color: #fff;
+}
+
+.floor-card.active {
+    border-color: var(--p);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+}
+
+.floor-card-top {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin: 28px 0 10px;
+    justify-content: space-between;
 }
-.floor-badge {
+
+.floor-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--p10);
+    color: var(--p);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all .2s ease;
+}
+
+.floor-card-badge {
     background: var(--dark);
     color: #fff;
     border-radius: 9px;
@@ -58,100 +93,164 @@
     letter-spacing: .8px;
     text-transform: uppercase;
 }
-.floor-bname {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--dark);
-}
-.floor-divider {
-    flex: 1;
-    height: 1.5px;
-    background: var(--border);
-    border-radius: 99px;
-}
-.floor-count {
-    font-size: .72rem;
+
+.floor-card-building {
+    font-size: 0.78rem;
     color: var(--gray);
     font-weight: 600;
 }
 
-/* ══ JADVAL PANELI ══ */
-.stu-panel {
-    background: #fff;
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 6px;
+.floor-card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 10px;
+}
+@media(max-width:600px){ .floor-card-stats{ grid-template-columns: 1fr 1fr; } }
+
+.floor-stat {
+    background: #F8F9FA;
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-align: center;
+}
+.floor-stat-val {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1;
+}
+.floor-stat-lbl {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-top: 4px;
 }
 
-.stu-tbl { width: 100%; border-collapse: collapse; }
-.stu-tbl thead th {
-    padding: 10px 16px;
-    font-size: 0.67rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .5px;
-    color: var(--gray); background: #FFFFFF;
-    border-bottom: 1.5px solid var(--border);
+.floor-card-bar {
+    height: 6px;
+    background: #EEE;
+    border-radius: 99px;
+    overflow: hidden;
 }
-.stu-tbl tbody td {
-    padding: 13px 16px; font-size: 0.85rem;
-    border-bottom: 1px solid #D0D3D9;
+.floor-card-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width .3s ease;
+}
+
+.floor-card-toggle {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--p10);
+    color: var(--p);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .7rem;
+    transition: all .2s ease;
+}
+.floor-card.active .floor-card-toggle {
+    transform: rotate(90deg);
+}
+
+/* ══ STUDENTS TABLE ══ */
+.floor-students-panel {
+    display: none;
+    background: #fff;
+    border: 1.5px solid var(--p);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    padding: 0;
+    overflow: hidden;
+    animation: slideDown .3s ease;
+}
+.floor-students-panel.show {
+    display: block;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 2000px; }
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.students-table thead th {
+    background: #F8F9FA;
+    padding: 12px 16px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+.students-table tbody tr {
+    transition: background .15s ease;
+}
+.students-table tbody tr:hover {
+    background: #F8F9FA;
+}
+.students-table tbody td {
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    border-bottom: 1px solid #F0F0F0;
     vertical-align: middle;
 }
-.stu-tbl tbody tr:last-child td { border-bottom: none; }
-.stu-tbl tbody tr:hover td { background: #FFFFFF; }
+.students-table tbody tr:last-child td {
+    border-bottom: none;
+}
 
-/* Xona ustuni */
-.room-cell {
-    background: #FFFFFF !important;
+.student-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.student-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--p10);
+    color: var(--p);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+.student-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.room-badge {
+    background: var(--p10);
+    color: var(--p);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.students-empty {
+    padding: 40px 20px;
     text-align: center;
-    vertical-align: middle !important;
-    border-right: 1.5px solid var(--border) !important;
-    min-width: 78px;
+    color: var(--gray);
+    font-size: 0.88rem;
 }
-.room-num { font-size: 1.1rem; font-weight: 900; color: var(--dark); line-height: 1; }
-.room-sub { font-size: 0.6rem; font-weight: 600; color: var(--gray); letter-spacing: .5px; margin-top: 2px; }
-
-/* Talaba cell */
-.stu-cell { display: flex; align-items: center; gap: 10px; }
-.stu-av {
-    width: 36px; height: 36px; border-radius: 11px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .73rem; font-weight: 800; color: #fff;
-    flex-shrink: 0; letter-spacing: .2px;
-}
-.av-1 { background: #7000FF; }
-.av-2 { background: #000; }
-.av-3 { background: #7000FF; }
-.av-4 { background: #000; }
-.av-5 { background: #7000FF; }
-
-.stu-name  { font-weight: 700; color: var(--dark); font-size: .9rem; }
-.stu-sdate { font-size: .7rem; color: var(--gray); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
-
-/* ID chip */
-.id-chip {
-    display: inline-block;
-    background: var(--p10); color: var(--p);
-    border-radius: 7px; padding: 3px 9px;
-    font-size: .71rem; font-weight: 700;
-    margin-bottom: 3px;
-}
-.group-txt { font-size: .75rem; color: var(--gray); }
-
-/* Telefon */
-.phone-txt { font-size: .85rem; font-weight: 600; color: var(--dark); }
-
-/* Action tugmalar */
-.act-grp { display: flex; gap: 6px; justify-content: flex-end; }
-.act-btn {
-    width: 32px; height: 32px; border-radius: 9px;
-    border: 1.5px solid var(--border); background: #fff;
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--gray); text-decoration: none;
-    font-size: .72rem; transition: all .15s;
-}
-.act-btn:hover { background: var(--p); border-color: var(--p); color: #fff; }
-.act-btn.del:hover { background: #000; border-color: #000; color: #fff; }
 
 /* BO'SH HOLAT */
 .empty-panel {
@@ -160,6 +259,12 @@
     text-align: center;
 }
 .empty-panel i { font-size: 2.5rem; color: #D0D3D9; display: block; margin-bottom: 14px; }
+
+/* Mobile table scroll */
+@media(max-width:750px){
+    .floor-students-panel { overflow-x: auto; }
+    .students-table { min-width: 600px; }
+}
 </style>
 {% endblock %}
 
@@ -168,12 +273,6 @@
 <!-- FILTER -->
 <div class="filter-bar">
     <form method="get" class="filter-grid">
-        <div class="search-wrap">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" name="search" class="form-control"
-                   placeholder="Ism, ID yoki telefon..."
-                   value="{{ request.GET.search }}">
-        </div>
         <select name="building" class="form-select">
             <option value="">Barcha binolar</option>
             {% for b in buildings %}
@@ -186,151 +285,137 @@
     </form>
 </div>
 
-<!-- OXIRGI QO'SHILGAN TALABALAR -->
-{% if recent_students %}
-<div class="stu-panel" style="margin-bottom:24px;">
-    <div style="padding:14px 20px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:0.875rem;font-weight:800;color:var(--dark);display:flex;align-items:center;gap:8px;">
-            <span style="width:28px;height:28px;border-radius:8px;background:var(--p10);color:var(--p);display:flex;align-items:center;justify-content:center;font-size:.78rem;">
-                <i class="fas fa-user-graduate"></i>
-            </span>
-            Oxirgi qo'shilgan talabalar
-        </span>
+<!-- QAVATLAR -->
+{% if floor_data %}
+{% for item in floor_data %}
+<div class="floor-section">
+    <div class="floor-card" onclick="toggleFloor(this)" id="floor-card-{{ item.floor.id }}">
+        <div class="floor-card-top">
+            <div class="floor-card-icon">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <span class="floor-card-badge">{{ item.floor.number }}-qavat</span>
+        </div>
+
+        <div class="floor-card-building">
+            <i class="fas fa-building me-1"></i> {{ item.floor.building.name }}
+        </div>
+
+        <div class="floor-card-stats">
+            <div class="floor-stat">
+                <div class="floor-stat-val">{{ item.student_count }}</div>
+                <div class="floor-stat-lbl">Talabalar</div>
+            </div>
+            <div class="floor-stat">
+                <div class="floor-stat-val">{{ item.total_rooms }}</div>
+                <div class="floor-stat-lbl">Xonalar</div>
+            </div>
+            <div class="floor-stat">
+                <div class="floor-stat-val">{{ item.occupied_beds }}</div>
+                <div class="floor-stat-lbl">Band joy</div>
+            </div>
+            <div class="floor-stat">
+                <div class="floor-stat-val">{{ item.total_capacity }}</div>
+                <div class="floor-stat-lbl">Jami joy</div>
+            </div>
+        </div>
+
+        {% if item.total_capacity > 0 %}
+        <div class="floor-card-bar">
+            {% widthratio item.occupied_beds item.total_capacity 100 as fill_pct %}
+            <div class="floor-card-bar-fill" style="width:{% widthratio item.occupied_beds item.total_capacity 100 %}%;background:{% if fill_pct >= 90 %}#dc3545{% elif fill_pct >= 60 %}#fd7e14{% else %}var(--p){% endif %};"></div>
+        </div>
+        {% endif %}
+
+        <div class="floor-card-toggle">
+            <i class="fas fa-chevron-right"></i>
+        </div>
     </div>
-    <div class="table-responsive">
-        <table class="stu-tbl">
+
+    <!-- Talabalar jadvali -->
+    <div class="floor-students-panel" id="floor-panel-{{ item.floor.id }}">
+        {% if item.students %}
+        <table class="students-table">
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>Talaba</th>
                     <th>Xona</th>
-                    <th>Guruh</th>
-                    <th>Kirgan sana</th>
-                    <th></th>
+                    <th>Telefon</th>
+                    <th>Fakultet</th>
+                    <th>Kurs</th>
                 </tr>
             </thead>
             <tbody>
-                {% for s in recent_students %}
-                <tr>
+                {% for student in item.students %}
+                <tr onclick="window.location='{% url 'students:student_detail' student.pk %}'" style="cursor:pointer;">
+                    <td style="color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
                     <td>
-                        <div class="stu-cell">
-                            <div class="stu-av av-{% cycle '1' '2' '3' '4' '5' %}">
-                                {{ s.first_name|first|upper }}{{ s.last_name|first|upper }}
+                        <div class="student-name-cell">
+                            <div class="student-avatar">
+                                {% if student.photo %}
+                                <img src="{{ student.photo.url }}" alt="">
+                                {% else %}
+                                {{ student.first_name|first }}{{ student.last_name|first }}
+                                {% endif %}
                             </div>
                             <div>
-                                <div class="stu-name">{{ s.last_name }} {{ s.first_name }}</div>
-                                <div class="stu-sdate">{{ s.student_id }}</div>
+                                <div style="font-weight:700;">{{ student.last_name }} {{ student.first_name }}</div>
+                                <div style="font-size:0.72rem;color:var(--gray);">{{ student.student_id }}</div>
                             </div>
                         </div>
                     </td>
-                    <td>
-                        {% if s.room %}
-                        <span class="id-chip">{{ s.room.floor.building.name|truncatechars:8 }} · {{ s.room.number }}-x</span>
-                        {% else %}<span style="color:var(--gray);font-size:.8rem;">—</span>{% endif %}
-                    </td>
-                    <td><span class="group-txt">{{ s.group|default:"—" }}</span></td>
-                    <td><span class="group-txt">{{ s.check_in_date|date:"d.m.Y" }}</span></td>
-                    <td style="text-align:right;padding-right:16px;">
-                        <a href="{% url 'students:student_detail' s.pk %}" class="act-btn" title="Ko'rish">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </td>
+                    <td><span class="room-badge">{{ student.room.number }}-xona</span></td>
+                    <td style="font-size:0.82rem;">{{ student.phone }}</td>
+                    <td style="font-size:0.82rem;">{{ student.faculty|default:"-" }}</td>
+                    <td style="font-weight:700;">{{ student.course }}-kurs</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <div class="students-empty">
+            <i class="fas fa-user-slash" style="margin-right:6px;"></i> Bu qavatda talabalar yo'q
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty-panel">
+    <i class="fas fa-layer-group"></i>
+    <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:6px;">Qavatlar topilmadi</div>
+    <div style="font-size:0.85rem;color:var(--gray);margin-bottom:20px;">
+        Bino tanlang yoki qavatlar qo'shilmagan.
     </div>
 </div>
 {% endif %}
 
-<!-- TALABALAR JADVALI (qavat bo'yicha) -->
-{% for item in floor_data %}
+{% endblock %}
 
-<div class="floor-header">
-    <span class="floor-badge">{{ item.floor.number }}-qavat</span>
-    <span class="floor-bname">{{ item.floor.building.name }}</span>
-    <div class="floor-divider"></div>
-    <span class="floor-count">{{ item.students|length }} talaba</span>
-</div>
+{% block extra_js %}
+<script>
+function toggleFloor(card) {
+    const section = card.closest('.floor-section');
+    const panel = section.querySelector('.floor-students-panel');
+    const isActive = card.classList.contains('active');
 
-<div class="stu-panel">
-    <div class="table-responsive">
-        <table class="stu-tbl">
-            <thead>
-                <tr>
-                    <th style="width:78px;text-align:center;">Xona</th>
-                    <th>Talaba</th>
-                    <th>ID / Guruh</th>
-                    <th>Telefon</th>
-                    <th style="text-align:right;padding-right:18px;">Amallar</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% regroup item.students by room as room_list %}
-                {% for room_group in room_list %}
-                    {% for student in room_group.list %}
-                    <tr>
-                        {% if forloop.first %}
-                        <td rowspan="{{ room_group.list|length }}" class="room-cell">
-                            <div class="room-num">{{ room_group.grouper.number }}</div>
-                            <div class="room-sub">xona</div>
-                        </td>
-                        {% endif %}
+    // Boshqa ochiq panellarni yopish
+    document.querySelectorAll('.floor-card.active').forEach(c => {
+        if (c !== card) {
+            c.classList.remove('active');
+            c.closest('.floor-section').querySelector('.floor-students-panel').classList.remove('show');
+        }
+    });
 
-                        <td>
-                            <div class="stu-cell">
-                                <div class="stu-av av-{% cycle '1' '2' '3' '4' '5' %}">
-                                    {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
-                                </div>
-                                <div>
-                                    <div class="stu-name">{{ student.last_name }} {{ student.first_name }}</div>
-                                    <div class="stu-sdate">
-                                        <i class="far fa-calendar-alt"></i>
-                                        {{ student.check_in_date|date:"d.m.Y" }}
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-
-                        <td>
-                            <div class="id-chip">{{ student.student_id }}</div>
-                            <div class="group-txt">{{ student.group|default:"—" }}</div>
-                        </td>
-
-                        <td>
-                            <div class="phone-txt">{{ student.phone }}</div>
-                        </td>
-
-                        <td style="padding-right:16px;">
-                            <div class="act-grp">
-                                <a href="{% url 'students:student_detail' student.pk %}" class="act-btn" title="Ko'rish">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{% url 'students:student_update' student.pk %}" class="act-btn" title="Tahrirlash">
-                                    <i class="fas fa-pen"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-{% empty %}
-<div class="empty-panel">
-    <i class="fas fa-users-slash"></i>
-    <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:6px;">Talabalar topilmadi</div>
-    <div style="font-size:0.85rem;color:var(--gray);margin-bottom:20px;">
-        Qidiruv parametrlarini o'zgartirib ko'ring yoki yangi talaba qo'shing.
-    </div>
-    {% if can_manage %}
-    <a href="{% url 'students:student_create' %}" class="btn btn-primary btn-sm">
-        <i class="fas fa-plus me-1"></i> Talaba qo'shish
-    </a>
-    {% endif %}
-</div>
-{% endfor %}
-
+    // Toggle
+    if (isActive) {
+        card.classList.remove('active');
+        panel.classList.remove('show');
+    } else {
+        card.classList.add('active');
+        panel.classList.add('show');
+    }
+}
+</script>
 {% endblock %}

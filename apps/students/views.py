@@ -28,16 +28,6 @@ class StudentListView(BuildingStaffMixin, ListView):
         if bid:
             queryset = queryset.filter(room__floor__building_id=bid)
 
-        search = self.request.GET.get('search')
-        if search:
-            queryset = queryset.filter(
-                Q(first_name__icontains=search) |
-                Q(last_name__icontains=search) |
-                Q(student_id__icontains=search) |
-                Q(phone__icontains=search) |
-                Q(group__icontains=search)
-            )
-
         building_id = self.request.GET.get('building')
         if building_id:
             queryset = queryset.filter(room__floor__building_id=building_id)
@@ -46,29 +36,53 @@ class StudentListView(BuildingStaffMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = self.get_queryset()
 
         context['buildings'] = self.get_buildings_qs()
 
-        floor_ids = queryset.values_list('room__floor_id', flat=True).distinct()
-        floors = Floor.objects.filter(id__in=floor_ids).select_related('building').order_by('building', 'number')
-
-        floor_data = [
-            {'floor': floor, 'students': queryset.filter(room__floor=floor)}
-            for floor in floors
-        ]
-
-        context['floor_data'] = floor_data
-
-        # Oxirgi qo'shilgan talabalar
-        recent_qs = Student.objects.filter(
-            is_active=True
-        ).select_related('room', 'room__floor', 'room__floor__building').order_by('-created_at')
+        # Qavatlar ro'yxati
+        floors_qs = Floor.objects.filter(is_active=True).select_related('building').order_by('building', 'number')
         bid = self.get_user_building_id()
         if bid:
-            recent_qs = recent_qs.filter(room__floor__building_id=bid)
-        context['recent_students'] = recent_qs[:8]
+            floors_qs = floors_qs.filter(building_id=bid)
 
+        building_id = self.request.GET.get('building')
+        if building_id:
+            floors_qs = floors_qs.filter(building_id=building_id)
+
+        # Har bir qavat uchun statistika va talabalar
+        floor_data = []
+        for floor in floors_qs:
+            students = Student.objects.filter(
+                room__floor=floor, is_active=True
+            ).select_related('room').order_by('room__number', 'last_name')
+            floor_data.append({
+                'floor': floor,
+                'student_count': students.count(),
+                'students': students,
+                'total_rooms': floor.total_rooms,
+                'total_capacity': floor.total_capacity,
+                'occupied_beds': floor.occupied_beds,
+            })
+
+        context['floor_data'] = floor_data
+        return context
+
+
+class FloorStudentsView(BuildingStaffMixin, ListView):
+    model = Student
+    template_name = 'students/floor_students.html'
+    context_object_name = 'students'
+
+    def get_queryset(self):
+        self.floor = get_object_or_404(Floor, pk=self.kwargs['floor_id'], is_active=True)
+        queryset = Student.objects.filter(
+            room__floor=self.floor, is_active=True
+        ).select_related('room', 'room__floor', 'room__floor__building').order_by('room__number')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['floor'] = self.floor
         return context
 
 
