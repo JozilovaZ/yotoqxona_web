@@ -12,16 +12,18 @@
 
     <style>
         :root {
-            --p:       #0C2F75;
-            --p10:     rgba(12,47,117,.07);
-            --p20:     rgba(12,47,117,.15);
-            --err:     #000;
-            --err10:   rgba(0,0,0,.08);
-            --dark:    #000000;
-            --gray:    #6b7280;
-            --border:  #D0D3D9;
-            --bg:      #FAF9F5;
-            --nav-h:   56px;
+            --p:       #10b981;
+            --p10:     rgba(16,185,129,.08);
+            --p20:     rgba(16,185,129,.15);
+            --p-hover: #059669;
+            --p-dark:  #047857;
+            --err:     #ef4444;
+            --err10:   rgba(239,68,68,.08);
+            --dark:    #1e293b;
+            --gray:    #64748b;
+            --border:  #e2e8f0;
+            --bg:      #f8fafc;
+            --nav-h:   60px;
             --nav-bg:  #FFFFFF;
             --sb-w:    260px;
         }
@@ -38,58 +40,58 @@
         /* ═══ TOPNAV (PUBLIC) ═══ */
         .topnav-wrap {
             position: sticky; top: 0; z-index: 999;
-            padding: 10px 16px 0;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
         }
         .topnav {
-            max-width: 1300px; margin: 0 auto; height: var(--nav-h);
-            background: var(--nav-bg); border-radius: 100px;
+            max-width: 1200px; margin: 0 auto; height: var(--nav-h);
+            background: #fff;
             display: flex; align-items: center; justify-content: center;
-            padding: 0 8px; gap: 0;
-            box-shadow: 0 2px 16px rgba(0,0,0,.08);
+            padding: 0 24px; gap: 0;
             flex-wrap: nowrap;
         }
         .nav-brand {
-            display: flex; align-items: center; gap: 8px;
-            text-decoration: none; margin-right: 20px; flex-shrink: 0; padding-left: 12px;
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none; margin-right: 32px; flex-shrink: 0;
         }
-        .brand-logo { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        .brand-logo svg { width: 32px; height: 32px; }
-        .brand-name { font-size: 1.05rem; font-weight: 900; letter-spacing: -0.5px; color: #000; line-height: 1; }
+        .brand-logo { width: 34px; height: 34px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .brand-logo svg { width: 34px; height: 34px; }
+        .brand-name { font-size: 1.15rem; font-weight: 900; letter-spacing: -0.5px; color: var(--dark); line-height: 1; }
 
-        .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; flex: 1; justify-content: center; }
+        .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; flex: 1; justify-content: center; }
         .nav-links li a {
             display: flex; align-items: center; justify-content: center;
-            padding: 7px 14px; border-radius: 100px;
-            font-size: 0.82rem; font-weight: 600; color: rgba(0,0,0,.6);
-            text-decoration: none; transition: color .15s, background .15s;
+            padding: 8px 16px; border-radius: 8px;
+            font-size: 0.875rem; font-weight: 600; color: var(--gray);
+            text-decoration: none; transition: color .2s, background .2s;
             white-space: nowrap; line-height: 1;
         }
-        .nav-links li a:hover { color: #000; background: #F2F2F2; }
-        .nav-links li.active a { color: #0C2F75; background: #F2F2F2; font-weight: 700; }
+        .nav-links li a:hover { color: var(--dark); background: var(--bg); }
+        .nav-links li.active a { color: var(--p); background: var(--p10); font-weight: 700; }
 
-        .nav-right { display: flex; align-items: center; gap: 6px; margin-left: auto; padding-right: 4px; }
+        .nav-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
         .user-btn {
-            display: flex; align-items: center; gap: 6px;
-            padding: 4px 10px 4px 4px; border: 1.5px solid #D0D3D9;
+            display: flex; align-items: center; gap: 8px;
+            padding: 5px 12px 5px 5px; border: 1.5px solid var(--border);
             border-radius: 50px; text-decoration: none; cursor: pointer;
-            transition: border-color .15s, background .15s;
+            transition: border-color .2s, background .2s;
         }
-        .user-btn:hover { border-color: #0C2F75; background: #F2F2F2; }
+        .user-btn:hover { border-color: var(--p); background: var(--p10); }
         .u-avatar {
-            width: 26px; height: 26px; border-radius: 50%; background: #fff;
+            width: 28px; height: 28px; border-radius: 50%; background: var(--p);
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem; font-weight: 800; color: #0C2F75; flex-shrink: 0;
+            font-size: 0.7rem; font-weight: 800; color: #fff; flex-shrink: 0;
         }
-        .u-name { font-size: 0.8rem; font-weight: 600; color: #000; }
-        .u-arrow { color: rgba(0,0,0,.4); font-size: 0.55rem; }
+        .u-name { font-size: 0.82rem; font-weight: 600; color: var(--dark); }
+        .u-arrow { color: var(--gray); font-size: 0.55rem; }
 
         .nav-auth-btn {
-            padding: 6px 14px; border-radius: 100px; font-size: 0.8rem; font-weight: 600;
-            color: #000; text-decoration: none; transition: background .15s;
+            padding: 8px 16px; border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+            color: var(--dark); text-decoration: none; transition: background .2s;
         }
-        .nav-auth-btn:hover { background: #F2F2F2; color: #000; }
-        .nav-auth-primary { background: rgb(0,43,127); color: #fff !important; padding: 6px 16px; font-weight: 700; }
-        .nav-auth-primary:hover { opacity: .9; background: rgb(0,43,127); }
+        .nav-auth-btn:hover { background: var(--bg); color: var(--dark); }
+        .nav-auth-primary { background: var(--p); color: #fff !important; padding: 8px 20px; font-weight: 700; border-radius: 8px; }
+        .nav-auth-primary:hover { opacity: .9; background: var(--p-hover); }
 
         /* DROPDOWN */
         .dropdown-menu {
@@ -218,25 +220,25 @@
 
         /* ═══ COMPONENTS ═══ */
         .btn-primary {
-            background: #F2F2F2 !important; border-color: #F2F2F2 !important;
-            color: #000 !important; font-weight: 700; border-radius: 10px;
-            transition: opacity .15s;
+            background: var(--p) !important; border-color: var(--p) !important;
+            color: #fff !important; font-weight: 600; border-radius: 8px;
+            transition: all .2s;
         }
-        .btn-primary:hover { opacity: .85; }
+        .btn-primary:hover { background: var(--p-hover) !important; border-color: var(--p-hover) !important; }
         .btn-accent {
-            background: #F2F2F2; border: none; color: #000;
-            font-weight: 700; border-radius: 10px;
-            padding: 8px 18px; font-size: 0.875rem; cursor: pointer;
-            transition: opacity .15s; text-decoration: none; display: inline-block;
+            background: var(--p); border: none; color: #fff;
+            font-weight: 600; border-radius: 8px;
+            padding: 10px 22px; font-size: 0.875rem; cursor: pointer;
+            transition: all .2s; text-decoration: none; display: inline-block;
         }
-        .btn-accent:hover { opacity: .85; color: #000; }
+        .btn-accent:hover { background: var(--p-hover); color: #fff; }
         .btn-dark {
             background: var(--dark) !important; border-color: var(--dark) !important;
-            border-radius: 10px; font-weight: 700;
+            border-radius: 8px; font-weight: 600;
         }
         .btn-outline-primary {
             color: var(--p) !important; border-color: var(--p) !important;
-            font-weight: 700; border-radius: 10px;
+            font-weight: 600; border-radius: 8px;
         }
         .btn-outline-primary:hover { background: var(--p) !important; color: #fff !important; }
 
@@ -270,7 +272,7 @@
 
         .alert-stack { position: fixed; bottom: 20px; right: 20px; z-index: 9999; min-width: 280px; }
         .alert { border: none; border-radius: 12px; font-size: .875rem; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
-        .alert-success { background: #0C2F75; color: #fff; }
+        .alert-success { background: var(--p); color: #fff; }
         .alert-danger, .alert-error { background: #000; color: #fff; }
         .alert-info { background: var(--p10); color: var(--p); border: 1px solid var(--p20); }
         .alert-warning { background: #D0D3D9; color: #000; }
@@ -279,7 +281,7 @@
 
         /* ═══ FOOTER ═══ */
         .site-footer {
-            background: #0a0a0a; color: rgba(255,255,255,.6); margin-top: 60px;
+            background: #0f172a; color: rgba(255,255,255,.6); margin-top: 60px;
         }
         .footer-inner { max-width: 1300px; margin: 0 auto; padding: 48px 32px 0; }
         .footer-top {
@@ -331,7 +333,7 @@
 <aside class="sidebar" id="sidebar">
     <a class="sb-brand" href="{% url 'dashboard' %}">
         <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-            <rect width="34" height="34" rx="9" fill="#0C2F75"/>
+            <rect width="34" height="34" rx="9" fill="#10b981"/>
             <path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <div>
@@ -406,7 +408,7 @@
 
     <a class="nav-brand" href="{% url 'applications:home' %}">
         <div class="brand-logo">
-            <svg viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0C2F75"/><path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#10b981"/><path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <span class="brand-name">Makon</span>
     </a>
@@ -489,7 +491,7 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <div class="d-flex align-items-center mb-3" style="gap:10px;">
-                    <svg width="32" height="32" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0C2F75"/><path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg width="32" height="32" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#10b981"/><path d="M7 25V10L13.5 19.5L17 14L20.5 19.5L27 10V25" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <div>
                         <div style="font-size:1.1rem;font-weight:900;color:#fff;">Makon</div>
                         <div style="font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.4);">Yotoqxona tizimi</div>

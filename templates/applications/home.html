@@ -4,6 +4,226 @@
 {% block header %}{% endblock %}
 {% block page_sub %}{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ═══ HERO ═══ */
+    .carousel-wrapper { position: relative; }
+    .carousel-container {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        height: 440px;
+    }
+    .carousel-track {
+        display: flex;
+        height: 100%;
+        transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .carousel-slide {
+        min-width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    .carousel-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .slide-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(15,23,42,.7) 0%, rgba(16,185,129,.25) 100%);
+    }
+    .carousel-hero-content {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        z-index: 10;
+        padding: 0 3.5rem;
+        max-width: 640px;
+    }
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #fff;
+        line-height: 1.15;
+        letter-spacing: -1px;
+        margin-bottom: 0.75rem;
+        text-shadow: 0 2px 20px rgba(0,0,0,.2);
+    }
+    .hero-title span {
+        color: #6ee7b7;
+    }
+    .hero-desc {
+        font-size: 1.05rem;
+        color: rgba(255,255,255,.85);
+        line-height: 1.7;
+    }
+
+    /* Hero buttons */
+    .btn-hero-primary {
+        display: inline-flex; align-items: center;
+        padding: 13px 28px; background: var(--p); color: #fff;
+        font-weight: 700; font-size: 0.95rem; border-radius: 10px;
+        text-decoration: none; transition: all .2s;
+        box-shadow: 0 4px 15px rgba(16,185,129,.3);
+    }
+    .btn-hero-primary:hover { background: var(--p-hover); transform: translateY(-2px); box-shadow: 0 6px 25px rgba(16,185,129,.4); color: #fff; }
+    .btn-hero-outline {
+        display: inline-flex; align-items: center;
+        padding: 13px 28px; background: rgba(255,255,255,.12); color: #fff;
+        font-weight: 700; font-size: 0.95rem; border-radius: 10px;
+        border: 1.5px solid rgba(255,255,255,.3); text-decoration: none;
+        transition: all .2s; backdrop-filter: blur(8px);
+    }
+    .btn-hero-outline:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.5); color: #fff; }
+
+    /* Carousel nav */
+    .carousel-btn {
+        position: absolute; top: 50%; transform: translateY(-50%); z-index: 15;
+        width: 44px; height: 44px; border-radius: 12px; border: none;
+        background: rgba(255,255,255,.15); backdrop-filter: blur(10px);
+        color: #fff; font-size: 1rem; cursor: pointer;
+        transition: all .2s;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .carousel-btn:hover { background: rgba(255,255,255,.3); }
+    .carousel-btn-prev { left: 16px; }
+    .carousel-btn-next { right: 16px; }
+    .carousel-dots {
+        position: absolute; bottom: 18px; left: 50%;
+        transform: translateX(-50%); z-index: 15;
+        display: flex; gap: 8px;
+    }
+    .carousel-dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        background: rgba(255,255,255,.35); border: none;
+        cursor: pointer; transition: all .2s; padding: 0;
+    }
+    .carousel-dot.active { background: #fff; transform: scale(1.3); }
+
+    /* ═══ STATS BAR ═══ */
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin: -40px 20px 0;
+        position: relative;
+        z-index: 20;
+    }
+    .stat-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,.06);
+        transition: all .2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+    .stat-icon {
+        width: 40px; height: 40px; border-radius: 10px;
+        background: var(--p10); color: var(--p);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1rem; margin-bottom: 10px;
+    }
+    .stat-num {
+        font-size: 1.5rem; font-weight: 900; color: var(--dark);
+        letter-spacing: -1px; line-height: 1;
+    }
+    .stat-lbl {
+        font-size: .75rem; font-weight: 600; color: var(--gray);
+        margin-top: 4px;
+    }
+
+    /* ═══ INFO CARDS ═══ */
+    .section-heading {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .section-heading h2 {
+        font-size: 1.75rem; font-weight: 900;
+        color: var(--dark); letter-spacing: -.5px; margin-bottom: 8px;
+    }
+    .section-heading p {
+        font-size: .95rem; color: var(--gray); margin: 0;
+    }
+
+    .info-card {
+        background: #fff; border: 1px solid var(--border); border-radius: 14px;
+        padding: 28px 24px; height: 100%;
+        transition: all .25s;
+        position: relative; overflow: hidden;
+    }
+    .info-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0,0,0,.06);
+        border-color: var(--p20);
+    }
+    .info-card-icon {
+        width: 50px; height: 50px; border-radius: 12px;
+        background: var(--p10); display: flex; align-items: center;
+        justify-content: center; font-size: 1.2rem; color: var(--p); margin-bottom: 16px;
+    }
+    .info-card:hover .info-card-icon {
+        background: var(--p); color: #fff;
+    }
+    .info-card-title { font-weight: 800; font-size: 1.05rem; color: var(--dark); margin-bottom: 8px; }
+    .info-card-text { font-size: .875rem; color: var(--gray); line-height: 1.7; margin-bottom: 0; }
+
+    /* ═══ STEPS ═══ */
+    .steps-section {
+        background: #fff; border: 1px solid var(--border); border-radius: 16px;
+        padding: 3rem 2.5rem;
+    }
+    .steps-title { font-weight: 900; font-size: 1.5rem; text-align: center; color: var(--dark); letter-spacing: -.5px; margin-bottom: 6px; }
+    .steps-subtitle { text-align: center; color: var(--gray); font-size: .95rem; margin-bottom: 2.5rem; }
+    .steps-track { position: relative; }
+    .steps-line {
+        position: absolute; top: 52px; left: 20%; right: 20%; height: 2px;
+        background: linear-gradient(90deg, var(--p10), var(--p20), var(--p10));
+    }
+    .step-item { text-align: center; position: relative; }
+    .step-badge {
+        position: absolute; top: -8px; right: calc(50% - 50px);
+        width: 26px; height: 26px; border-radius: 50%;
+        background: var(--p); color: #fff; font-size: .75rem; font-weight: 800;
+        display: flex; align-items: center; justify-content: center; z-index: 2;
+        box-shadow: 0 3px 10px rgba(16,185,129,.3);
+    }
+    .step-icon-box {
+        width: 72px; height: 72px; border-radius: 16px;
+        background: var(--p10); display: inline-flex; align-items: center;
+        justify-content: center; font-size: 1.5rem; color: var(--p);
+        margin-bottom: 14px; position: relative; z-index: 1;
+        transition: all .2s;
+    }
+    .step-item:hover .step-icon-box { background: var(--p); color: #fff; transform: scale(1.05); }
+    .step-name { font-weight: 800; font-size: 1rem; color: var(--dark); margin-bottom: 6px; }
+    .step-desc { font-size: .84rem; color: var(--gray); line-height: 1.6; margin-bottom: 0; max-width: 260px; margin-left: auto; margin-right: auto; }
+
+    /* ═══ MOBILE ═══ */
+    @media (max-width: 768px) {
+        .carousel-container { height: 320px; }
+        .carousel-hero-content { padding: 0 1.5rem; max-width: 100%; }
+        .hero-title { font-size: 1.6rem; }
+        .hero-desc { font-size: .9rem; }
+        .btn-hero-primary, .btn-hero-outline { padding: 10px 20px; font-size: .85rem; }
+        .carousel-btn { width: 36px; height: 36px; font-size: .85rem; }
+        .stats-bar { grid-template-columns: repeat(2, 1fr); margin: -30px 10px 0; gap: 10px; }
+        .stat-card { padding: 14px; }
+        .stat-num { font-size: 1.2rem; }
+        .steps-section { padding: 2rem 1.25rem; }
+        .steps-line { display: none; }
+        .info-card { padding: 20px 18px; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- ═══ CAROUSEL SLIDER ═══ -->
 <div class="carousel-wrapper mb-5" data-aos="fade-up">
@@ -16,13 +236,12 @@
             </div>
             {% empty %}
             <div class="carousel-slide">
-                <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e 0%,#0C2F75 100%);"></div>
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f172a 0%,#065f46 100%);"></div>
                 <div class="slide-overlay"></div>
             </div>
             {% endfor %}
         </div>
 
-        <!-- Hero content ustida -->
         <div class="carousel-hero-content">
             <h1 class="hero-title">Talabalar yotoqxonasiga <br><span>xush kelibsiz!</span></h1>
             <p class="hero-desc">Qulay va zamonaviy yashash joyingizni tanlang. Ariza topshirish oson va tez!</p>
@@ -48,21 +267,46 @@
             </div>
         </div>
 
-        <!-- Carousel navigation -->
         <button class="carousel-btn carousel-btn-prev" onclick="prevSlide()">
             <i class="fas fa-chevron-left"></i>
         </button>
         <button class="carousel-btn carousel-btn-next" onclick="nextSlide()">
             <i class="fas fa-chevron-right"></i>
         </button>
-
-        <!-- Dots -->
         <div class="carousel-dots" id="carouselDots"></div>
     </div>
 </div>
 
+<!-- ═══ STATS BAR ═══ -->
+<div class="stats-bar mb-5" data-aos="fade-up">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-building"></i></div>
+        <div class="stat-num">{{ total_buildings|default:"5" }}+</div>
+        <div class="stat-lbl">Yotoqxona</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-door-open"></i></div>
+        <div class="stat-num">{{ total_rooms|default:"100" }}+</div>
+        <div class="stat-lbl">Xona</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+        <div class="stat-num">{{ total_students|default:"300" }}+</div>
+        <div class="stat-lbl">Talaba</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-star"></i></div>
+        <div class="stat-num">24/7</div>
+        <div class="stat-lbl">Xizmat</div>
+    </div>
+</div>
 
 <!-- ═══ 3 TA INFO KARTALAR ═══ -->
+<div class="section-heading mt-3" data-aos="fade-up">
+    <h2>Nima uchun bizni tanlashadi?</h2>
+    <p>Talabalar uchun eng qulay va xavfsiz muhit</p>
+</div>
+
 <div class="row g-4 mb-5">
     <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
         <div class="info-card">
@@ -71,7 +315,7 @@
             </div>
             <h5 class="info-card-title">Xavfsiz muhit</h5>
             <p class="info-card-text">
-                Yotoqxonalarimiz 24 soatlik qo'riqlash, kirish-chiqish nazorati va video kuzatuv tizimlari bilan jihozlangan.
+                24 soatlik qo'riqlash, kirish-chiqish nazorati va video kuzatuv tizimlari bilan jihozlangan.
             </p>
         </div>
     </div>
@@ -82,7 +326,7 @@
             </div>
             <h5 class="info-card-title">Zamonaviy qulayliklar</h5>
             <p class="info-card-text">
-                Tezkor internet, issiq suv, kir yuvish xonasi, oshxona va dam olish maskanlari. Har bir xona mebel bilan ta'minlangan.
+                Tezkor internet, issiq suv, kir yuvish xonasi, oshxona va dam olish maskanlari.
             </p>
         </div>
     </div>
@@ -93,7 +337,7 @@
             </div>
             <h5 class="info-card-title">O'qish uchun qulay</h5>
             <p class="info-card-text">
-                Tinch muhit, kutubxona va o'quv xonalari. Yotoqxonalar universitetga yaqin joylashgan.
+                Tinch muhit, kutubxona va o'quv xonalari. Universitetga yaqin joylashgan.
             </p>
         </div>
     </div>
@@ -106,14 +350,11 @@
 
     <div class="steps-track">
         <div class="steps-line"></div>
-
         <div class="row g-4">
             <div class="col-md-4" data-aos="zoom-in" data-aos-delay="100">
                 <div class="step-item">
                     <div class="step-badge">1</div>
-                    <div class="step-icon-box">
-                        <i class="fas fa-search"></i>
-                    </div>
+                    <div class="step-icon-box"><i class="fas fa-search"></i></div>
                     <h6 class="step-name">Yotoqxonani tanlang</h6>
                     <p class="step-desc">Yotoqxonalar ro'yxatini ko'ring, narxlar va qulayliklarni solishtiring</p>
                 </div>
@@ -121,9 +362,7 @@
             <div class="col-md-4" data-aos="zoom-in" data-aos-delay="200">
                 <div class="step-item">
                     <div class="step-badge">2</div>
-                    <div class="step-icon-box">
-                        <i class="fas fa-door-open"></i>
-                    </div>
+                    <div class="step-icon-box"><i class="fas fa-door-open"></i></div>
                     <h6 class="step-name">Xonani tanlang</h6>
                     <p class="step-desc">Bo'sh xonalardan o'zingizga mosini tanlang — turi, sig'imi va narxi ko'rsatilgan</p>
                 </div>
@@ -131,9 +370,7 @@
             <div class="col-md-4" data-aos="zoom-in" data-aos-delay="300">
                 <div class="step-item">
                     <div class="step-badge">3</div>
-                    <div class="step-icon-box">
-                        <i class="fas fa-paper-plane"></i>
-                    </div>
+                    <div class="step-icon-box"><i class="fas fa-paper-plane"></i></div>
                     <h6 class="step-name">Ariza yuboring</h6>
                     <p class="step-desc">Ma'lumotlaringizni to'ldiring va ariza yuboring. Admin ko'rib chiqadi</p>
                 </div>
@@ -147,165 +384,6 @@
         </a>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    /* ═══ CAROUSEL ═══ */
-    .carousel-wrapper { position: relative; }
-    .carousel-container {
-        position: relative;
-        border-radius: 24px;
-        overflow: hidden;
-        height: 420px;
-    }
-    .carousel-track {
-        display: flex;
-        height: 100%;
-        transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    .carousel-slide {
-        min-width: 100%;
-        height: 100%;
-        position: relative;
-    }
-    .carousel-slide img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .slide-overlay {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(0,0,0,.65) 0%, rgba(12,47,117,.4) 100%);
-    }
-    .carousel-hero-content {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        transform: translateY(-50%);
-        z-index: 10;
-        padding: 0 3rem;
-        max-width: 620px;
-    }
-    .hero-title {
-        font-size: 2.4rem;
-        font-weight: 900;
-        color: #fff;
-        line-height: 1.15;
-        letter-spacing: -1px;
-        margin-bottom: 0.75rem;
-        text-shadow: 0 2px 20px rgba(0,0,0,.3);
-    }
-    .hero-title span {
-        background: linear-gradient(90deg, #98C1D9, #E0FBFC);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    .hero-desc {
-        font-size: 1.05rem;
-        color: rgba(255,255,255,.85);
-        line-height: 1.6;
-        text-shadow: 0 1px 10px rgba(0,0,0,.3);
-    }
-    .btn-hero-primary {
-        display: inline-flex; align-items: center;
-        padding: 12px 28px; background: #fff; color: var(--p);
-        font-weight: 700; font-size: 0.95rem; border-radius: 12px;
-        text-decoration: none; transition: transform .15s, box-shadow .15s;
-        box-shadow: 0 4px 15px rgba(0,0,0,.15);
-    }
-    .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(0,0,0,.2); color: var(--p); }
-    .btn-hero-outline {
-        display: inline-flex; align-items: center;
-        padding: 12px 28px; background: transparent; color: #fff;
-        font-weight: 700; font-size: 0.95rem; border-radius: 12px;
-        border: 2px solid rgba(255,255,255,.4); text-decoration: none;
-        transition: background .15s, border-color .15s;
-    }
-    .btn-hero-outline:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.7); color: #fff; }
-    .carousel-btn {
-        position: absolute; top: 50%; transform: translateY(-50%); z-index: 15;
-        width: 44px; height: 44px; border-radius: 50%; border: none;
-        background: rgba(255,255,255,.2); backdrop-filter: blur(10px);
-        color: #fff; font-size: 1rem; cursor: pointer;
-        transition: background .2s, transform .2s;
-        display: flex; align-items: center; justify-content: center;
-    }
-    .carousel-btn:hover { background: rgba(255,255,255,.35); transform: translateY(-50%) scale(1.1); }
-    .carousel-btn-prev { left: 16px; }
-    .carousel-btn-next { right: 16px; }
-    .carousel-dots {
-        position: absolute; bottom: 16px; left: 50%;
-        transform: translateX(-50%); z-index: 15;
-        display: flex; gap: 8px;
-    }
-    .carousel-dot {
-        width: 10px; height: 10px; border-radius: 50%;
-        background: rgba(255,255,255,.4); border: none;
-        cursor: pointer; transition: background .2s, transform .2s; padding: 0;
-    }
-    .carousel-dot.active { background: #fff; transform: scale(1.3); }
-
-    /* ═══ INFO CARDS ═══ */
-    .info-card {
-        background: #fff; border: 1.5px solid var(--border); border-radius: 20px;
-        padding: 2rem 1.75rem; height: 100%;
-        transition: transform .25s, box-shadow .25s, border-color .25s;
-        position: relative; overflow: hidden;
-    }
-    .info-card::before {
-        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-        background: linear-gradient(90deg, var(--p), #98C1D9); opacity: 0; transition: opacity .25s;
-    }
-    .info-card:hover { transform: translateY(-6px); box-shadow: 0 12px 35px rgba(12,47,117,.1); border-color: rgba(12,47,117,.15); }
-    .info-card:hover::before { opacity: 1; }
-    .info-card-icon {
-        width: 56px; height: 56px; border-radius: 16px;
-        background: var(--p10); display: flex; align-items: center;
-        justify-content: center; font-size: 1.3rem; color: var(--p); margin-bottom: 1.25rem;
-    }
-    .info-card-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 0.6rem; letter-spacing: -0.3px; }
-    .info-card-text { font-size: 0.88rem; color: #666; line-height: 1.7; margin-bottom: 0; }
-
-    /* ═══ STEPS ═══ */
-    .steps-section { background: #fff; border: 1.5px solid var(--border); border-radius: 24px; padding: 3rem 2.5rem; }
-    .steps-title { font-weight: 900; font-size: 1.5rem; text-align: center; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
-    .steps-subtitle { text-align: center; color: #888; font-size: 0.95rem; margin-bottom: 2.5rem; }
-    .steps-track { position: relative; }
-    .steps-line { position: absolute; top: 52px; left: 20%; right: 20%; height: 2px; background: linear-gradient(90deg, var(--p10), var(--p20), var(--p10)); }
-    .step-item { text-align: center; position: relative; }
-    .step-badge {
-        position: absolute; top: -8px; right: calc(50% - 50px);
-        width: 26px; height: 26px; border-radius: 50%;
-        background: var(--p); color: #fff; font-size: 0.75rem; font-weight: 800;
-        display: flex; align-items: center; justify-content: center; z-index: 2;
-        box-shadow: 0 3px 10px rgba(12,47,117,.3);
-    }
-    .step-icon-box {
-        width: 72px; height: 72px; border-radius: 20px;
-        background: var(--p10); display: inline-flex; align-items: center;
-        justify-content: center; font-size: 1.6rem; color: var(--p);
-        margin-bottom: 1rem; position: relative; z-index: 1;
-        transition: background .2s, transform .2s;
-    }
-    .step-item:hover .step-icon-box { background: var(--p); color: #fff; transform: scale(1.05); }
-    .step-name { font-weight: 800; font-size: 1rem; margin-bottom: 0.4rem; }
-    .step-desc { font-size: 0.84rem; color: #777; line-height: 1.6; margin-bottom: 0; max-width: 260px; margin-left: auto; margin-right: auto; }
-
-    /* ═══ MOBILE ═══ */
-    @media (max-width: 768px) {
-        .carousel-container { height: 320px; }
-        .carousel-hero-content { padding: 0 1.5rem; max-width: 100%; }
-        .hero-title { font-size: 1.5rem; }
-        .hero-desc { font-size: 0.9rem; }
-        .btn-hero-primary, .btn-hero-outline { padding: 10px 20px; font-size: 0.85rem; }
-        .carousel-btn { width: 36px; height: 36px; font-size: 0.85rem; }
-.steps-section { padding: 2rem 1.25rem; }
-        .steps-line { display: none; }
-        .info-card { padding: 1.5rem 1.25rem; }
-    }
-</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -352,7 +430,6 @@
 
     resetAutoplay();
 
-    // Touch/swipe
     var touchStartX = 0;
     var container = document.getElementById('heroCarousel');
     container.addEventListener('touchstart', function(e) {
@@ -364,7 +441,6 @@
             if (diff > 0) nextSlide(); else prevSlide();
         }
     }, {passive: true});
-
 })();
 </script>
 {% endblock %}
