@@ -10,13 +10,13 @@
 
     .reg-card {
         display: grid;
-        grid-template-columns: 400px 440px;
+        grid-template-columns: 400px 480px;
         background: #fff;
         border-radius: 24px;
         overflow: hidden;
         box-shadow: 0 32px 80px rgba(0,0,0,.4);
     }
-    @media(max-width:860px){ .reg-card{ grid-template-columns:1fr; max-width:440px; } }
+    @media(max-width:900px){ .reg-card{ grid-template-columns:1fr; max-width:480px; } }
 
     /* CHAP */
     .lp-left {
@@ -25,7 +25,7 @@
         display: flex; flex-direction: column; justify-content: space-between;
         position: relative; overflow: hidden;
     }
-    @media(max-width:860px){ .lp-left{ display:none; } }
+    @media(max-width:900px){ .lp-left{ display:none; } }
 
     .lp-left::before {
         content: '';
@@ -63,44 +63,17 @@
     .lp-footer { position: relative; z-index: 1; font-size: .72rem; color: rgba(255,255,255,.4); margin-top: 24px; }
 
     /* O'NG */
-    .lp-right { padding: 50px 44px; display: flex; flex-direction: column; justify-content: center; }
+    .lp-right { padding: 44px 44px; display: flex; flex-direction: column; justify-content: center; }
 
     .lp-title { font-size: 1.5rem; font-weight: 900; color: var(--dark); letter-spacing: -.6px; margin-bottom: 6px; }
-    .lp-subtitle { font-size: .85rem; color: #888; margin-bottom: 28px; line-height: 1.5; }
+    .lp-subtitle { font-size: .85rem; color: #888; margin-bottom: 24px; line-height: 1.5; }
 
-    /* TG BUTTON */
-    .tg-main-btn {
-        display: flex; align-items: center; justify-content: center; gap: 12px;
-        width: 100%; padding: 16px;
-        background: #0088cc; border: none; color: #fff;
-        border-radius: 14px; font-size: 1rem; font-weight: 700;
-        font-family: 'Inter', sans-serif; cursor: pointer;
-        text-decoration: none;
-        transition: transform .15s, box-shadow .15s;
-        box-shadow: 0 4px 15px rgba(0,136,204,.3);
+    /* FORM */
+    .f-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
     }
-    .tg-main-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 25px rgba(0,136,204,.4);
-        color: #fff;
-    }
-    .tg-main-btn i { font-size: 1.4rem; }
-
-    .tg-hint {
-        text-align: center; margin-top: 16px;
-        font-size: .82rem; color: #aaa; line-height: 1.6;
-    }
-
-    .or-divider {
-        display: flex; align-items: center; gap: 12px;
-        margin: 28px 0;
-    }
-    .or-divider::before, .or-divider::after {
-        content: ''; flex: 1; height: 1px; background: var(--border);
-    }
-    .or-divider span { font-size: .75rem; color: #bbb; font-weight: 600; }
-
-    /* MINI LOGIN FORM */
     .f-group { margin-bottom: 14px; }
     .f-label {
         display: block; font-size: .72rem; font-weight: 700;
@@ -152,21 +125,21 @@
                 <span class="lp-logo-name">Makon</span>
             </div>
 
-            <h2 class="lp-headline">Telegram orqali<br>30 soniyada ro'yxatdan o'ting</h2>
-            <p class="lp-desc">Hech qanday murakkab forma yo'q. Telegram botimizga telefon raqamingizni yuboring — tayyor!</p>
+            <h2 class="lp-headline">Yotoqxona uchun<br>ro'yxatdan o'ting</h2>
+            <p class="lp-desc">Formani to'ldiring va tizimga kiring. Ariza berish, to'lovlarni kuzatish va boshqa imkoniyatlardan foydalaning.</p>
 
             <div class="tg-steps">
                 <div class="tg-step">
                     <div class="tg-step-num">1</div>
-                    <div class="tg-step-text"><strong>Telegram botni oching</strong> — pastdagi tugmani bosing</div>
+                    <div class="tg-step-text"><strong>Formani to'ldiring</strong> — ism, familiya, login va parol kiriting</div>
                 </div>
                 <div class="tg-step">
                     <div class="tg-step-num">2</div>
-                    <div class="tg-step-text"><strong>"Start" tugmasini bosing</strong> va telefon raqamingizni yuboring</div>
+                    <div class="tg-step-text"><strong>Ro'yxatdan o'ting</strong> — tugmani bosing va tizimga kiring</div>
                 </div>
                 <div class="tg-step">
                     <div class="tg-step-num">3</div>
-                    <div class="tg-step-text"><strong>Login va parol olasiz</strong> — shu bilan saytga kirishingiz mumkin</div>
+                    <div class="tg-step-text"><strong>Arizangizni yuboring</strong> — yotoqxonaga joy olish uchun</div>
                 </div>
             </div>
         </div>
@@ -174,23 +147,10 @@
         <div class="lp-footer">&copy; 2025 Makon &middot; Barcha huquqlar himoyalangan</div>
     </div>
 
-    <!-- O'NG PANEL -->
+    <!-- O'NG PANEL — FORMA -->
     <div class="lp-right">
         <div class="lp-title">Ro'yxatdan o'tish</div>
-        <p class="lp-subtitle">Telegram bot orqali tez va oson</p>
-
-        <!-- ASOSIY — TELEGRAM BOT -->
-        <a href="https://t.me/makon_yotoqxona_bot" target="_blank" class="tg-main-btn">
-            <i class="fab fa-telegram"></i>
-            Telegram bot orqali ro'yxatdan o'tish
-        </a>
-
-        <p class="tg-hint">
-            Bot sizga <strong>login va parol</strong> yuboradi.<br>
-            Shu ma'lumotlar bilan saytga kirasiz.
-        </p>
-
-        <div class="or-divider"><span>Allaqachon ro'yxatdan o'tganmisiz?</span></div>
+        <p class="lp-subtitle">Ma'lumotlaringizni kiriting</p>
 
         {% if messages %}
             {% for msg in messages %}
@@ -198,21 +158,80 @@
             {% endfor %}
         {% endif %}
 
-        <form method="post" action="{% url 'accounts:login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" novalidate>
+        <form method="post" novalidate>
             {% csrf_token %}
-            <div class="f-group">
-                <label class="f-label">Telefon raqam</label>
-                <input class="f-input" type="tel" name="username" placeholder="+998 90 123 45 67" autofocus>
+
+            <!-- Ism va Familiya bir qatorda -->
+            <div class="f-row">
+                <div class="f-group">
+                    <label class="f-label">Ism</label>
+                    <input class="f-input" type="text" name="first_name" placeholder="Ismingiz" value="{{ form.first_name.value|default:'' }}" autofocus>
+                    {% if form.first_name.errors %}
+                        {% for e in form.first_name.errors %}<div class="f-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
+                <div class="f-group">
+                    <label class="f-label">Familiya</label>
+                    <input class="f-input" type="text" name="last_name" placeholder="Familiyangiz" value="{{ form.last_name.value|default:'' }}">
+                    {% if form.last_name.errors %}
+                        {% for e in form.last_name.errors %}<div class="f-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
             </div>
-            <div class="f-group">
-                <label class="f-label">Parol</label>
-                <input class="f-input" type="password" name="password" placeholder="Parolingiz" autocomplete="current-password">
+
+            <!-- Username va Telefon bir qatorda -->
+            <div class="f-row">
+                <div class="f-group">
+                    <label class="f-label">Username</label>
+                    <input class="f-input" type="text" name="username" placeholder="masalan: ali2024" value="{{ form.username.value|default:'' }}">
+                    {% if form.username.errors %}
+                        {% for e in form.username.errors %}<div class="f-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
+                <div class="f-group">
+                    <label class="f-label">Telefon raqam</label>
+                    <input class="f-input" type="tel" name="phone" placeholder="+998 90 123 45 67" value="{{ form.phone.value|default:'' }}">
+                    {% if form.phone.errors %}
+                        {% for e in form.phone.errors %}<div class="f-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
             </div>
-            <button type="submit" class="f-submit">Tizimga kirish</button>
+
+            <!-- Parol va Parol tasdiqlash bir qatorda -->
+            <div class="f-row">
+                <div class="f-group">
+                    <label class="f-label">Parol</label>
+                    <input class="f-input" type="password" name="password1" placeholder="Parol kiriting" autocomplete="new-password">
+                    {% if form.password1.errors %}
+                        {% for e in form.password1.errors %}<div class="f-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
+                <div class="f-group">
+                    <label class="f-label">Parol (qayta)</label>
+                    <input class="f-input" type="password" name="password2" placeholder="Parolni tasdiqlang" autocomplete="new-password">
+                    {% if form.password2.errors %}
+                        {% for e in form.password2.errors %}<div class="f-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <button type="submit" class="f-submit" style="margin-top:4px;">
+                <i class="fas fa-user-plus me-2"></i> Ro'yxatdan o'tish
+            </button>
         </form>
 
-        <div class="f-link">
-            <a href="{% url 'applications:home' %}"><i class="fas fa-arrow-left me-1"></i> Bosh sahifaga qaytish</a>
+        <div class="or-divider" style="display:flex;align-items:center;gap:12px;margin:20px 0 0;">
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+            <span style="font-size:.75rem;color:#bbb;font-weight:600;">Allaqachon hisobingiz bormi?</span>
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+
+        <div class="f-link" style="margin-top:12px;">
+            <a href="{% url 'accounts:login' %}"><i class="fas fa-sign-in-alt me-1"></i> Tizimga kirish</a>
+        </div>
+
+        <div class="f-link" style="margin-top:8px;">
+            <a href="{% url 'applications:home' %}" style="color:#888;font-weight:600;"><i class="fas fa-arrow-left me-1"></i> Bosh sahifaga qaytish</a>
         </div>
     </div>
 

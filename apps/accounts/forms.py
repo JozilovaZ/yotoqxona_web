@@ -40,21 +40,13 @@ class UserForm(UserCreationForm):
 
 
 class PhoneRegistrationForm(forms.Form):
-    """Telefon raqam bilan ro'yxatdan o'tish"""
-    phone = forms.CharField(
-        max_length=20,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': '+998 90 123 45 67',
-            'autofocus': True
-        }),
-        label='Telefon raqam'
-    )
+    """Forma bilan ro'yxatdan o'tish: ism, familiya, username, parol, telefon"""
     first_name = forms.CharField(
         max_length=150,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ism'
+            'placeholder': 'Ismingiz',
+            'autofocus': True
         }),
         label='Ism'
     )
@@ -62,24 +54,46 @@ class PhoneRegistrationForm(forms.Form):
         max_length=150,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Familiya'
+            'placeholder': 'Familiyangiz'
         }),
         label='Familiya'
+    )
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Login (masalan: ali2024)'
+        }),
+        label='Username'
+    )
+    phone = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '+998 90 123 45 67'
+        }),
+        label='Telefon raqam'
     )
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Parol'
+            'placeholder': 'Parol kiriting'
         }),
         label='Parol'
     )
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Parolni tasdiqlang'
+            'placeholder': 'Parolni qayta kiriting'
         }),
         label='Parol (qayta)'
     )
+
+    def clean_username(self):
+        username = self.cleaned_data['username'].strip()
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Bu username allaqachon band")
+        return username
 
     def clean_phone(self):
         phone = self.cleaned_data['phone'].strip().replace(' ', '').replace('-', '')
@@ -92,11 +106,9 @@ class PhoneRegistrationForm(forms.Form):
                 raise forms.ValidationError("Telefon raqam noto'g'ri formatda")
         if not phone.startswith('+'):
             phone = '+' + phone
-        # Tekshirish - faqat raqamlar
         digits = phone.replace('+', '')
         if not digits.isdigit() or len(digits) != 12:
             raise forms.ValidationError("Telefon raqam 12 ta raqamdan iborat bo'lishi kerak (+998XXXXXXXXX)")
-        # Mavjudligini tekshirish
         if User.objects.filter(phone=phone).exists():
             raise forms.ValidationError("Bu telefon raqam allaqachon ro'yxatdan o'tgan")
         return phone
@@ -110,13 +122,12 @@ class PhoneRegistrationForm(forms.Form):
         return cleaned
 
     def save(self):
-        phone = self.cleaned_data['phone']
         user = User.objects.create_user(
-            username=phone,
+            username=self.cleaned_data['username'],
             password=self.cleaned_data['password1'],
             first_name=self.cleaned_data['first_name'],
             last_name=self.cleaned_data['last_name'],
-            phone=phone,
+            phone=self.cleaned_data['phone'],
             role=User.Role.APPLICANT,
         )
         return user
