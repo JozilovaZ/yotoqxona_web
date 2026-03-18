@@ -32,7 +32,7 @@
     .slide-overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(15,23,42,.7) 0%, rgba(16,185,129,.25) 100%);
+        background: linear-gradient(135deg, rgba(0,0,0,.65) 0%, rgba(0,43,127,.4) 100%);
     }
     .carousel-hero-content {
         position: absolute;
@@ -53,7 +53,9 @@
         text-shadow: 0 2px 20px rgba(0,0,0,.2);
     }
     .hero-title span {
-        color: #6ee7b7;
+        background: linear-gradient(90deg, #98C1D9, #E0FBFC);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
     .hero-desc {
         font-size: 1.05rem;
@@ -64,20 +66,20 @@
     /* Hero buttons */
     .btn-hero-primary {
         display: inline-flex; align-items: center;
-        padding: 13px 28px; background: var(--p); color: #fff;
-        font-weight: 700; font-size: 0.95rem; border-radius: 10px;
-        text-decoration: none; transition: all .2s;
-        box-shadow: 0 4px 15px rgba(16,185,129,.3);
+        padding: 12px 28px; background: #fff; color: var(--p);
+        font-weight: 700; font-size: 0.95rem; border-radius: 12px;
+        text-decoration: none; transition: transform .15s, box-shadow .15s;
+        box-shadow: 0 4px 15px rgba(0,0,0,.15);
     }
-    .btn-hero-primary:hover { background: var(--p-hover); transform: translateY(-2px); box-shadow: 0 6px 25px rgba(16,185,129,.4); color: #fff; }
+    .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(0,0,0,.2); color: var(--p); }
     .btn-hero-outline {
         display: inline-flex; align-items: center;
-        padding: 13px 28px; background: rgba(255,255,255,.12); color: #fff;
-        font-weight: 700; font-size: 0.95rem; border-radius: 10px;
-        border: 1.5px solid rgba(255,255,255,.3); text-decoration: none;
-        transition: all .2s; backdrop-filter: blur(8px);
+        padding: 12px 28px; background: transparent; color: #fff;
+        font-weight: 700; font-size: 0.95rem; border-radius: 12px;
+        border: 2px solid rgba(255,255,255,.4); text-decoration: none;
+        transition: background .15s, border-color .15s;
     }
-    .btn-hero-outline:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.5); color: #fff; }
+    .btn-hero-outline:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.7); color: #fff; }
 
     /* Carousel nav */
     .carousel-btn {
@@ -193,7 +195,7 @@
         width: 26px; height: 26px; border-radius: 50%;
         background: var(--p); color: #fff; font-size: .75rem; font-weight: 800;
         display: flex; align-items: center; justify-content: center; z-index: 2;
-        box-shadow: 0 3px 10px rgba(16,185,129,.3);
+        box-shadow: 0 3px 10px rgba(0,43,127,.3);
     }
     .step-icon-box {
         width: 72px; height: 72px; border-radius: 16px;
@@ -236,7 +238,7 @@
             </div>
             {% empty %}
             <div class="carousel-slide">
-                <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f172a 0%,#065f46 100%);"></div>
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e 0%,#002B7F 100%);"></div>
                 <div class="slide-overlay"></div>
             </div>
             {% endfor %}
