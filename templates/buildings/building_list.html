@@ -13,157 +13,207 @@
 {% block extra_css %}
 <style>
 
-.bld-list {
-    display: flex;
-    flex-direction: column;
+/* ── GRID ── */
+.bld-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 16px;
 }
 
 /* ── KARTA ── */
 .bld-card {
-    display: grid;
-    grid-template-columns: 280px 1fr;
     background: #fff;
     border: 1.5px solid var(--border);
-    border-radius: 20px;
+    border-radius: 18px;
     overflow: hidden;
     text-decoration: none;
     color: inherit;
     transition: box-shadow .2s, transform .18s;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
 .bld-card:hover {
-    box-shadow: 0 8px 32px rgba(0,0,0,.09);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,43,127,.1);
+    transform: translateY(-3px);
     color: inherit;
 }
 
 /* ── RASM ── */
+.bld-img-wrap {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    background: #f5f5f5;
+}
 .bld-img {
     width: 100%;
     height: 100%;
-    min-height: 200px;
     object-fit: cover;
     display: block;
+    transition: transform .3s;
+}
+.bld-card:hover .bld-img {
+    transform: scale(1.04);
 }
 .bld-img-placeholder {
     width: 100%;
     height: 100%;
-    min-height: 200px;
-    background: linear-gradient(135deg, var(--p) 0%, #1a4a9e 100%);
+    background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    color: rgba(255,255,255,.6);
+    gap: 8px;
 }
 .bld-img-placeholder i {
-    font-size: 2.5rem;
-    color: rgba(255,255,255,.4);
+    font-size: 2.2rem;
+    color: var(--p);
+    opacity: .4;
 }
 .bld-img-placeholder span {
-    font-size: .75rem;
+    font-size: .72rem;
     font-weight: 600;
-}
-
-/* ── MA'LUMOTLAR ── */
-.bld-info {
-    padding: 24px 28px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.bld-top-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.bld-name {
-    font-size: 1.25rem;
-    font-weight: 900;
-    color: var(--dark);
-    letter-spacing: -.5px;
-    margin-bottom: 5px;
-}
-.bld-addr {
-    font-size: .8rem;
     color: var(--gray);
+}
+
+/* Status badge on image */
+.bld-status {
+    position: absolute;
+    top: 12px;
+    right: 12px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: .68rem;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
 }
-.bld-active-dot {
-    width: 8px; height: 8px;
+.bld-status.active {
+    background: rgba(34,197,94,.15);
+    color: #16a34a;
+}
+.bld-status.inactive {
+    background: rgba(0,0,0,.08);
+    color: #888;
+}
+.bld-status-dot {
+    width: 7px; height: 7px;
     border-radius: 50%;
-    background: #22c55e;
-    flex-shrink: 0;
+    background: currentColor;
 }
-.bld-active-dot.off { background: #D0D3D9; }
 
+/* Edit btn overlay */
 .bld-edit-btn {
-    width: 36px; height: 36px;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 34px; height: 34px;
     border-radius: 10px;
-    border: 1.5px solid var(--border);
-    background: #fff;
+    border: none;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(8px);
     display: flex; align-items: center; justify-content: center;
-    color: var(--gray); font-size: .75rem;
-    flex-shrink: 0;
+    color: var(--dark); font-size: .72rem;
+    cursor: pointer;
     transition: all .15s;
     text-decoration: none;
     z-index: 2;
-    position: relative;
+    opacity: 0;
 }
-.bld-edit-btn:hover { background: var(--p); border-color: var(--p); color: #fff; }
+.bld-card:hover .bld-edit-btn {
+    opacity: 1;
+}
+.bld-edit-btn:hover {
+    background: var(--p);
+    color: #fff;
+}
 
-/* ── STATISTIKALAR ── */
-.bld-stats {
+/* ── MA'LUMOTLAR ── */
+.bld-body {
+    padding: 18px 20px;
+    flex: 1;
     display: flex;
-    gap: 10px;
-    margin-bottom: 18px;
+    flex-direction: column;
+}
+
+.bld-name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -.3px;
+    margin-bottom: 4px;
+}
+.bld-addr {
+    font-size: .78rem;
+    color: var(--gray);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.bld-addr i {
+    font-size: .65rem;
+    color: var(--p);
+}
+
+/* ── STAT PILLS ── */
+.bld-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
 }
 .bld-stat {
     background: var(--bg);
-    border-radius: 12px;
-    padding: 12px 16px;
+    border-radius: 10px;
+    padding: 10px 6px;
     text-align: center;
-    flex: 1;
 }
 .bld-stat-num {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     font-weight: 900;
     color: var(--dark);
     letter-spacing: -.5px;
     line-height: 1;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
 }
 .bld-stat-lbl {
-    font-size: .6rem;
+    font-size: .55rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .5px;
+    letter-spacing: .3px;
     color: var(--gray);
 }
 
-/* ── BANDLIK ── */
-.occ-row {
+/* ── BANDLIK BAR ── */
+.occ-section {
+    margin-top: auto;
+}
+.occ-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 7px;
+    margin-bottom: 6px;
 }
-.occ-title { font-size: .75rem; font-weight: 700; color: var(--gray); }
-.occ-pct { font-size: .82rem; font-weight: 900; color: var(--dark); }
+.occ-label {
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--gray);
+}
+.occ-pct {
+    font-size: .8rem;
+    font-weight: 900;
+    color: var(--dark);
+}
 .occ-bar {
-    height: 8px;
+    height: 6px;
     background: #E8EAED;
     border-radius: 99px;
     overflow: hidden;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
 }
 .occ-fill {
     height: 100%;
@@ -171,23 +221,26 @@
     background: var(--p);
     transition: width .7s cubic-bezier(.25,.8,.25,1);
 }
+.occ-fill.high { background: #DC2626; }
+.occ-fill.mid { background: #D97706; }
 .occ-meta {
     display: flex;
     justify-content: space-between;
-    font-size: .69rem;
+    font-size: .65rem;
     color: var(--gray);
+    font-weight: 600;
 }
 
 /* ── NARX ── */
-.bld-price {
+.bld-price-row {
     display: flex;
-    gap: 16px;
-    margin-top: 14px;
-    padding-top: 14px;
+    gap: 14px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid #F0F0F0;
 }
 .bld-price-item {
-    font-size: .78rem;
+    font-size: .75rem;
     color: var(--gray);
     font-weight: 600;
 }
@@ -203,22 +256,19 @@
     border-radius: 20px;
     padding: 80px 20px;
     text-align: center;
+    grid-column: 1 / -1;
 }
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
-    .bld-card {
+    .bld-grid {
         grid-template-columns: 1fr;
     }
-    .bld-img, .bld-img-placeholder {
-        min-height: 160px;
-        max-height: 200px;
-    }
-    .bld-info {
-        padding: 20px;
+    .bld-img-wrap {
+        height: 160px;
     }
     .bld-stats {
-        flex-wrap: wrap;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 </style>
@@ -226,35 +276,39 @@
 
 {% block content %}
 
-<div class="bld-list">
+<div class="bld-grid">
     {% for building in buildings %}
     <a href="{% url 'buildings:building_detail' building.pk %}" class="bld-card">
 
-        <!-- CHAP: RASM -->
-        {% if building.image %}
-        <img src="{{ building.image.url }}" alt="{{ building.name }}" class="bld-img">
-        {% else %}
-        <div class="bld-img-placeholder">
-            <i class="fas fa-building"></i>
-            <span>Rasm yuklanmagan</span>
-        </div>
-        {% endif %}
+        <!-- RASM -->
+        <div class="bld-img-wrap">
+            {% if building.image %}
+            <img src="{{ building.image.url }}" alt="{{ building.name }}" class="bld-img">
+            {% else %}
+            <div class="bld-img-placeholder">
+                <i class="fas fa-building"></i>
+                <span>Rasm yuklanmagan</span>
+            </div>
+            {% endif %}
 
-        <!-- O'NG: MA'LUMOTLAR -->
-        <div class="bld-info">
-            <div class="bld-top-row">
-                <div>
-                    <div class="bld-name">{{ building.name }}</div>
-                    <div class="bld-addr">
-                        <span class="bld-active-dot {% if not building.is_active %}off{% endif %}"></span>
-                        {{ building.address|default:"Manzil kiritilmagan" }}
-                    </div>
-                </div>
-                {% if request.user.is_superuser %}
-                <span class="bld-edit-btn" onclick="event.preventDefault();event.stopPropagation();window.location='{% url 'buildings:building_update' building.pk %}';" title="Tahrirlash">
-                    <i class="fas fa-pen"></i>
-                </span>
-                {% endif %}
+            <div class="bld-status {% if building.is_active %}active{% else %}inactive{% endif %}">
+                <span class="bld-status-dot"></span>
+                {% if building.is_active %}Faol{% else %}Nofaol{% endif %}
+            </div>
+
+            {% if request.user.is_superuser %}
+            <span class="bld-edit-btn" onclick="event.preventDefault();event.stopPropagation();window.location='{% url 'buildings:building_update' building.pk %}';" title="Tahrirlash">
+                <i class="fas fa-pen"></i>
+            </span>
+            {% endif %}
+        </div>
+
+        <!-- MA'LUMOTLAR -->
+        <div class="bld-body">
+            <div class="bld-name">{{ building.name }}</div>
+            <div class="bld-addr">
+                <i class="fas fa-map-marker-alt"></i>
+                {{ building.address|default:"Manzil kiritilmagan" }}
             </div>
 
             <div class="bld-stats">
@@ -277,38 +331,40 @@
             </div>
 
             {% with cap=building.total_capacity occ=building.occupied_beds %}
-            {% if cap and cap > 0 %}
-                {% widthratio occ cap 100 as pct %}
-                <div class="occ-row">
-                    <span class="occ-title">Bandlik</span>
-                    <span class="occ-pct">{{ pct }}%</span>
-                </div>
-                <div class="occ-bar">
-                    <div class="occ-fill" style="width:{{ pct }}%;"></div>
-                </div>
-                <div class="occ-meta">
-                    <span>{{ occ }} band</span>
-                    <span>{{ cap }} jami joy</span>
-                </div>
-            {% else %}
-                <div class="occ-row">
-                    <span class="occ-title">Bandlik</span>
-                    <span class="occ-pct" style="color:#D0D3D9;">—</span>
-                </div>
-                <div class="occ-bar"><div class="occ-fill" style="width:0%;"></div></div>
-                <div class="occ-meta"><span>Ma'lumot yo'q</span></div>
-            {% endif %}
+            <div class="occ-section">
+                {% if cap and cap > 0 %}
+                    {% widthratio occ cap 100 as pct %}
+                    <div class="occ-header">
+                        <span class="occ-label">Bandlik</span>
+                        <span class="occ-pct">{{ pct }}%</span>
+                    </div>
+                    <div class="occ-bar">
+                        <div class="occ-fill {% if pct >= 80 %}high{% elif pct >= 50 %}mid{% endif %}" style="width:{{ pct }}%;"></div>
+                    </div>
+                    <div class="occ-meta">
+                        <span>{{ occ }} band</span>
+                        <span>{{ cap }} jami joy</span>
+                    </div>
+                {% else %}
+                    <div class="occ-header">
+                        <span class="occ-label">Bandlik</span>
+                        <span class="occ-pct" style="color:#D0D3D9;">—</span>
+                    </div>
+                    <div class="occ-bar"><div class="occ-fill" style="width:0%;"></div></div>
+                    <div class="occ-meta"><span>Ma'lumot yo'q</span></div>
+                {% endif %}
+            </div>
             {% endwith %}
 
             {% if building.monthly_price %}
-            <div class="bld-price">
+            <div class="bld-price-row">
                 <div class="bld-price-item">
-                    <i class="fas fa-calendar-alt me-1" style="font-size:.65rem;"></i>
+                    <i class="fas fa-calendar-alt me-1" style="font-size:.6rem;"></i>
                     Oylik: <strong>{{ building.monthly_price|floatformat:0 }} so'm</strong>
                 </div>
                 {% if building.daily_price %}
                 <div class="bld-price-item">
-                    <i class="fas fa-clock me-1" style="font-size:.65rem;"></i>
+                    <i class="fas fa-clock me-1" style="font-size:.6rem;"></i>
                     Kunlik: <strong>{{ building.daily_price|floatformat:0 }} so'm</strong>
                 </div>
                 {% endif %}
