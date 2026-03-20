@@ -6,13 +6,13 @@
 
 {% block content %}
 <!-- ═══ HEADER ═══ -->
-<div class="dorm-hero" data-aos="fade-up">
+<div class="dorm-hero" data-aos="zoom-in" data-aos-duration="600">
     <h1 class="dorm-hero-title">Yotoqxonalar</h1>
     <p class="dorm-hero-desc">O'zingizga mos yotoqxonani tanlang va ariza topshiring</p>
 </div>
 
 <!-- ═══ SEARCH FILTERS ═══ -->
-<div class="dorm-filters" data-aos="fade-up">
+<div class="dorm-filters" data-aos="fade-down" data-aos-duration="500">
     <div class="dorm-filter-item">
         <i class="fas fa-search"></i>
         <input type="text" id="filterName" placeholder="Nomi bo'yicha qidirish..." autocomplete="off">
@@ -37,7 +37,7 @@
 
 <div class="dorm-grid">
     {% for bd in buildings_data %}
-    <div class="dorm-grid-item" data-name="{{ bd.building.name|lower }}" data-city="{{ bd.building.city|lower }}" data-price="{{ bd.building.monthly_price|default:0 }}" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
+    <div class="dorm-grid-item" data-name="{{ bd.building.name|lower }}" data-city="{{ bd.building.city|lower }}" data-price="{{ bd.building.monthly_price|default:0 }}" data-aos="{% cycle 'fade-right' 'fade-up' 'fade-up' 'fade-left' %}" data-aos-delay="{% widthratio forloop.counter0 1 80 %}" data-aos-duration="700">
         <a href="{% url 'applications:building_detail' bd.building.pk %}" class="text-decoration-none">
             <div class="dorm-card">
                 <div class="dorm-card-img">
