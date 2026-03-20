@@ -5,16 +5,6 @@ from buildings.models import Building, Floor, Room
 
 class ApplicationForm(forms.ModelForm):
     """Talaba ariza formasi"""
-    building = forms.ModelChoiceField(
-        queryset=Building.objects.filter(is_active=True),
-        label="Bino",
-        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_building'})
-    )
-    floor = forms.ModelChoiceField(
-        queryset=Floor.objects.none(),
-        label="Etaj",
-        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_floor'})
-    )
 
     class Meta:
         model = Application
@@ -32,33 +22,24 @@ class ApplicationForm(forms.ModelForm):
             'faculty': forms.TextInput(attrs={'class': 'form-control'}),
             'group': forms.TextInput(attrs={'class': 'form-control'}),
             'course': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'room': forms.Select(attrs={'class': 'form-select', 'id': 'id_room'}),
+            'room': forms.HiddenInput(),
             'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': "Qo'shimcha ma'lumot..."}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['room'].queryset = Room.objects.none()
-
-        if 'building' in self.data:
+        if self.data.get('room'):
             try:
-                building_id = int(self.data.get('building'))
-                self.fields['floor'].queryset = Floor.objects.filter(
-                    building_id=building_id, is_active=True
-                )
+                room_id = int(self.data.get('room'))
+                self.fields['room'].queryset = Room.objects.filter(pk=room_id)
             except (ValueError, TypeError):
-                pass
-
-        if 'floor' in self.data:
-            try:
-                floor_id = int(self.data.get('floor'))
-                self.fields['room'].queryset = Room.objects.filter(
-                    floor_id=floor_id,
-                    is_active=True,
-                    status__in=['available', 'partial']
-                )
-            except (ValueError, TypeError):
-                pass
+                self.fields['room'].queryset = Room.objects.none()
+        elif self.initial.get('room'):
+            room = self.initial['room']
+            room_id = room.pk if hasattr(room, 'pk') else room
+            self.fields['room'].queryset = Room.objects.filter(pk=room_id)
+        else:
+            self.fields['room'].queryset = Room.objects.none()
 
     def clean_room(self):
         room = self.cleaned_data.get('room')

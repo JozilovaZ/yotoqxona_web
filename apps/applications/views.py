@@ -129,6 +129,15 @@ class ApplicationCreateView(LoginRequiredMixin, CreateView):
     form_class = ApplicationForm
     template_name = 'applications/application_form.html'
 
+    def get_preselected_room(self):
+        room_id = self.request.GET.get('room')
+        if room_id:
+            try:
+                return Room.objects.select_related('floor__building').get(pk=room_id)
+            except Room.DoesNotExist:
+                pass
+        return None
+
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.save()
@@ -137,33 +146,24 @@ class ApplicationCreateView(LoginRequiredMixin, CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
-        room_id = self.request.GET.get('room')
-        if room_id:
-            try:
-                room = Room.objects.get(pk=room_id)
-                initial['room'] = room
-                initial['building'] = room.floor.building
-                initial['floor'] = room.floor
-            except Room.DoesNotExist:
-                pass
+        room = self.get_preselected_room()
+        if room:
+            initial['room'] = room
         return initial
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        room_id = self.request.GET.get('room')
-        if room_id:
-            try:
-                room = Room.objects.get(pk=room_id)
-                form.fields['floor'].queryset = Floor.objects.filter(
-                    building=room.floor.building, is_active=True
-                )
-                form.fields['room'].queryset = Room.objects.filter(
-                    floor=room.floor, is_active=True,
-                    status__in=['available', 'partial']
-                )
-            except Room.DoesNotExist:
-                pass
+        room = self.get_preselected_room()
+        if room:
+            form.fields['room'].queryset = Room.objects.filter(pk=room.pk)
         return form
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        room = self.get_preselected_room()
+        if room:
+            ctx['preselected_room'] = room
+        return ctx
 
 
 class MyApplicationsView(LoginRequiredMixin, ListView):
