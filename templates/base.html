@@ -442,9 +442,6 @@
         <li class="{% if 'rooms' in request.path %}active{% endif %}">
             <a href="{% url 'applications:available_rooms' %}">Yotoqxonalar</a>
         </li>
-        <li class="{% if request.resolver_match.url_name == 'apply' %}active{% endif %}">
-            <a href="{% url 'applications:apply' %}">Ariza topshirish</a>
-        </li>
         <li class="{% if request.resolver_match.url_name == 'my_applications' or request.resolver_match.url_name == 'detail' %}active{% endif %}">
             <a href="{% url 'applications:my_applications' %}">Arizalarim</a>
         </li>
@@ -458,7 +455,7 @@
         <li class="{% if 'rooms' in request.path %}active{% endif %}">
             <a href="{% url 'applications:available_rooms' %}">Yotoqxonalar</a>
         </li>
-        <li><a href="{% url 'accounts:register' %}">Ariza topshirish</a></li>
+        <li><a href="{% url 'accounts:register' %}">Ro'yxatdan o'tish</a></li>
         {% endif %}
     </ul>
 
