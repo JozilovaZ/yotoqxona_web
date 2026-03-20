@@ -247,6 +247,74 @@ class BuildingDetailView(BuildingStaffMixin, DetailView):
 
         return context
 
+class BuildingStatsView(BuildingStaffMixin, DetailView):
+    model = Building
+    template_name = 'buildings/building_stats.html'
+    context_object_name = 'building'
+
+    def get_queryset(self):
+        return self.get_buildings_qs()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        building = self.object
+
+        floors_qs = building.floors.filter(is_active=True).order_by('number')
+
+        floor_data = []
+        building_total_capacity = 0
+        building_occupied_beds = 0
+        building_total_rooms = 0
+        building_empty_rooms = 0
+        building_partial_rooms = 0
+        building_full_rooms = 0
+
+        for floor in floors_qs:
+            all_rooms = list(floor.rooms.filter(is_active=True).order_by('number').annotate(
+                current_students=Count('students', filter=Q(students__is_active=True))
+            ))
+            empty_rooms = [r for r in all_rooms if r.current_students == 0]
+            partial_rooms = [r for r in all_rooms if 0 < r.current_students < r.capacity]
+            full_rooms = [r for r in all_rooms if r.current_students >= r.capacity]
+
+            student_count = sum(r.current_students for r in all_rooms)
+            floor_total_capacity = sum(r.capacity for r in all_rooms)
+            floor_occupied = student_count
+
+            building_total_capacity += floor_total_capacity
+            building_occupied_beds += floor_occupied
+            building_total_rooms += len(all_rooms)
+            building_empty_rooms += len(empty_rooms)
+            building_partial_rooms += len(partial_rooms)
+            building_full_rooms += len(full_rooms)
+
+            floor_data.append({
+                'floor': floor,
+                'student_count': student_count,
+                'total_rooms': len(all_rooms),
+                'total_capacity': floor_total_capacity,
+                'occupied_beds': floor_occupied,
+                'all_rooms': all_rooms,
+                'empty_rooms': empty_rooms,
+                'partial_rooms': partial_rooms,
+                'full_rooms': full_rooms,
+            })
+
+        context['floor_data'] = floor_data
+        context['building_total_capacity'] = building_total_capacity
+        context['building_occupied_beds'] = building_occupied_beds
+        context['building_free_beds'] = building_total_capacity - building_occupied_beds
+        context['building_total_rooms'] = building_total_rooms
+        context['building_empty_rooms'] = building_empty_rooms
+        context['building_partial_rooms'] = building_partial_rooms
+        context['building_full_rooms'] = building_full_rooms
+        context['building_occupancy_rate'] = round(
+            (building_occupied_beds / building_total_capacity * 100) if building_total_capacity > 0 else 0
+        )
+
+        return context
+
+
 class BuildingCreateView(SuperuserRequiredMixin, BuildingStaffMixin, CreateView):
     model = Building
     form_class = BuildingForm

@@ -11,6 +11,7 @@ urlpatterns = [
     path('list/', views.BuildingListView.as_view(), name='building_list'),
     path('create/', views.BuildingCreateView.as_view(), name='building_create'),
     path('<int:pk>/', views.BuildingDetailView.as_view(), name='building_detail'),
+    path('<int:pk>/stats/', views.BuildingStatsView.as_view(), name='building_stats'),
     path('<int:pk>/edit/', views.BuildingUpdateView.as_view(), name='building_update'),
     path('<int:pk>/delete/', views.BuildingDeleteView.as_view(), name='building_delete'),
 
