@@ -176,6 +176,11 @@ class BuildingDetailView(BuildingStaffMixin, DetailView):
         floors_qs = building.floors.filter(is_active=True).order_by('number')
 
         floor_data = []
+        building_total_capacity = 0
+        building_occupied_beds = 0
+        building_total_rooms = 0
+        building_empty_rooms = 0
+
         for floor in floors_qs:
             students = list(Student.objects.filter(
                 room__floor=floor, is_active=True
@@ -188,16 +193,46 @@ class BuildingDetailView(BuildingStaffMixin, DetailView):
                     'students': list(room_students),
                 })
 
+            # Har qavatdagi barcha xonalar statistikasi
+            all_rooms = list(floor.rooms.filter(is_active=True).order_by('number').annotate(
+                current_students=Count('students', filter=Q(students__is_active=True))
+            ))
+            empty_rooms = [r for r in all_rooms if r.current_students == 0]
+            partial_rooms = [r for r in all_rooms if 0 < r.current_students < r.capacity]
+            full_rooms = [r for r in all_rooms if r.current_students >= r.capacity]
+
+            floor_total_capacity = floor.total_capacity
+            floor_occupied = floor.occupied_beds
+
+            building_total_capacity += floor_total_capacity
+            building_occupied_beds += floor_occupied
+            building_total_rooms += len(all_rooms)
+            building_empty_rooms += len(empty_rooms)
+
             floor_data.append({
                 'floor': floor,
                 'student_count': len(students),
                 'rooms_grouped': rooms_grouped,
                 'total_rooms': floor.total_rooms,
-                'total_capacity': floor.total_capacity,
-                'occupied_beds': floor.occupied_beds,
+                'total_capacity': floor_total_capacity,
+                'occupied_beds': floor_occupied,
+                'all_rooms': all_rooms,
+                'empty_rooms': empty_rooms,
+                'partial_rooms': partial_rooms,
+                'full_rooms': full_rooms,
             })
 
         context['floor_data'] = floor_data
+
+        # Bino umumiy statistikasi
+        context['building_total_capacity'] = building_total_capacity
+        context['building_occupied_beds'] = building_occupied_beds
+        context['building_free_beds'] = building_total_capacity - building_occupied_beds
+        context['building_total_rooms'] = building_total_rooms
+        context['building_empty_rooms'] = building_empty_rooms
+        context['building_occupancy_rate'] = round(
+            (building_occupied_beds / building_total_capacity * 100) if building_total_capacity > 0 else 0
+        )
 
         # Oxirgi 20 ta talaba (shu bino uchun)
         context['recent_students'] = Student.objects.filter(

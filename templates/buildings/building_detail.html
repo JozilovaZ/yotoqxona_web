@@ -317,6 +317,163 @@
     font-size: 0.82rem;
 }
 
+/* ══ STATS CARD ══ */
+.stats-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+.stats-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.stats-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray);
+}
+.stats-body { padding: 12px 14px; }
+.stats-overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.stat-box {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+}
+.stat-box-val {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1;
+}
+.stat-box-lbl {
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    margin-top: 3px;
+}
+.stat-box.green { background: #E8F5E9; }
+.stat-box.green .stat-box-val { color: #2E7D32; }
+.stat-box.red { background: #FFF3E0; }
+.stat-box.red .stat-box-val { color: #E65100; }
+
+.occupancy-bar-wrap {
+    margin-bottom: 14px;
+}
+.occupancy-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--gray);
+    margin-bottom: 4px;
+}
+.occupancy-bar-bg {
+    height: 8px;
+    background: #EAEAEA;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.occupancy-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--p);
+    transition: width .4s ease;
+}
+
+/* Floor stats accordion */
+.floor-stat-section {
+    border-top: 1px solid #F0F0F0;
+    padding: 10px 0 6px;
+}
+.floor-stat-section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+.floor-stat-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 4px 0;
+}
+.floor-stat-head:hover .floor-stat-name { color: var(--p); }
+.floor-stat-name {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--dark);
+    transition: color .15s;
+}
+.floor-stat-badges {
+    display: flex;
+    gap: 4px;
+}
+.floor-stat-badge {
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.fsb-students { background: var(--p10); color: var(--p); }
+.fsb-empty { background: #E8F5E9; color: #2E7D32; }
+.fsb-full { background: #FFF3E0; color: #E65100; }
+
+.floor-rooms-detail {
+    display: none;
+    padding: 6px 0 2px;
+}
+.floor-rooms-detail.open { display: block; }
+.room-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    font-size: 0.7rem;
+    border-bottom: 1px solid #F8F8F8;
+}
+.room-stat-row:last-child { border-bottom: none; }
+.room-stat-num {
+    font-weight: 800;
+    color: var(--dark);
+    min-width: 50px;
+}
+.room-stat-bar {
+    flex: 1;
+    height: 6px;
+    background: #EAEAEA;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.room-stat-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width .3s ease;
+}
+.room-stat-bar-fill.empty { background: #66BB6A; }
+.room-stat-bar-fill.partial { background: #FFA726; }
+.room-stat-bar-fill.full { background: #EF5350; }
+.room-stat-info {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--gray);
+    min-width: 34px;
+    text-align: right;
+}
+
 /* ══ RESPONSIVE ══ */
 @media(max-width:900px){
     .students-layout { flex-direction: column-reverse; }
@@ -339,6 +496,7 @@
     }
     .rsb-floor-name { display: none; }
     .rsb-count { display: none; }
+    .stats-overview { grid-template-columns: 1fr 1fr; }
 }
 @media(max-width:600px){
     .floor-stats-row { grid-template-columns: 1fr 1fr; }
@@ -531,6 +689,74 @@
                 {% endfor %}
             </div>
         </div>
+
+        <!-- STATISTIKA -->
+        <div class="stats-card">
+            <div class="stats-header">
+                <div class="stats-title"><i class="fas fa-chart-bar me-1"></i> Statistika</div>
+            </div>
+            <div class="stats-body">
+                <!-- Umumiy ko'rsatkichlar -->
+                <div class="stats-overview">
+                    <div class="stat-box">
+                        <div class="stat-box-val">{{ building_occupied_beds }}</div>
+                        <div class="stat-box-lbl">Talabalar</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-val">{{ building_total_rooms }}</div>
+                        <div class="stat-box-lbl">Xonalar</div>
+                    </div>
+                    <div class="stat-box green">
+                        <div class="stat-box-val">{{ building_free_beds }}</div>
+                        <div class="stat-box-lbl">Bo'sh joy</div>
+                    </div>
+                    <div class="stat-box red">
+                        <div class="stat-box-val">{{ building_empty_rooms }}</div>
+                        <div class="stat-box-lbl">Bo'sh xona</div>
+                    </div>
+                </div>
+
+                <!-- Bandlik darajasi -->
+                <div class="occupancy-bar-wrap">
+                    <div class="occupancy-label">
+                        <span>Bandlik</span>
+                        <span>{{ building_occupancy_rate }}%</span>
+                    </div>
+                    <div class="occupancy-bar-bg">
+                        <div class="occupancy-bar-fill" style="width:{{ building_occupancy_rate }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Har qavat bo'yicha -->
+                {% for item in floor_data %}
+                <div class="floor-stat-section">
+                    <div class="floor-stat-head" onclick="toggleFloorDetail(this)">
+                        <span class="floor-stat-name">{{ item.floor.number }}-qavat</span>
+                        <div class="floor-stat-badges">
+                            <span class="floor-stat-badge fsb-students" title="Talabalar">{{ item.student_count }}</span>
+                            {% if item.empty_rooms %}
+                            <span class="floor-stat-badge fsb-empty" title="Bo'sh xonalar">{{ item.empty_rooms|length }}</span>
+                            {% endif %}
+                            {% if item.full_rooms %}
+                            <span class="floor-stat-badge fsb-full" title="To'liq xonalar">{{ item.full_rooms|length }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="floor-rooms-detail">
+                        {% for room in item.all_rooms %}
+                        <div class="room-stat-row">
+                            <span class="room-stat-num">{{ room.number }}-xona</span>
+                            <div class="room-stat-bar">
+                                <div class="room-stat-bar-fill {% if room.current_students == 0 %}empty{% elif room.current_students >= room.capacity %}full{% else %}partial{% endif %}" style="width:{% widthratio room.current_students room.capacity 100 %}%"></div>
+                            </div>
+                            <span class="room-stat-info">{{ room.current_students }}/{{ room.capacity }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
     {% endif %}
 </div>
@@ -545,6 +771,11 @@ function showPanel(panelId, btn) {
     if (panel) panel.classList.add('show');
     document.querySelectorAll('.rsb-link').forEach(l => l.classList.remove('active'));
     if (btn) btn.classList.add('active');
+}
+function toggleFloorDetail(el) {
+    const detail = el.nextElementSibling;
+    detail.classList.toggle('open');
+    el.querySelector('.floor-stat-name').style.color = detail.classList.contains('open') ? 'var(--p)' : '';
 }
 </script>
 {% endblock %}
