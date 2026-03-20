@@ -247,7 +247,7 @@
         <div class="carousel-hero-content">
             <h1 class="hero-title">Talabalar yotoqxonasiga <br><span>xush kelibsiz!</span></h1>
             <p class="hero-desc">Qulay va zamonaviy yashash joyingizni tanlang. Ariza topshirish oson va tez!</p>
-            <div class="d-flex gap-3 mt-4 flex-wrap">
+            <div class="d-flex gap-3 mt-5 pt-2 flex-wrap">
                 <a href="{% url 'applications:available_rooms' %}" class="btn-hero-primary">
                     <i class="fas fa-building me-2"></i> Yotoqxonalarni ko'rish
                 </a>
@@ -393,40 +393,81 @@
 (function() {
     const track = document.getElementById('carouselTrack');
     const dotsContainer = document.getElementById('carouselDots');
-    const slides = track.children;
-    const total = slides.length;
+    const originalSlides = Array.from(track.children);
+    const total = originalSlides.length;
     let current = 0;
     let autoplayTimer;
+    let isTransitioning = false;
 
     if (total <= 1) {
         document.querySelectorAll('.carousel-btn, .carousel-dots').forEach(el => el.style.display = 'none');
         return;
     }
 
+    // Clone first and last slides for infinite loop
+    const firstClone = originalSlides[0].cloneNode(true);
+    const lastClone = originalSlides[total - 1].cloneNode(true);
+    firstClone.classList.add('clone');
+    lastClone.classList.add('clone');
+    track.appendChild(firstClone);
+    track.insertBefore(lastClone, track.firstChild);
+
+    // Start at slide 1 (after the prepended clone)
+    current = 1;
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+
+    // Create dots
     for (let i = 0; i < total; i++) {
         const dot = document.createElement('button');
         dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-        dot.onclick = () => goToSlide(i);
+        dot.onclick = function() { goToSlide(i + 1); };
         dotsContainer.appendChild(dot);
     }
 
-    function goToSlide(index) {
-        current = index;
-        track.style.transform = 'translateX(-' + (current * 100) + '%)';
-        const dots = dotsContainer.children;
-        for (let i = 0; i < dots.length; i++) {
-            dots[i].classList.toggle('active', i === current);
+    function updateDots() {
+        var realIndex = current - 1;
+        if (realIndex < 0) realIndex = total - 1;
+        if (realIndex >= total) realIndex = 0;
+        var dots = dotsContainer.children;
+        for (var i = 0; i < dots.length; i++) {
+            dots[i].classList.toggle('active', i === realIndex);
         }
+    }
+
+    function goToSlide(index) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        current = index;
+        track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        track.style.transform = 'translateX(-' + (current * 100) + '%)';
+        updateDots();
         resetAutoplay();
     }
 
-    window.nextSlide = function() { goToSlide((current + 1) % total); };
-    window.prevSlide = function() { goToSlide((current - 1 + total) % total); };
+    // When transition ends, silently jump if we're on a clone
+    track.addEventListener('transitionend', function() {
+        isTransitioning = false;
+        if (current === 0) {
+            // We're on the last clone (prepended), jump to real last slide
+            track.style.transition = 'none';
+            current = total;
+            track.style.transform = 'translateX(-' + (current * 100) + '%)';
+        } else if (current === total + 1) {
+            // We're on the first clone (appended), jump to real first slide
+            track.style.transition = 'none';
+            current = 1;
+            track.style.transform = 'translateX(-' + (current * 100) + '%)';
+        }
+    });
+
+    window.nextSlide = function() { goToSlide(current + 1); };
+    window.prevSlide = function() { goToSlide(current - 1); };
 
     function resetAutoplay() {
         clearInterval(autoplayTimer);
         autoplayTimer = setInterval(function() {
-            goToSlide((current + 1) % total);
+            goToSlide(current + 1);
         }, 4000);
     }
 
