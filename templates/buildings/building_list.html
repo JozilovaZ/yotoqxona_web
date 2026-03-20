@@ -301,10 +301,12 @@
             </div>
             {% endif %}
 
-            <div class="bld-status {% if building.is_active %}active{% else %}inactive{% endif %}">
+            {% if not building.is_active %}
+            <div class="bld-status inactive">
                 <span class="bld-status-dot"></span>
-                {% if building.is_active %}Faol{% else %}Nofaol{% endif %}
+                Nofaol
             </div>
+            {% endif %}
 
             {% if request.user.is_superuser %}
             <span class="bld-edit-btn" onclick="event.preventDefault();event.stopPropagation();window.location='{% url 'buildings:building_update' building.pk %}';" title="Tahrirlash">
