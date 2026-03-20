@@ -4,23 +4,23 @@
 {% block page_sub %}<p class="page-sub">Talaba kartasi · {{ student.student_id }}</p>{% endblock %}
 {% block page_actions %}
 {% if can_manage %}
-<div style="display:flex;gap:8px;">
+<div style="display:flex;gap:6px;flex-wrap:wrap;">
     <a href="{% url 'students:student_update' student.pk %}" style="
-        display:inline-flex;align-items:center;gap:6px;
-        padding:8px 16px;border-radius:10px;border:1.5px solid var(--border);
-        background:#fff;color:var(--dark);font-weight:700;font-size:.85rem;
+        display:inline-flex;align-items:center;gap:5px;
+        padding:7px 12px;border-radius:8px;border:1.5px solid var(--border);
+        background:#fff;color:var(--dark);font-weight:700;font-size:.78rem;
         text-decoration:none;transition:all .15s;
     " onmouseover="this.style.borderColor='var(--p)';this.style.color='var(--p)';"
        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dark)';">
-        <i class="fas fa-pen"></i> Tahrirlash
+        <i class="fas fa-pen" style="font-size:.65rem;"></i> Tahrirlash
     </a>
-    <a href="{% url 'students:student_transfer' student.pk %}" class="btn-accent" style="
-        display:inline-flex;align-items:center;gap:6px;
-        padding:8px 16px;border-radius:10px;border:none;
-        background:var(--p);color:#fff;font-weight:700;font-size:.85rem;
+    <a href="{% url 'students:student_transfer' student.pk %}" style="
+        display:inline-flex;align-items:center;gap:5px;
+        padding:7px 12px;border-radius:8px;border:none;
+        background:var(--p);color:#fff;font-weight:700;font-size:.78rem;
         text-decoration:none;transition:all .15s;
     " onmouseover="this.style.opacity='.85';" onmouseout="this.style.opacity='1';">
-        <i class="fas fa-right-left"></i> Xona almashtirish
+        <i class="fas fa-right-left" style="font-size:.65rem;"></i> Xona almashtirish
     </a>
 </div>
 {% endif %}
@@ -230,6 +230,49 @@
 }
 .empty-tab i { font-size: 1.8rem; color: #D0D3D9; display: block; margin-bottom: 10px; }
 
+/* ══ RESPONSIVE ══ */
+@media(max-width:600px){
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 14px;
+        padding: 20px 16px;
+        border-radius: 14px;
+    }
+    .profile-avatar { width: 60px; height: 60px; font-size: 1.3rem; border-radius: 16px; }
+    .profile-name { font-size: 1.15rem; }
+    .profile-sub { justify-content: center; font-size: .78rem; gap: 8px; }
+    .stat-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-card { padding: 12px 14px; border-radius: 10px; }
+    .stat-lbl { font-size: .6rem; }
+    .stat-val { font-size: 1.2rem; }
+    .detail-grid { gap: 12px; }
+    .d-panel { border-radius: 12px; }
+    .d-panel-head { padding: 10px 14px; }
+    .info-row { padding: 10px 14px; }
+    .tab-nav { padding: 0 10px; overflow-x: auto; }
+    .tab-btn { padding: 10px 12px; font-size: .75rem; gap: 4px; }
+    .p-tbl { min-width: 400px; }
+    .table-responsive { overflow-x: auto; }
+    .danger-zone {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+        padding: 14px;
+        border-radius: 10px;
+    }
+    .transfer-row { padding: 12px 14px; gap: 10px; }
+}
+@media(max-width:400px){
+    .profile-header { padding: 16px 12px; }
+    .profile-name { font-size: 1rem; }
+    .profile-sub { font-size: .7rem; }
+    .stat-val { font-size: 1rem; }
+    .stat-val .unit { font-size: .65rem; }
+    .tab-btn { padding: 8px 10px; font-size: .7rem; }
+    .info-label { font-size: .68rem; }
+    .info-val { font-size: .78rem; }
+}
 </style>
 {% endblock %}
 
