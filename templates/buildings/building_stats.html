@@ -317,12 +317,34 @@
 
 /* ══ RESPONSIVE ══ */
 @media(max-width:768px) {
-    .top-stats { grid-template-columns: 1fr 1fr; }
-    .charts-row { grid-template-columns: 1fr; }
+    .top-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .charts-row { grid-template-columns: 1fr; gap: 14px; }
     .rooms-grid { grid-template-columns: 1fr; }
+    .top-stat-card { padding: 16px; }
+    .top-stat-val { font-size: 1.4rem; }
+    .chart-card { padding: 18px; }
+    .donut-wrap { width: 130px; height: 130px; }
+    .donut-wrap svg { width: 130px; height: 130px; }
+    .donut-wrap circle { stroke-width: 12; }
+    .donut-bg { cx: 65; cy: 65; r: 52; }
+    .donut-fill { cx: 65; cy: 65; r: 52; }
+    .donut-val { font-size: 1.5rem; }
+    .floor-card-header { padding: 14px 14px; gap: 12px; }
+    .floor-card-meta { flex-wrap: wrap; gap: 8px; }
 }
 @media(max-width:480px) {
-    .top-stats { grid-template-columns: 1fr; }
+    .top-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .top-stat-card { padding: 14px 10px; }
+    .top-stat-icon { width: 36px; height: 36px; font-size: .9rem; }
+    .top-stat-val { font-size: 1.2rem; }
+    .top-stat-lbl { font-size: .6rem; }
+    .floor-card-name { font-size: .88rem; }
+    .floor-card-meta { font-size: .62rem; gap: 6px; }
+    .mini-donut { width: 44px; height: 44px; }
+    .mini-donut svg { width: 44px; height: 44px; }
+    .mini-donut circle { cx: 22; cy: 22; r: 17; }
+    .mini-donut-center { font-size: .65rem; }
+    .room-cell { padding: 10px 12px; }
 }
 </style>
 {% endblock %}

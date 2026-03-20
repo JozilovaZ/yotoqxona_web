@@ -268,8 +268,18 @@
         height: 160px;
     }
     .bld-stats {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, 1fr);
     }
+}
+@media(max-width:400px){
+    .bld-body { padding: 14px 14px; }
+    .bld-name { font-size: .95rem; }
+    .bld-img-wrap { height: 140px; }
+    .bld-stats { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .bld-stat { padding: 8px 4px; }
+    .bld-stat-num { font-size: 1rem; }
+    .bld-price-row { flex-direction: column; gap: 4px; }
+    .empty-bld { padding: 50px 16px; }
 }
 </style>
 {% endblock %}

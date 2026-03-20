@@ -387,7 +387,7 @@
         width: 100%;
         position: static;
         max-height: none;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
     .rsb-list {
         display: flex;
@@ -401,11 +401,23 @@
     }
     .rsb-floor-name { display: none; }
     .rsb-count { display: none; }
+    .rsb-stats-btn { margin: 6px 8px; }
 }
 @media(max-width:600px){
     .floor-stats-row { grid-template-columns: 1fr 1fr; }
-    .table-card { overflow-x: auto; }
-    .compact-table { min-width: 500px; }
+    .table-card { overflow-x: auto; border-radius: 10px; }
+    .compact-table { min-width: 480px; }
+    .floor-actions { gap: 6px; }
+    .floor-act-btn { padding: 5px 10px; font-size: 0.65rem; }
+}
+@media(max-width:400px){
+    .floor-stats-row { gap: 6px; }
+    .floor-stat-mini { padding: 8px 6px; }
+    .floor-stat-mini-val { font-size: 0.95rem; }
+    .floor-stat-mini-lbl { font-size: 0.5rem; }
+    .section-label { font-size: 0.6rem; flex-wrap: wrap; gap: 6px; }
+    .floor-actions { width: 100%; justify-content: flex-end; }
+    .rsb-num { width: 26px; height: 26px; font-size: 0.7rem; }
 }
 </style>
 {% endblock %}

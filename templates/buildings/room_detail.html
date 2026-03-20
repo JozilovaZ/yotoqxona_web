@@ -3,26 +3,26 @@
 {% block page_title %}{{ room.number }}-xona{% endblock %}
 {% block page_sub %}<p class="page-sub">{{ room.floor.building.name }} · {{ room.floor.number }}-qavat</p>{% endblock %}
 {% block page_actions %}
-<div style="display:flex;gap:8px;">
+<div style="display:flex;gap:6px;flex-wrap:wrap;">
     <a href="{% url 'buildings:building_detail' room.floor.building.pk %}" style="
-        display:inline-flex;align-items:center;gap:6px;
-        padding:8px 14px;border-radius:10px;
+        display:inline-flex;align-items:center;gap:5px;
+        padding:7px 12px;border-radius:8px;
         border:1.5px solid var(--border);background:#fff;
-        color:var(--dark);font-size:.82rem;font-weight:700;
+        color:var(--dark);font-size:.78rem;font-weight:700;
         text-decoration:none;transition:all .15s;
     " onmouseover="this.style.borderColor='var(--p)';this.style.color='var(--p)';"
        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dark)';">
-        <i class="fas fa-chevron-left" style="font-size:.7rem;"></i> Bino
+        <i class="fas fa-chevron-left" style="font-size:.65rem;"></i> Bino
     </a>
     {% if can_manage %}
     <a href="{% url 'buildings:room_edit' room.pk %}" style="
-        display:inline-flex;align-items:center;gap:6px;
-        padding:8px 16px;border-radius:10px;
+        display:inline-flex;align-items:center;gap:5px;
+        padding:7px 14px;border-radius:8px;
         background:var(--p);color:#fff;
-        font-size:.82rem;font-weight:700;
+        font-size:.78rem;font-weight:700;
         text-decoration:none;transition:opacity .15s;
     " onmouseover="this.style.opacity='.85';" onmouseout="this.style.opacity='1';">
-        <i class="fas fa-pen"></i> Tahrirlash
+        <i class="fas fa-pen" style="font-size:.65rem;"></i> Tahrirlash
     </a>
     {% endif %}
 </div>
@@ -40,6 +40,16 @@
     align-items: start;
 }
 @media(max-width:780px){ .room-top{ grid-template-columns: 1fr; } }
+@media(max-width:480px){
+    .room-card-head { padding: 18px 16px; }
+    .room-number-big { font-size: 2.2rem; }
+    .room-info-row { padding: 9px 14px; }
+    .ri-label { font-size: .7rem; }
+    .ri-val { font-size: .8rem; }
+    .dp-head { padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
+    .stu-tbl { min-width: 420px; }
+    .detail-panel { overflow-x: auto; }
+}
 
 .room-info-card {
     background: #fff;
