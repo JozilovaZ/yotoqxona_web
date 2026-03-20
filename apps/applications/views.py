@@ -11,6 +11,10 @@ from students.models import Student
 from inventory.models import InventoryItem, InventoryCategory, InventoryItemImage, RoomInventory
 
 
+class DormRulesView(TemplateView):
+    template_name = 'applications/dorm_rules.html'
+
+
 class StudentHomeView(TemplateView):
     """Talaba uchun bosh sahifa (ochiq — login kerak emas)"""
     template_name = 'applications/home.html'
