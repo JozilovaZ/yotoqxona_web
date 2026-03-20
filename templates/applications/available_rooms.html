@@ -63,14 +63,17 @@
                     <p class="dorm-card-desc">{{ bd.building.description|truncatewords:12 }}</p>
                     {% endif %}
 
-                    {% if bd.building.monthly_price > 0 %}
+                    {% if bd.building.monthly_price > 0 or bd.building.daily_price > 0 %}
                     <div class="dorm-card-price">
+                        {% if bd.building.monthly_price > 0 %}
                         {{ bd.building.monthly_price|floatformat:0 }} <span>so'm/oy</span>
-                    </div>
-                    {% endif %}
-                    {% if bd.building.daily_price > 0 %}
-                    <div class="dorm-card-price" style="font-size:0.78rem;">
+                        {% endif %}
+                        {% if bd.building.monthly_price > 0 and bd.building.daily_price > 0 %}
+                        <span class="dorm-price-sep">|</span>
+                        {% endif %}
+                        {% if bd.building.daily_price > 0 %}
                         {{ bd.building.daily_price|floatformat:0 }} <span>so'm/kun</span>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>
@@ -259,6 +262,11 @@
         font-size: 0.65rem;
         font-weight: 400;
         color: #999;
+    }
+    .dorm-price-sep {
+        font-size: 0.75rem !important;
+        color: #ccc !important;
+        margin: 0 4px;
     }
 
     .dorm-card-footer {

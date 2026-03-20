@@ -1,115 +1,332 @@
 {% extends 'base.html' %}
 
 {% block title %}Ariza topshirish{% endblock %}
-{% block header %}Ariza topshirish{% endblock %}
-{% block page_sub %}<p class="page-sub">Yotoqxonaga joylashish uchun ariza to'ldiring</p>{% endblock %}
+{% block header %}{% endblock %}
+{% block page_sub %}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card p-4">
-            <form method="post" id="applicationForm">
-                {% csrf_token %}
+<div class="app-form-wrapper">
+    <form method="post" id="applicationForm">
+        {% csrf_token %}
 
-                {% if form.errors %}
-                <div class="alert alert-danger mb-4" style="background:#fff0f0;color:#dc3545;border:1px solid #fcc;">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    Iltimos, xatolarni to'g'rilang:
-                    <ul class="mb-0 mt-2">
-                    {% for field, errors in form.errors.items %}
-                        {% for error in errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
+        {% if form.errors %}
+        <div class="app-alert app-alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>
+                <strong>Iltimos, xatolarni to'g'rilang:</strong>
+                <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
                     {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
 
-                <!-- Shaxsiy ma'lumotlar -->
-                <h6 class="fw-bold mb-3"><i class="fas fa-user me-2" style="color:var(--p)"></i>Shaxsiy ma'lumotlar</h6>
-                <div class="row g-3 mb-4">
-                    <div class="col-md-4">
-                        <label class="form-label fw-600">Familiya *</label>
-                        {{ form.last_name }}
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-600">Ism *</label>
-                        {{ form.first_name }}
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-600">Otasining ismi</label>
-                        {{ form.middle_name }}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-600">Telefon *</label>
-                        {{ form.phone }}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-600">Talaba ID *</label>
-                        {{ form.student_id }}
-                    </div>
+        <!-- Tanlangan xona ma'lumoti -->
+        {% if preselected_room %}
+        {{ form.room }}
+        <div class="app-room-card">
+            <div class="app-room-card-header">
+                <i class="fas fa-building"></i>
+                <span>{{ preselected_room.floor.building.name }}</span>
+            </div>
+            <div class="app-room-card-body">
+                <div class="app-room-info-item">
+                    <i class="fas fa-layer-group"></i>
+                    <span>{{ preselected_room.floor.number }}-etaj</span>
                 </div>
+                <div class="app-room-info-item">
+                    <i class="fas fa-door-open"></i>
+                    <span>{{ preselected_room.number }}-xona</span>
+                </div>
+                <div class="app-room-info-item">
+                    <i class="fas fa-bed"></i>
+                    <span>{{ preselected_room.get_room_type_display }}</span>
+                </div>
+                <div class="app-room-info-item">
+                    <i class="fas fa-users"></i>
+                    <span>{{ preselected_room.capacity }} kishilik</span>
+                </div>
+                <div class="app-room-info-item app-room-highlight">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ preselected_room.available_beds }} bo'sh joy</span>
+                </div>
+                <div class="app-room-info-item">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>{{ preselected_room.floor.building.monthly_price|floatformat:0 }} so'm/oy</span>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="app-alert app-alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>Iltimos, avval <a href="{% url 'applications:available_rooms' %}">yotoqxonalar ro'yxati</a>dan xona tanlang.</div>
+        </div>
+        {% endif %}
 
-                <!-- O'quv ma'lumotlari -->
-                <h6 class="fw-bold mb-3"><i class="fas fa-graduation-cap me-2" style="color:var(--p)"></i>O'quv ma'lumotlari</h6>
-                <div class="row g-3 mb-4">
-                    <div class="col-md-5">
-                        <label class="form-label fw-600">Fakultet</label>
-                        {{ form.faculty }}
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-600">Guruh</label>
-                        {{ form.group }}
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-600">Kurs</label>
-                        {{ form.course }}
-                    </div>
+        {% if preselected_room %}
+        <!-- Shaxsiy ma'lumotlar -->
+        <div class="app-section">
+            <div class="app-section-title">
+                <i class="fas fa-user"></i> Shaxsiy ma'lumotlar
+            </div>
+            <div class="app-fields">
+                <div class="app-field app-field-third">
+                    <label>Familiya <span>*</span></label>
+                    {{ form.last_name }}
                 </div>
+                <div class="app-field app-field-third">
+                    <label>Ism <span>*</span></label>
+                    {{ form.first_name }}
+                </div>
+                <div class="app-field app-field-third">
+                    <label>Otasining ismi</label>
+                    {{ form.middle_name }}
+                </div>
+                <div class="app-field app-field-half">
+                    <label>Telefon <span>*</span></label>
+                    {{ form.phone }}
+                </div>
+                <div class="app-field app-field-half">
+                    <label>Talaba ID <span>*</span></label>
+                    {{ form.student_id }}
+                </div>
+            </div>
+        </div>
 
-                <!-- Xona ma'lumoti -->
-                {% if preselected_room %}
-                <h6 class="fw-bold mb-3"><i class="fas fa-door-open me-2" style="color:var(--p)"></i>Tanlangan xona</h6>
-                {{ form.room }}
-                <div class="card mb-4 p-3" style="background:var(--p10);border:1px solid var(--p20);">
-                    <div class="d-flex align-items-center gap-3">
-                        <i class="fas fa-info-circle" style="color:var(--p);font-size:1.5rem;"></i>
-                        <div style="font-size:0.95rem;">
-                            <strong>{{ preselected_room.floor.building.name }}</strong> |
-                            {{ preselected_room.floor.number }}-etaj |
-                            <strong>{{ preselected_room.number }}-xona</strong> |
-                            Turi: {{ preselected_room.get_room_type_display }} |
-                            Sig'imi: {{ preselected_room.capacity }} kishilik |
-                            Bo'sh: <strong>{{ preselected_room.available_beds }}</strong> joy |
-                            Oylik: <strong>{{ preselected_room.floor.building.monthly_price|floatformat:0 }} so'm</strong>
-                        </div>
-                    </div>
+        <!-- O'quv ma'lumotlari -->
+        <div class="app-section">
+            <div class="app-section-title">
+                <i class="fas fa-graduation-cap"></i> O'quv ma'lumotlari
+            </div>
+            <div class="app-fields">
+                <div class="app-field app-field-half">
+                    <label>Fakultet</label>
+                    {{ form.faculty }}
                 </div>
-                {% else %}
-                <div class="alert alert-warning mb-4">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Iltimos, avval <a href="{% url 'applications:available_rooms' %}">yotoqxonalar ro'yxati</a>dan xona tanlang.
+                <div class="app-field app-field-quarter">
+                    <label>Guruh</label>
+                    {{ form.group }}
                 </div>
-                {% endif %}
+                <div class="app-field app-field-quarter">
+                    <label>Kurs</label>
+                    {{ form.course }}
+                </div>
+            </div>
+        </div>
 
-                <!-- Xabar -->
-                <h6 class="fw-bold mb-3"><i class="fas fa-comment me-2" style="color:var(--p)"></i>Qo'shimcha</h6>
-                <div class="mb-4">
+        <!-- Qo'shimcha -->
+        <div class="app-section">
+            <div class="app-section-title">
+                <i class="fas fa-comment"></i> Qo'shimcha xabar
+            </div>
+            <div class="app-fields">
+                <div class="app-field" style="flex:1 1 100%;">
                     {{ form.message }}
                 </div>
-
-                <div class="d-flex gap-3">
-                    {% if preselected_room %}
-                    <button type="submit" class="btn btn-accent">
-                        <i class="fas fa-paper-plane me-2"></i> Ariza topshirish
-                    </button>
-                    {% endif %}
-                    <a href="{% url 'applications:available_rooms' %}" class="btn btn-outline-primary">{{ preselected_room|yesno:"Bekor qilish,Xona tanlash" }}</a>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <!-- Tugmalar -->
+        <div class="app-actions">
+            <button type="submit" class="app-btn-submit">
+                <i class="fas fa-paper-plane me-2"></i> Ariza topshirish
+            </button>
+            <a href="{% url 'applications:available_rooms' %}" class="app-btn-cancel">Bekor qilish</a>
+        </div>
+        {% endif %}
+    </form>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .app-form-wrapper {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 0 10px;
+    }
+
+    /* Room card */
+    .app-room-card {
+        background: #fff;
+        border: 1.5px solid var(--p20, #d0d5ff);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .app-room-card-header {
+        background: var(--p, #4f46e5);
+        color: #fff;
+        padding: 12px 18px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .app-room-card-body {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+    }
+    .app-room-info-item {
+        flex: 1 1 33.33%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 18px;
+        font-size: 0.85rem;
+        color: #444;
+        border-bottom: 1px solid #f0f0f0;
+        border-right: 1px solid #f0f0f0;
+    }
+    .app-room-info-item i {
+        color: var(--p, #4f46e5);
+        font-size: 0.8rem;
+        width: 16px;
+        text-align: center;
+    }
+    .app-room-highlight {
+        color: #16a34a;
+        font-weight: 600;
+    }
+    .app-room-highlight i {
+        color: #16a34a !important;
+    }
+
+    /* Sections */
+    .app-section {
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 14px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    .app-section-title {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: var(--p, #4f46e5);
+        padding: 12px 18px;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fafbff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .app-section-title i {
+        font-size: 0.85rem;
+    }
+    .app-fields {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 16px;
+        gap: 12px;
+    }
+    .app-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .app-field label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #555;
+    }
+    .app-field label span {
+        color: #dc3545;
+    }
+    .app-field .form-control,
+    .app-field .form-select {
+        border-radius: 10px;
+        border: 1.5px solid #e0e0e0;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        transition: border-color .2s, box-shadow .2s;
+    }
+    .app-field .form-control:focus,
+    .app-field .form-select:focus {
+        border-color: var(--p, #4f46e5);
+        box-shadow: 0 0 0 3px var(--p10, rgba(79,70,229,.1));
+    }
+    .app-field-third { flex: 1 1 calc(33.33% - 8px); min-width: 140px; }
+    .app-field-half { flex: 1 1 calc(50% - 6px); min-width: 160px; }
+    .app-field-quarter { flex: 1 1 calc(25% - 9px); min-width: 100px; }
+
+    /* Alerts */
+    .app-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+    }
+    .app-alert > i { margin-top: 2px; font-size: 1rem; }
+    .app-alert ul { margin: 6px 0 0; padding-left: 18px; }
+    .app-alert-danger {
+        background: #fff0f0;
+        color: #dc3545;
+        border: 1px solid #fcc;
+    }
+    .app-alert-warning {
+        background: #fff8e1;
+        color: #b8860b;
+        border: 1px solid #ffe0a0;
+    }
+    .app-alert-warning a { color: var(--p, #4f46e5); font-weight: 600; }
+
+    /* Actions */
+    .app-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .app-btn-submit {
+        background: var(--p, #4f46e5);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 11px 28px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: opacity .2s;
+    }
+    .app-btn-submit:hover { opacity: .85; }
+    .app-btn-cancel {
+        background: #fff;
+        color: #666;
+        border: 1.5px solid #ddd;
+        border-radius: 12px;
+        padding: 11px 24px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: border-color .2s;
+    }
+    .app-btn-cancel:hover { border-color: #bbb; color: #444; }
+
+    @media (max-width: 768px) {
+        .app-field-third, .app-field-half, .app-field-quarter {
+            flex: 1 1 100%;
+        }
+        .app-room-info-item {
+            flex: 1 1 50%;
+        }
+        .app-actions {
+            flex-direction: column;
+        }
+        .app-btn-submit, .app-btn-cancel {
+            text-align: center;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
