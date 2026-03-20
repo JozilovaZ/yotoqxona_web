@@ -1,127 +1,406 @@
 {% extends 'base.html' %}
 
 {% block title %}Ariza #{{ application.pk }}{% endblock %}
-{% block header %}Ariza #{{ application.pk }}{% endblock %}
+{% block header %}{% endblock %}
+{% block page_sub %}{% endblock %}
 
 {% block content %}
-<div class="row g-4">
-    <div class="col-lg-8">
-        <div class="card p-4">
-            <!-- Status banner -->
-            <div class="mb-4 p-3 rounded-3" style="
-                background: {% if application.status == 'approved' %}#d1e7dd{% elif application.status == 'rejected' %}#f8d7da{% elif application.status == 'payment_required' %}#fff3cd{% elif application.status == 'paid' %}#cfe2ff{% else %}#e2e3e5{% endif %};
-            ">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fas {% if application.status == 'approved' %}fa-check-circle text-success{% elif application.status == 'rejected' %}fa-times-circle text-danger{% elif application.status == 'payment_required' %}fa-clock text-warning{% elif application.status == 'paid' %}fa-credit-card text-primary{% else %}fa-hourglass-half{% endif %} fa-lg"></i>
-                    <div>
-                        <strong>{{ application.get_status_display }}</strong>
-                        {% if application.status == 'payment_required' and application.payment_amount %}
-                            <br><small>To'lov summasi: <strong>{{ application.payment_amount|floatformat:0 }} so'm</strong></small>
-                        {% endif %}
+<div class="appd-wrapper">
+
+    <!-- Orqaga tugma -->
+    <a href="{% url 'applications:my_applications' %}" class="appd-back">
+        <i class="fas fa-arrow-left"></i> Arizalarimga qaytish
+    </a>
+
+    <!-- Status banner -->
+    <div class="appd-status
+        {% if application.status == 'approved' %}appd-status-success
+        {% elif application.status == 'rejected' %}appd-status-danger
+        {% elif application.status == 'payment_required' %}appd-status-warning
+        {% elif application.status == 'paid' %}appd-status-info
+        {% else %}appd-status-pending{% endif %}">
+        <div class="appd-status-icon">
+            <i class="fas
+                {% if application.status == 'approved' %}fa-check-circle
+                {% elif application.status == 'rejected' %}fa-times-circle
+                {% elif application.status == 'payment_required' %}fa-credit-card
+                {% elif application.status == 'paid' %}fa-receipt
+                {% elif application.status == 'cancelled' %}fa-ban
+                {% else %}fa-clock{% endif %}"></i>
+        </div>
+        <div>
+            <div class="appd-status-text">{{ application.get_status_display }}</div>
+            {% if application.status == 'payment_required' and application.payment_amount %}
+            <div class="appd-status-sub">To'lov summasi: <strong>{{ application.payment_amount|floatformat:0 }} so'm</strong></div>
+            {% endif %}
+            <div class="appd-status-sub">Ariza #{{ application.pk }} &middot; {{ application.created_at|date:"d.m.Y H:i" }}</div>
+        </div>
+    </div>
+
+    <div class="appd-grid">
+        <!-- Chap ustun — ma'lumotlar -->
+        <div class="appd-main">
+            <!-- Xona -->
+            <div class="appd-section">
+                <div class="appd-section-title">
+                    <i class="fas fa-door-open"></i> Tanlangan xona
+                </div>
+                <div class="appd-room-grid">
+                    <div class="appd-room-item">
+                        <span class="appd-room-label">Bino</span>
+                        <span class="appd-room-value">{{ application.room.floor.building.name }}</span>
+                    </div>
+                    <div class="appd-room-item">
+                        <span class="appd-room-label">Etaj</span>
+                        <span class="appd-room-value">{{ application.room.floor.number }}-etaj</span>
+                    </div>
+                    <div class="appd-room-item">
+                        <span class="appd-room-label">Xona</span>
+                        <span class="appd-room-value">{{ application.room.number }}-xona</span>
+                    </div>
+                    <div class="appd-room-item">
+                        <span class="appd-room-label">Turi</span>
+                        <span class="appd-room-value">{{ application.room.get_room_type_display }}</span>
+                    </div>
+                    <div class="appd-room-item">
+                        <span class="appd-room-label">Oylik narx</span>
+                        <span class="appd-room-value appd-price">{{ application.room.floor.building.monthly_price|floatformat:0 }} so'm</span>
+                    </div>
+                    <div class="appd-room-item">
+                        <span class="appd-room-label">Kunlik narx</span>
+                        <span class="appd-room-value appd-price">{{ application.room.floor.building.daily_price|floatformat:0 }} so'm</span>
                     </div>
                 </div>
             </div>
 
-            <h6 class="fw-bold mb-3">Shaxsiy ma'lumotlar</h6>
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <small class="text-muted">Familiya</small>
-                    <div class="fw-600">{{ application.last_name }}</div>
+            <!-- Shaxsiy -->
+            <div class="appd-section">
+                <div class="appd-section-title">
+                    <i class="fas fa-user"></i> Shaxsiy ma'lumotlar
                 </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Ism</small>
-                    <div class="fw-600">{{ application.first_name }}</div>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Otasining ismi</small>
-                    <div class="fw-600">{{ application.middle_name|default:"—" }}</div>
-                </div>
-                <div class="col-md-6">
-                    <small class="text-muted">Telefon</small>
-                    <div class="fw-600">{{ application.phone }}</div>
-                </div>
-                <div class="col-md-6">
-                    <small class="text-muted">Talaba ID</small>
-                    <div class="fw-600">{{ application.student_id }}</div>
+                <div class="appd-info-grid">
+                    <div class="appd-info-item">
+                        <span class="appd-info-label">Familiya</span>
+                        <span class="appd-info-value">{{ application.last_name }}</span>
+                    </div>
+                    <div class="appd-info-item">
+                        <span class="appd-info-label">Ism</span>
+                        <span class="appd-info-value">{{ application.first_name }}</span>
+                    </div>
+                    <div class="appd-info-item">
+                        <span class="appd-info-label">Otasining ismi</span>
+                        <span class="appd-info-value">{{ application.middle_name|default:"—" }}</span>
+                    </div>
+                    <div class="appd-info-item">
+                        <span class="appd-info-label">Telefon</span>
+                        <span class="appd-info-value">{{ application.phone }}</span>
+                    </div>
+                    <div class="appd-info-item">
+                        <span class="appd-info-label">Talaba ID</span>
+                        <span class="appd-info-value">{{ application.student_id }}</span>
+                    </div>
                 </div>
             </div>
 
-            <h6 class="fw-bold mb-3">O'quv ma'lumotlari</h6>
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <small class="text-muted">Fakultet</small>
-                    <div class="fw-600">{{ application.faculty|default:"—" }}</div>
+            <!-- O'quv -->
+            <div class="appd-section">
+                <div class="appd-section-title">
+                    <i class="fas fa-graduation-cap"></i> O'quv ma'lumotlari
                 </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Guruh</small>
-                    <div class="fw-600">{{ application.group|default:"—" }}</div>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Kurs</small>
-                    <div class="fw-600">{{ application.course }}</div>
+                <div class="appd-info-grid">
+                    <div class="appd-info-item">
+                        <span class="appd-info-label">Fakultet</span>
+                        <span class="appd-info-value">{{ application.faculty|default:"—" }}</span>
+                    </div>
+                    <div class="appd-info-item">
+                        <span class="appd-info-label">Guruh</span>
+                        <span class="appd-info-value">{{ application.group|default:"—" }}</span>
+                    </div>
+                    <div class="appd-info-item">
+                        <span class="appd-info-label">Kurs</span>
+                        <span class="appd-info-value">{{ application.course }}</span>
+                    </div>
                 </div>
             </div>
 
             {% if application.message %}
-            <h6 class="fw-bold mb-3">Xabar</h6>
-            <p>{{ application.message }}</p>
+            <div class="appd-section">
+                <div class="appd-section-title">
+                    <i class="fas fa-comment"></i> Qo'shimcha xabar
+                </div>
+                <div class="appd-message">{{ application.message }}</div>
+            </div>
             {% endif %}
 
             {% if application.admin_note %}
-            <h6 class="fw-bold mb-3">Admin izohi</h6>
-            <div class="p-3 rounded-3" style="background:#f8f9fa;">
-                {{ application.admin_note }}
+            <div class="appd-section">
+                <div class="appd-section-title">
+                    <i class="fas fa-user-shield"></i> Admin izohi
+                </div>
+                <div class="appd-message appd-admin-note">{{ application.admin_note }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- O'ng ustun — vaqtlar -->
+        <div class="appd-sidebar">
+            <div class="appd-section">
+                <div class="appd-section-title">
+                    <i class="fas fa-history"></i> Vaqtlar
+                </div>
+                <div class="appd-timeline">
+                    <div class="appd-timeline-item">
+                        <div class="appd-timeline-dot"></div>
+                        <div>
+                            <div class="appd-timeline-label">Topshirilgan</div>
+                            <div class="appd-timeline-value">{{ application.created_at|date:"d.m.Y H:i" }}</div>
+                        </div>
+                    </div>
+                    {% if application.reviewed_at %}
+                    <div class="appd-timeline-item">
+                        <div class="appd-timeline-dot appd-dot-active"></div>
+                        <div>
+                            <div class="appd-timeline-label">Ko'rib chiqilgan</div>
+                            <div class="appd-timeline-value">{{ application.reviewed_at|date:"d.m.Y H:i" }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if application.payment_amount %}
+            <div class="appd-section">
+                <div class="appd-section-title">
+                    <i class="fas fa-money-bill-wave"></i> To'lov
+                </div>
+                <div class="appd-payment-box">
+                    <div class="appd-payment-amount">{{ application.payment_amount|floatformat:0 }} so'm</div>
+                    <span class="appd-payment-status
+                        {% if application.payment_confirmed %}appd-pay-confirmed{% else %}appd-pay-pending{% endif %}">
+                        {% if application.payment_confirmed %}Tasdiqlangan{% else %}Kutilmoqda{% endif %}
+                    </span>
+                </div>
             </div>
             {% endif %}
         </div>
     </div>
-
-    <div class="col-lg-4">
-        <div class="card p-4">
-            <h6 class="fw-bold mb-3">Tanlangan xona</h6>
-            <div class="d-flex flex-column gap-2" style="font-size:0.875rem;">
-                <div class="d-flex justify-content-between">
-                    <span class="text-muted">Bino:</span>
-                    <span class="fw-600">{{ application.room.floor.building.name }}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span class="text-muted">Etaj:</span>
-                    <span class="fw-600">{{ application.room.floor.number }}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span class="text-muted">Xona:</span>
-                    <span class="fw-600">{{ application.room.number }}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span class="text-muted">Turi:</span>
-                    <span class="fw-600">{{ application.room.get_room_type_display }}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span class="text-muted">Oylik:</span>
-                    <span class="fw-bold">{{ application.room.floor.building.monthly_price|floatformat:0 }} so'm</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span class="text-muted">Kunlik:</span>
-                    <span class="fw-bold">{{ application.room.floor.building.daily_price|floatformat:0 }} so'm</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="card p-4 mt-3">
-            <h6 class="fw-bold mb-3">Vaqtlar</h6>
-            <div class="d-flex flex-column gap-2" style="font-size:0.875rem;">
-                <div>
-                    <small class="text-muted">Topshirilgan:</small>
-                    <div class="fw-600">{{ application.created_at|date:"d.m.Y H:i" }}</div>
-                </div>
-                {% if application.reviewed_at %}
-                <div>
-                    <small class="text-muted">Ko'rib chiqilgan:</small>
-                    <div class="fw-600">{{ application.reviewed_at|date:"d.m.Y H:i" }}</div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .appd-wrapper {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    /* Back */
+    .appd-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #888;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color .2s;
+    }
+    .appd-back:hover { color: var(--p, #4f46e5); }
+
+    /* Status banner */
+    .appd-status {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        border-radius: 14px;
+        margin-bottom: 1.25rem;
+    }
+    .appd-status-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    .appd-status-text {
+        font-weight: 800;
+        font-size: 1rem;
+    }
+    .appd-status-sub {
+        font-size: 0.8rem;
+        margin-top: 2px;
+        opacity: .8;
+    }
+    .appd-status-pending { background: #fff3e0; color: #e65100; }
+    .appd-status-pending .appd-status-icon { background: rgba(230,81,0,.12); }
+    .appd-status-warning { background: #fff0f0; color: #dc3545; }
+    .appd-status-warning .appd-status-icon { background: rgba(220,53,69,.12); }
+    .appd-status-info { background: #e3f2fd; color: #0d6efd; }
+    .appd-status-info .appd-status-icon { background: rgba(13,110,253,.12); }
+    .appd-status-success { background: #e8f5e9; color: #198754; }
+    .appd-status-success .appd-status-icon { background: rgba(25,135,84,.12); }
+    .appd-status-danger { background: #fce4ec; color: #c62828; }
+    .appd-status-danger .appd-status-icon { background: rgba(198,40,40,.12); }
+
+    /* Grid */
+    .appd-grid {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 1rem;
+    }
+
+    /* Sections */
+    .appd-section {
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    .appd-section-title {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: var(--p, #4f46e5);
+        padding: 12px 18px;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fafbff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .appd-section-title i { font-size: 0.82rem; }
+
+    /* Room grid */
+    .appd-room-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .appd-room-item {
+        padding: 12px 18px;
+        border-bottom: 1px solid #f5f5f5;
+        border-right: 1px solid #f5f5f5;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .appd-room-label {
+        font-size: 0.72rem;
+        color: #999;
+        font-weight: 500;
+    }
+    .appd-room-value {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #222;
+    }
+    .appd-price { color: var(--p, #4f46e5); }
+
+    /* Info grid */
+    .appd-info-grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .appd-info-item {
+        flex: 1 1 33.33%;
+        padding: 12px 18px;
+        border-bottom: 1px solid #f5f5f5;
+        border-right: 1px solid #f5f5f5;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .appd-info-label {
+        font-size: 0.72rem;
+        color: #999;
+        font-weight: 500;
+    }
+    .appd-info-value {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #222;
+    }
+
+    /* Message */
+    .appd-message {
+        padding: 14px 18px;
+        font-size: 0.88rem;
+        color: #444;
+        line-height: 1.6;
+    }
+    .appd-admin-note {
+        background: #f8f9fa;
+    }
+
+    /* Timeline */
+    .appd-timeline {
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .appd-timeline-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .appd-timeline-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ddd;
+        margin-top: 4px;
+        flex-shrink: 0;
+    }
+    .appd-dot-active {
+        background: var(--p, #4f46e5);
+    }
+    .appd-timeline-label {
+        font-size: 0.72rem;
+        color: #999;
+        font-weight: 500;
+    }
+    .appd-timeline-value {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #222;
+    }
+
+    /* Payment */
+    .appd-payment-box {
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .appd-payment-amount {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #222;
+    }
+    .appd-payment-status {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+    .appd-pay-confirmed { background: #e8f5e9; color: #198754; }
+    .appd-pay-pending { background: #fff3e0; color: #e65100; }
+
+    @media (max-width: 768px) {
+        .appd-grid {
+            grid-template-columns: 1fr;
+        }
+        .appd-room-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .appd-info-item {
+            flex: 1 1 50%;
+        }
+    }
+</style>
 {% endblock %}

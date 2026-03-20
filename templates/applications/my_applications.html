@@ -1,76 +1,270 @@
 {% extends 'base.html' %}
 
 {% block title %}Mening arizalarim{% endblock %}
-{% block header %}Mening arizalarim{% endblock %}
-{% block page_sub %}<p class="page-sub">Siz topshirgan arizalar holati</p>{% endblock %}
-
-{% block page_actions %}
-<a href="{% url 'applications:available_rooms' %}" class="btn btn-accent">
-    <i class="fas fa-plus me-1"></i> Yangi ariza
-</a>
-{% endblock %}
+{% block header %}{% endblock %}
+{% block page_sub %}{% endblock %}
 
 {% block content %}
 {% if not applications %}
-<div class="card p-5 text-center">
-    <i class="fas fa-file-alt fa-3x mb-3" style="color: var(--border)"></i>
+<div class="myapp-empty">
+    <div class="myapp-empty-icon">
+        <i class="fas fa-file-alt"></i>
+    </div>
     <h5>Hali ariza topshirmadingiz</h5>
-    <p class="text-muted mb-3">Bo'sh xonalarni ko'ring va ariza topshiring</p>
-    <a href="{% url 'applications:available_rooms' %}" class="btn btn-accent">Bo'sh xonalarni ko'rish</a>
+    <p>Bo'sh xonalarni ko'ring va ariza topshiring</p>
+    <a href="{% url 'applications:available_rooms' %}" class="myapp-btn-primary">
+        <i class="fas fa-search me-2"></i> Bo'sh xonalarni ko'rish
+    </a>
 </div>
 {% else %}
 
-<div class="card">
-    <table class="tbl">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Xona</th>
-                <th>Sana</th>
-                <th>Holati</th>
-                <th>To'lov</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for app in applications %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>
-                    <span class="fw-bold">{{ app.room }}</span>
-                </td>
-                <td>{{ app.created_at|date:"d.m.Y H:i" }}</td>
-                <td>
-                    {% if app.status == 'pending' %}
-                        <span class="badge" style="background:#fd7e14;">Kutilmoqda</span>
-                    {% elif app.status == 'payment_required' %}
-                        <span class="badge" style="background:#dc3545;">To'lov kutilmoqda</span>
-                    {% elif app.status == 'paid' %}
-                        <span class="badge" style="background:#0d6efd;">To'lov qilindi</span>
-                    {% elif app.status == 'approved' %}
-                        <span class="badge" style="background:#198754;">Tasdiqlandi</span>
-                    {% elif app.status == 'rejected' %}
-                        <span class="badge" style="background:#000;">Rad etildi</span>
-                    {% elif app.status == 'cancelled' %}
-                        <span class="badge" style="background:#6c757d;">Bekor qilindi</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if app.payment_amount %}
-                        {{ app.payment_amount|floatformat:0 }} so'm
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'applications:detail' app.pk %}" class="btn btn-sm btn-outline-primary">
-                        Batafsil
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="myapp-header">
+    <div>
+        <h4 class="myapp-title">Mening arizalarim</h4>
+        <p class="myapp-subtitle">Jami {{ applications|length }} ta ariza</p>
+    </div>
+    <a href="{% url 'applications:available_rooms' %}" class="myapp-btn-primary">
+        <i class="fas fa-plus me-1"></i> Yangi ariza
+    </a>
+</div>
+
+<div class="myapp-list">
+    {% for app in applications %}
+    <a href="{% url 'applications:detail' app.pk %}" class="myapp-card">
+        <div class="myapp-card-left">
+            <div class="myapp-card-icon
+                {% if app.status == 'approved' %}myapp-icon-success
+                {% elif app.status == 'rejected' %}myapp-icon-danger
+                {% elif app.status == 'payment_required' %}myapp-icon-warning
+                {% elif app.status == 'paid' %}myapp-icon-info
+                {% else %}myapp-icon-pending{% endif %}">
+                <i class="fas
+                    {% if app.status == 'approved' %}fa-check
+                    {% elif app.status == 'rejected' %}fa-times
+                    {% elif app.status == 'payment_required' %}fa-credit-card
+                    {% elif app.status == 'paid' %}fa-receipt
+                    {% elif app.status == 'cancelled' %}fa-ban
+                    {% else %}fa-clock{% endif %}"></i>
+            </div>
+            <div class="myapp-card-info">
+                <div class="myapp-card-room">
+                    <i class="fas fa-building"></i>
+                    {{ app.room.floor.building.name }} &mdash; {{ app.room.number }}-xona
+                </div>
+                <div class="myapp-card-meta">
+                    {{ app.room.floor.number }}-etaj &middot; {{ app.room.get_room_type_display }} &middot; {{ app.created_at|date:"d.m.Y H:i" }}
+                </div>
+            </div>
+        </div>
+        <div class="myapp-card-right">
+            <span class="myapp-status
+                {% if app.status == 'approved' %}myapp-st-success
+                {% elif app.status == 'rejected' %}myapp-st-danger
+                {% elif app.status == 'payment_required' %}myapp-st-warning
+                {% elif app.status == 'paid' %}myapp-st-info
+                {% elif app.status == 'cancelled' %}myapp-st-muted
+                {% else %}myapp-st-pending{% endif %}">
+                {% if app.status == 'pending' %}Kutilmoqda
+                {% elif app.status == 'payment_required' %}To'lov kutilmoqda
+                {% elif app.status == 'paid' %}To'lov qilindi
+                {% elif app.status == 'approved' %}Tasdiqlandi
+                {% elif app.status == 'rejected' %}Rad etildi
+                {% elif app.status == 'cancelled' %}Bekor qilindi
+                {% endif %}
+            </span>
+            {% if app.payment_amount %}
+            <span class="myapp-payment">{{ app.payment_amount|floatformat:0 }} so'm</span>
+            {% endif %}
+            <i class="fas fa-chevron-right myapp-arrow"></i>
+        </div>
+    </a>
+    {% endfor %}
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Empty state */
+    .myapp-empty {
+        text-align: center;
+        padding: 4rem 1rem;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    .myapp-empty-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--p10, #eef);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    .myapp-empty-icon i {
+        font-size: 2rem;
+        color: var(--p, #4f46e5);
+    }
+    .myapp-empty h5 {
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 0.5rem;
+    }
+    .myapp-empty p {
+        color: #888;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Header */
+    .myapp-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+    }
+    .myapp-title {
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: #222;
+        margin: 0;
+    }
+    .myapp-subtitle {
+        font-size: 0.82rem;
+        color: #999;
+        margin: 2px 0 0;
+    }
+    .myapp-btn-primary {
+        background: var(--p, #4f46e5);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 22px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: opacity .2s;
+    }
+    .myapp-btn-primary:hover { opacity: .85; color: #fff; }
+
+    /* List */
+    .myapp-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Card */
+    .myapp-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff;
+        border: 1.5px solid #e8e8e8;
+        border-radius: 14px;
+        padding: 16px 20px;
+        text-decoration: none;
+        color: inherit;
+        transition: border-color .2s, box-shadow .2s;
+    }
+    .myapp-card:hover {
+        border-color: var(--p20, #c7c3ff);
+        box-shadow: 0 2px 12px rgba(0,0,0,.06);
+        color: inherit;
+    }
+    .myapp-card-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+    .myapp-card-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+    .myapp-icon-pending { background: #fff3e0; color: #fd7e14; }
+    .myapp-icon-warning { background: #fff0f0; color: #dc3545; }
+    .myapp-icon-info { background: #e3f2fd; color: #0d6efd; }
+    .myapp-icon-success { background: #e8f5e9; color: #198754; }
+    .myapp-icon-danger { background: #fce4ec; color: #c62828; }
+
+    .myapp-card-info {
+        min-width: 0;
+    }
+    .myapp-card-room {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #222;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .myapp-card-room i {
+        color: var(--p, #4f46e5);
+        font-size: 0.75rem;
+    }
+    .myapp-card-meta {
+        font-size: 0.78rem;
+        color: #999;
+        margin-top: 2px;
+    }
+
+    .myapp-card-right {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-shrink: 0;
+    }
+    .myapp-status {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+    .myapp-st-pending { background: #fff3e0; color: #e65100; }
+    .myapp-st-warning { background: #fff0f0; color: #dc3545; }
+    .myapp-st-info { background: #e3f2fd; color: #0d6efd; }
+    .myapp-st-success { background: #e8f5e9; color: #198754; }
+    .myapp-st-danger { background: #fce4ec; color: #c62828; }
+    .myapp-st-muted { background: #f0f0f0; color: #888; }
+
+    .myapp-payment {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #555;
+    }
+    .myapp-arrow {
+        color: #ccc;
+        font-size: 0.7rem;
+    }
+
+    @media (max-width: 768px) {
+        .myapp-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .myapp-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 16px;
+        }
+        .myapp-card-right {
+            width: 100%;
+            justify-content: space-between;
+        }
+        .myapp-arrow { display: none; }
+    }
+</style>
 {% endblock %}
