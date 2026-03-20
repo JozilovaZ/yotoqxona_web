@@ -180,6 +180,8 @@ class BuildingDetailView(BuildingStaffMixin, DetailView):
         building_occupied_beds = 0
         building_total_rooms = 0
         building_empty_rooms = 0
+        building_partial_rooms = 0
+        building_full_rooms = 0
 
         for floor in floors_qs:
             students = list(Student.objects.filter(
@@ -208,6 +210,8 @@ class BuildingDetailView(BuildingStaffMixin, DetailView):
             building_occupied_beds += floor_occupied
             building_total_rooms += len(all_rooms)
             building_empty_rooms += len(empty_rooms)
+            building_partial_rooms += len(partial_rooms)
+            building_full_rooms += len(full_rooms)
 
             floor_data.append({
                 'floor': floor,
@@ -230,6 +234,8 @@ class BuildingDetailView(BuildingStaffMixin, DetailView):
         context['building_free_beds'] = building_total_capacity - building_occupied_beds
         context['building_total_rooms'] = building_total_rooms
         context['building_empty_rooms'] = building_empty_rooms
+        context['building_partial_rooms'] = building_partial_rooms
+        context['building_full_rooms'] = building_full_rooms
         context['building_occupancy_rate'] = round(
             (building_occupied_beds / building_total_capacity * 100) if building_total_capacity > 0 else 0
         )
