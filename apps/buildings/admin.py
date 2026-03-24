@@ -19,7 +19,7 @@ class FloorInline(admin.TabularInline):
     """Bino ichida etajlarni ko'rsatish"""
     model = Floor
     extra = 0
-    fields = ('number', 'description', 'is_active')
+    fields = ('number', 'gender', 'description', 'is_active')
     show_change_link = True
 
 
@@ -69,14 +69,20 @@ class BuildingAdmin(BuildingFilterMixin, admin.ModelAdmin):
 class FloorAdmin(BuildingFilteredFormMixin, admin.ModelAdmin):
     building_filter_field = 'building'
 
-    list_display = ('full_name', 'building', 'count_rooms', 'empty_rooms_count', 'is_active')
-    list_filter = ('building', 'is_active')
+    list_display = ('full_name', 'building', 'gender_display', 'count_rooms', 'empty_rooms_count', 'is_active')
+    list_filter = ('building', 'gender', 'is_active')
     ordering = ('building', 'number')
     inlines = [RoomInline]
 
     def full_name(self, obj):
         return str(obj)
     full_name.short_description = "Etaj nomi"
+
+    def gender_display(self, obj):
+        if obj.gender == 'female':
+            return format_html('<span style="color:#e91e63;font-weight:600;">&#9792; Ayollar</span>')
+        return format_html('<span style="color:#1976d2;font-weight:600;">&#9794; Erkaklar</span>')
+    gender_display.short_description = "Jinsi"
 
     def count_rooms(self, obj):
         return obj.total_rooms

@@ -304,7 +304,7 @@ class ConfirmPaymentView(LoginRequiredMixin, View):
 
 def get_floors_json(request, building_id):
     floors = Floor.objects.filter(building_id=building_id, is_active=True).order_by('number')
-    data = [{'id': f.id, 'number': f.number} for f in floors]
+    data = [{'id': f.id, 'number': f.number, 'gender': f.gender, 'gender_label': f.get_gender_display()} for f in floors]
     return JsonResponse(data, safe=False)
 
 

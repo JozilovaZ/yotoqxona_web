@@ -72,6 +72,11 @@ class Building(models.Model):
 
 class Floor(models.Model):
     """Etaj"""
+
+    class Gender(models.TextChoices):
+        MALE = 'male', 'Erkaklar'
+        FEMALE = 'female', 'Ayollar'
+
     building = models.ForeignKey(
         Building,
         on_delete=models.CASCADE,
@@ -79,6 +84,12 @@ class Floor(models.Model):
         verbose_name="Bino"
     )
     number = models.PositiveIntegerField(verbose_name="Etaj raqami")
+    gender = models.CharField(
+        max_length=10,
+        choices=Gender.choices,
+        default=Gender.MALE,
+        verbose_name="Jinsi"
+    )
     description = models.TextField(blank=True, verbose_name="Tavsif")
     is_active = models.BooleanField(default=True, verbose_name="Faol")
 

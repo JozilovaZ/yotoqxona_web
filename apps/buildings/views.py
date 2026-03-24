@@ -533,7 +533,7 @@ class RoomDeleteView(ManagePermissionMixin, BuildingStaffMixin, DeleteView):
 # API Views
 @login_required
 def get_floors_api(request, building_id):
-    floors = Floor.objects.filter(building_id=building_id, is_active=True).values('id', 'number')
+    floors = Floor.objects.filter(building_id=building_id, is_active=True).values('id', 'number', 'gender')
     return JsonResponse(list(floors), safe=False)
 
 

@@ -488,6 +488,11 @@
         <div class="floor-panel" id="floor-panel-{{ item.floor.id }}" data-floor-id="{{ item.floor.id }}">
             <div class="section-label" style="display:flex;align-items:center;">
                 <i class="fas fa-layer-group me-1"></i> {{ item.floor.number }}-qavat
+                {% if item.floor.gender == 'female' %}
+                <span style="background:#fce4ec;color:#e91e63;padding:2px 8px;border-radius:6px;font-size:0.62rem;margin-left:8px;"><i class="fas fa-venus"></i> Ayollar</span>
+                {% else %}
+                <span style="background:#e3f2fd;color:#1976d2;padding:2px 8px;border-radius:6px;font-size:0.62rem;margin-left:8px;"><i class="fas fa-mars"></i> Erkaklar</span>
+                {% endif %}
                 {% if can_manage %}
                 <div class="floor-actions">
                     <a href="{% url 'buildings:room_create' item.floor.pk %}" class="floor-act-btn primary">
@@ -606,7 +611,11 @@
                 <div class="rsb-link" data-target="floor-panel-{{ item.floor.id }}" onclick="showPanel('floor-panel-{{ item.floor.id }}', this)">
                     <div class="rsb-num">{{ item.floor.number }}</div>
                     <span class="rsb-floor-name">{{ item.floor.number }}-qavat</span>
-                    <span class="rsb-count">{{ item.student_count }}</span>
+                    {% if item.floor.gender == 'female' %}
+                    <span class="rsb-count" style="background:#fce4ec;color:#e91e63;" title="Ayollar"><i class="fas fa-venus" style="font-size:0.6rem;"></i> {{ item.student_count }}</span>
+                    {% else %}
+                    <span class="rsb-count" style="background:#e3f2fd;color:#1976d2;" title="Erkaklar"><i class="fas fa-mars" style="font-size:0.6rem;"></i> {{ item.student_count }}</span>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>

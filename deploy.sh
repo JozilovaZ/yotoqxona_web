@@ -15,3 +15,4 @@ docker compose up -d --build
 
 echo "=== Deploy complete ==="
 docker compose ps
+

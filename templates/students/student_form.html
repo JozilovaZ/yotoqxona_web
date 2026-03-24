@@ -69,6 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const floorSelect = document.getElementById('id_floor');
     const roomSelect = document.getElementById('id_room');
 
+    // Talaba jinsini olish
+    const genderSelect = document.getElementById('id_gender');
+
+    function getGenderLabel(gender) {
+        return gender === 'female' ? '♀ Ayollar' : '♂ Erkaklar';
+    }
+
     // 1. Bino o'zgarganda qavatlarni yuklash
     buildingSelect.addEventListener('change', function() {
         const buildingId = this.value;
@@ -79,14 +86,29 @@ document.addEventListener('DOMContentLoaded', function() {
             fetch(`/buildings/api/floors/${buildingId}/`)
                 .then(res => res.json())
                 .then(data => {
+                    const studentGender = genderSelect ? genderSelect.value : '';
                     data.forEach(floor => {
-                        const option = new Option(`${floor.number}-qavat`, floor.id);
+                        const label = `${floor.number}-qavat (${getGenderLabel(floor.gender)})`;
+                        const option = new Option(label, floor.id);
+                        if (studentGender && floor.gender !== studentGender) {
+                            option.disabled = true;
+                            option.text += ' — mos emas';
+                        }
                         floorSelect.add(option);
                     });
                 })
                 .catch(err => console.error("Qavat yuklashda xato:", err));
         }
     });
+
+    // Jins o'zgarganda etajlarni qayta yuklash
+    if (genderSelect) {
+        genderSelect.addEventListener('change', function() {
+            if (buildingSelect.value) {
+                buildingSelect.dispatchEvent(new Event('change'));
+            }
+        });
+    }
 
     // 2. Qavat o'zgarganda FAQAT SHU QAVAT xonalarini yuklash
     floorSelect.addEventListener('change', function() {

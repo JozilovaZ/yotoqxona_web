@@ -24,9 +24,10 @@ class BuildingForm(forms.ModelForm):
 class FloorForm(forms.ModelForm):
     class Meta:
         model = Floor
-        fields = ['number', 'description', 'is_active']
+        fields = ['number', 'gender', 'description', 'is_active']
         widgets = {
             'number': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Etaj raqami', 'min': 1}),
+            'gender': forms.Select(attrs={'class': 'form-select'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Tavsif'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }

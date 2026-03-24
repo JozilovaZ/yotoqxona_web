@@ -82,11 +82,24 @@ class StudentForm(forms.ModelForm):
 
     def clean_room(self):
         room = self.cleaned_data.get('room')
+        gender = self.cleaned_data.get('gender')
         if room:
             if self.instance.pk and self.instance.room == room:
+                # Jinsni hali ham tekshiramiz
+                if gender and room.floor.gender != gender:
+                    gender_label = 'Ayollar' if room.floor.gender == 'female' else 'Erkaklar'
+                    raise forms.ValidationError(
+                        f"Bu etaj faqat {gender_label} uchun! Talaba jinsiga mos etajni tanlang."
+                    )
                 return room
             if hasattr(room, 'available_beds') and room.available_beds <= 0:
                 raise forms.ValidationError("Ushbu xonada bo'sh joy qolmagan!")
+            # Talaba jinsi va etaj jinsi mosligini tekshirish
+            if gender and room.floor.gender != gender:
+                gender_label = 'Ayollar' if room.floor.gender == 'female' else 'Erkaklar'
+                raise forms.ValidationError(
+                    f"Bu etaj faqat {gender_label} uchun! Talaba jinsiga mos etajni tanlang."
+                )
         return room
 
 
@@ -146,4 +159,10 @@ class StudentTransferForm(forms.Form):
                 raise forms.ValidationError("Bu xonada bo'sh joy yo'q")
             if self.student and room == self.student.room:
                 raise forms.ValidationError("Talaba hozirda ham shu xonada yashaydi")
+            # Talaba jinsi va etaj jinsi mosligini tekshirish
+            if self.student and room.floor.gender != self.student.gender:
+                gender_label = 'Ayollar' if room.floor.gender == 'female' else 'Erkaklar'
+                raise forms.ValidationError(
+                    f"Bu etaj faqat {gender_label} uchun! Talaba jinsiga mos etajni tanlang."
+                )
         return room
