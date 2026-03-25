@@ -127,6 +127,38 @@
 }
 .ph-link:hover { opacity: 1; }
 
+/* ══════ DONUT ══════ */
+.donut-panel {
+    margin-bottom: 16px;
+}
+.donut-section {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 28px 20px;
+}
+.donut-wrap {
+    position: relative; width: 180px; height: 180px; margin-bottom: 20px;
+}
+.donut-wrap svg { transform: rotate(-90deg); }
+.donut-bg { fill: none; stroke: #E8EAED; stroke-width: 14; }
+.donut-fill {
+    fill: none; stroke: var(--p); stroke-width: 14; stroke-linecap: round;
+    transition: stroke-dashoffset .8s cubic-bezier(.25,.8,.25,1);
+}
+.donut-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+}
+.donut-pct { font-size: 2.4rem; font-weight: 900; color: var(--dark); letter-spacing: -2px; line-height: 1; }
+.donut-pct-label { font-size: .72rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; }
+.donut-stats {
+    display: flex; gap: 28px;
+}
+.donut-stat { text-align: center; }
+.donut-stat-val { font-size: 1.6rem; font-weight: 900; color: var(--dark); letter-spacing: -1px; }
+.donut-stat-lbl { font-size: .65rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+
 /* ══════ BUILDINGS TABLE ══════ */
 .bld-tbl { width: 100%; border-collapse: collapse; }
 .bld-tbl th {
@@ -291,6 +323,9 @@
     .kpi-val { font-size: 1.3rem; letter-spacing: -1px; }
     .kpi-lbl { font-size: .58rem; }
     .kpi-ico { width: 36px; height: 36px; font-size: .85rem; }
+    .donut-wrap { width: 140px; height: 140px; }
+    .donut-pct { font-size: 1.8rem; }
+    .donut-stats { gap: 18px; }
     .qs-card { padding: 12px; gap: 8px; }
     .qs-val { font-size: 1.1rem; }
     .qs-ico { width: 32px; height: 32px; font-size: .8rem; }
@@ -366,6 +401,42 @@
         </div>
     </div>
 
+</div>
+
+<!-- ══════════════ DONUT DIAGRAMMA ══════════════ -->
+<div class="panel donut-panel">
+    <div class="panel-head">
+        <div>
+            <div class="ph-title">Bandlik darajasi</div>
+            <div class="ph-sub">Band joylar monitoringi</div>
+        </div>
+    </div>
+    <div class="donut-section">
+        <div class="donut-wrap">
+            <svg viewBox="0 0 180 180" width="180" height="180">
+                <circle class="donut-bg" cx="90" cy="90" r="72"/>
+                <circle class="donut-fill" cx="90" cy="90" r="72"
+                    stroke-dasharray="452.4"
+                    stroke-dashoffset="452.4"
+                    data-rate="{{ occupancy_rate }}"
+                />
+            </svg>
+            <div class="donut-center">
+                <span class="donut-pct">{{ occupancy_rate }}%</span>
+                <span class="donut-pct-label">To'liq</span>
+            </div>
+        </div>
+        <div class="donut-stats">
+            <div class="donut-stat">
+                <div class="donut-stat-val" style="color:var(--p);">{{ occupied_beds }}</div>
+                <div class="donut-stat-lbl">Band joylar</div>
+            </div>
+            <div class="donut-stat">
+                <div class="donut-stat-val">{{ free_beds }}</div>
+                <div class="donut-stat-lbl">Bo'sh joylar</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ══════════════ QUICK STATS ══════════════ -->
@@ -532,6 +603,14 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
+    // Donut chart animation
+    document.querySelectorAll('.donut-fill').forEach(function(el){
+        var rate = parseFloat(el.dataset.rate) || 0;
+        var circ = 2 * Math.PI * 72;
+        var offset = circ - (circ * rate / 100);
+        setTimeout(function(){ el.style.strokeDashoffset = offset; }, 200);
+    });
+
     // Search
     var searchInput = document.getElementById('dashSearch');
     if(searchInput){
