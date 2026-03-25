@@ -16,7 +16,10 @@ from .forms import BuildingForm, FloorForm, RoomForm
 from students.models import Student
 from finance.models import Payment, Invoice
 from attendance.models import Attendance
+from accounts.models import User
 from accounts.view_mixins import BuildingStaffMixin, ManagePermissionMixin, SuperuserRequiredMixin
+
+import datetime
 
 
 class DashboardView(BuildingStaffMixin, TemplateView):
@@ -44,6 +47,18 @@ class DashboardView(BuildingStaffMixin, TemplateView):
         context['total_rooms'] = rooms_qs.count()
         context['total_students'] = students_qs.count()
 
+        # Etajlar soni
+        floor_filter = {}
+        if not user.is_superuser and user.building_id:
+            floor_filter = {'building_id': user.building_id}
+        context['total_floors'] = Floor.objects.filter(is_active=True, **floor_filter).count()
+
+        # Xodimlar soni
+        staff_filter = {'role__in': ['admin', 'manager', 'staff']}
+        if not user.is_superuser and user.building_id:
+            staff_filter['building_id'] = user.building_id
+        context['staff_count'] = User.objects.filter(**staff_filter).count()
+
         # Xonalar statistikasi
         total_capacity = rooms_qs.aggregate(total=Sum('capacity'))['total'] or 0
         context['total_capacity'] = total_capacity
@@ -64,6 +79,11 @@ class DashboardView(BuildingStaffMixin, TemplateView):
         if student_bld_filter:
             payment_filter['student__room__floor__building_id'] = user.building_id
             invoice_filter['student__room__floor__building_id'] = user.building_id
+
+        # Umumiy tushum (jami)
+        context['total_collected_all'] = Payment.objects.filter(
+            **payment_filter
+        ).aggregate(total=Sum('amount'))['total'] or 0
 
         # Moliya - bu oy
         context['total_collected_month'] = Payment.objects.filter(
@@ -113,6 +133,7 @@ class DashboardView(BuildingStaffMixin, TemplateView):
             cap = Room.objects.filter(floor__building=b, is_active=True).aggregate(
                 total=Sum('capacity'))['total'] or 0
             occ = Student.objects.filter(room__floor__building=b, is_active=True).count()
+            rooms_count = Room.objects.filter(floor__building=b, is_active=True).count()
             rate = round((occ / cap * 100) if cap > 0 else 0)
             buildings_data.append({
                 'building': b,
@@ -120,6 +141,7 @@ class DashboardView(BuildingStaffMixin, TemplateView):
                 'occupied': occ,
                 'free': max(0, cap - occ),
                 'rate': rate,
+                'rooms_count': rooms_count,
             })
         context['buildings_data'] = buildings_data
 
@@ -127,6 +149,46 @@ class DashboardView(BuildingStaffMixin, TemplateView):
         context['rooms_by_status'] = rooms_qs.values('status').annotate(
             count=Count('id')
         )
+
+        # Haftalik to'lovlar (oxirgi 7 kun)
+        weekly_payments = []
+        day_names = ['Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan', 'Yaksh']
+        for i in range(6, -1, -1):
+            day = today - datetime.timedelta(days=i)
+            amount = Payment.objects.filter(
+                payment_date__date=day,
+                **payment_filter
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            weekly_payments.append({
+                'day': day_names[day.weekday()],
+                'amount': float(amount),
+            })
+        context['weekly_payments'] = weekly_payments
+        max_weekly = max((wp['amount'] for wp in weekly_payments), default=1) or 1
+        for wp in weekly_payments:
+            wp['pct'] = round(wp['amount'] / max_weekly * 100)
+        context['weekly_max'] = max_weekly
+
+        # So'ngi harakatlar
+        recent_payments = Payment.objects.filter(
+            **payment_filter
+        ).select_related('student', 'student__room', 'student__room__floor', 'student__room__floor__building').order_by('-payment_date')[:5]
+        recent_activities = []
+        for p in recent_payments:
+            building_name = ''
+            room_info = ''
+            if p.student and p.student.room and p.student.room.floor:
+                building_name = p.student.room.floor.building.name
+                room_info = f"{p.student.room.number}-xona"
+            recent_activities.append({
+                'icon': 'fa-money-bill-wave',
+                'color': '#10B981',
+                'title': f"To'lov qabul qilindi",
+                'desc': f"{p.student} - {building_name}, {room_info}",
+                'detail': f"{p.amount:,.0f} UZS",
+                'time': p.payment_date,
+            })
+        context['recent_activities'] = recent_activities
 
         # Qarzdorlar ro'yxati (bino bo'yicha filter bilan)
         selected_building = self.request.GET.get('debtor_building', '')

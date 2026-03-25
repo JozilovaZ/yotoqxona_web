@@ -1,68 +1,109 @@
 {% extends "base.html" %}
 
-{% block page_title %}Boshqaruv paneli{% endblock %}
-{% block page_sub %}<p class="page-sub">Bugungi holat va umumiy statistika</p>{% endblock %}
+{% block page_title %}Boshqaruv Paneli{% endblock %}
+{% block page_sub %}<p class="page-sub">Binolar holati va moliyaviy hisobotlar</p>{% endblock %}
+
+{% block page_actions %}
+<div style="display:flex;align-items:center;gap:10px;">
+    <div style="position:relative;">
+        <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray);font-size:.8rem;"></i>
+        <input type="text" placeholder="Qidirish..." style="padding:8px 14px 8px 34px;border:1.5px solid var(--border);border-radius:10px;font-size:.82rem;background:#fff;width:220px;font-family:'Inter',sans-serif;" id="dashSearch">
+    </div>
+</div>
+{% endblock %}
 
 {% block extra_css %}
 <style>
 
-/* ═══════════ KPI KARTALAR ═══════════ */
-.kpi-row {
+/* ══════ KPI CARDS ══════ */
+.kpi-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 14px;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
-
-.kpi {
+.kpi-card {
     background: #fff;
     border: 1.5px solid var(--border);
     border-radius: 18px;
-    padding: 20px 20px 16px;
+    padding: 20px;
     position: relative;
     overflow: hidden;
     transition: box-shadow .2s, transform .18s;
 }
-.kpi:hover {
-    box-shadow: 0 6px 28px rgba(0,0,0,.08);
+.kpi-card:hover {
+    box-shadow: 0 6px 28px rgba(0,0,0,.07);
     transform: translateY(-2px);
 }
-/* top line olib tashlandi */
+.kpi-card.kpi-accent {
+    background: var(--p);
+    border-color: var(--p);
+    color: #fff;
+}
+.kpi-card.kpi-accent .kpi-lbl,
+.kpi-card.kpi-accent .kpi-badge-item { color: rgba(255,255,255,.7); }
+.kpi-card.kpi-accent .kpi-val { color: #fff; }
 
-.kpi-top {
+.kpi-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
 }
-.kpi-icon {
-    width: 42px; height: 42px;
+.kpi-ico {
+    width: 44px; height: 44px;
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1rem;
-    background: var(--p10);
-    color: var(--p);
+    background: var(--p10); color: var(--p);
 }
-.kpi-label {
-    font-size: 0.68rem; font-weight: 700;
+.kpi-card.kpi-accent .kpi-ico {
+    background: rgba(255,255,255,.15); color: #fff;
+}
+.kpi-lbl {
+    font-size: .65rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: 1px;
-    color: var(--gray);
+    color: var(--gray); margin-bottom: 6px;
 }
-.kpi-value {
-    font-size: 2.3rem; font-weight: 900;
-    letter-spacing: -2px; line-height: 1;
-    color: var(--dark); margin-bottom: 10px;
+.kpi-val {
+    font-size: 1.7rem; font-weight: 900;
+    letter-spacing: -1.5px; line-height: 1;
+    color: var(--dark);
 }
-.kpi-value .unit { font-size: .9rem; font-weight: 600; letter-spacing: 0; }
-.kpi-badge {
+.kpi-val .unit {
+    font-size: .75rem; font-weight: 600; letter-spacing: 0;
+}
+.kpi-foot {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 12px; flex-wrap: wrap;
+}
+.kpi-badge-item {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 3px 9px; border-radius: 99px;
-    font-size: 0.69rem; font-weight: 700;
-    background: var(--p10);
-    color: var(--p);
+    font-size: .66rem; font-weight: 700;
+    background: var(--p10); color: var(--p);
+}
+.kpi-card.kpi-accent .kpi-badge-item {
+    background: rgba(255,255,255,.15);
+}
+.kpi-progress {
+    width: 100%; height: 5px; background: rgba(255,255,255,.15);
+    border-radius: 99px; margin-top: 10px; overflow: hidden;
+}
+.kpi-progress-bar {
+    height: 100%; background: #fff; border-radius: 99px;
+    transition: width .8s cubic-bezier(.25,.8,.25,1);
 }
 
-/* ═══════════ PANEL ═══════════ */
+/* ══════ 2 COLUMN LAYOUT ══════ */
+.dash-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+/* ══════ PANEL ══════ */
 .panel {
     background: #fff;
     border: 1.5px solid var(--border);
@@ -70,424 +111,550 @@
     overflow: hidden;
 }
 .panel-head {
-    padding: 14px 20px;
+    padding: 16px 20px;
     border-bottom: 1.5px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
 }
 .ph-title {
-    font-size: 0.875rem; font-weight: 800; color: var(--dark);
+    font-size: .9rem; font-weight: 800; color: var(--dark);
     display: flex; align-items: center; gap: 8px;
 }
-.ph-title .ph-icon {
-    width: 28px; height: 28px; border-radius: 8px;
-    background: var(--p10); color: var(--p);
-    display: flex; align-items: center; justify-content: center;
-    font-size: .78rem;
-}
+.ph-sub { font-size: .72rem; color: var(--gray); font-weight: 500; margin-top: 2px; }
 .ph-link {
-    font-size: 0.75rem; font-weight: 700; color: var(--p);
+    font-size: .75rem; font-weight: 700; color: var(--p);
     text-decoration: none; opacity: .75; transition: opacity .15s;
+    white-space: nowrap;
 }
 .ph-link:hover { opacity: 1; }
 
-/* ═══════════ IKKI USTUN ═══════════ */
-.dash-two {
-    display: grid;
-    grid-template-columns: 62fr 38fr;
-    gap: 16px;
-    margin-bottom: 16px;
+/* ══════ DONUT ══════ */
+.donut-section {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 28px 20px;
 }
-
-/* ═══════════ BINOLAR GRID ═══════════ */
-.bld-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 14px;
-    padding: 18px;
+.donut-wrap {
+    position: relative; width: 180px; height: 180px; margin-bottom: 20px;
 }
-.bld-card {
-    background: #fff;
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-    transition: box-shadow .2s, transform .18s;
+.donut-wrap svg { transform: rotate(-90deg); }
+.donut-bg { fill: none; stroke: #E8EAED; stroke-width: 14; }
+.donut-fill {
+    fill: none; stroke: var(--p); stroke-width: 14; stroke-linecap: round;
+    transition: stroke-dashoffset .8s cubic-bezier(.25,.8,.25,1);
 }
-.bld-card:hover {
-    box-shadow: 0 6px 24px rgba(0,0,0,.07);
-    transform: translateY(-2px);
-}
-.bld-card-head {
-    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
-}
-.bld-card-icon {
-    width: 44px; height: 44px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; flex-shrink: 0;
-}
-.bld-card-name {
-    font-size: .95rem; font-weight: 800; color: var(--dark);
-}
-.bld-card-pct {
-    font-size: .75rem; font-weight: 700; color: var(--gray);
-}
-.bld-ring-wrap {
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 16px;
-}
-.bld-ring {
-    position: relative; width: 90px; height: 90px;
-}
-.bld-ring svg { transform: rotate(-90deg); }
-.bld-ring-bg { fill: none; stroke: #E8EAED; stroke-width: 8; }
-.bld-ring-fill { fill: none; stroke-width: 8; stroke-linecap: round;
-    transition: stroke-dashoffset .8s cubic-bezier(.25,.8,.25,1); }
-.bld-ring-text {
+.donut-center {
     position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem; font-weight: 900; color: var(--dark);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
 }
-.bld-card-stats {
-    display: flex; justify-content: space-between;
-    padding-top: 12px; border-top: 1px solid var(--border);
-}
-.bld-stat { text-align: center; }
-.bld-stat-val { font-size: 1.05rem; font-weight: 800; color: var(--dark); }
-.bld-stat-lbl { font-size: .65rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+.donut-pct { font-size: 2.4rem; font-weight: 900; color: var(--dark); letter-spacing: -2px; line-height: 1; }
+.donut-pct-label { font-size: .72rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; }
 
-/* ═══════════ UCHLIK PASTKI ═══════════ */
-.dash-three {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+.donut-stats {
+    display: flex; gap: 28px;
 }
+.donut-stat { text-align: center; }
+.donut-stat-val { font-size: 1.6rem; font-weight: 900; color: var(--dark); letter-spacing: -1px; }
+.donut-stat-lbl { font-size: .65rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
 
-.status-row {
-    padding: 12px 20px;
+/* ══════ BUILDINGS TABLE ══════ */
+.bld-tbl { width: 100%; border-collapse: collapse; }
+.bld-tbl th {
+    padding: 10px 16px; font-size: .65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .8px;
+    color: var(--gray); text-align: left;
+    border-bottom: 1.5px solid var(--border);
+}
+.bld-tbl td {
+    padding: 12px 16px; font-size: .85rem;
     border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.bld-tbl tr:last-child td { border-bottom: none; }
+.bld-tbl tr:hover td { background: #FAFAFA; }
+
+.bld-name-cell {
     display: flex; align-items: center; gap: 10px;
 }
-.status-row:last-child { border-bottom: none; }
-.s-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.s-name { flex: 1; font-size: .855rem; font-weight: 600; color: var(--dark); }
-.s-num  { font-size: .875rem; font-weight: 800; color: var(--dark); }
+.bld-letter {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .85rem; font-weight: 800; flex-shrink: 0;
+    background: var(--p10); color: var(--p);
+}
 
-.mini-stat {
+.pct-bar-wrap {
+    display: flex; align-items: center; gap: 8px;
+}
+.pct-bar {
+    flex: 1; height: 6px; background: #E8EAED; border-radius: 99px; overflow: hidden;
+    min-width: 60px;
+}
+.pct-bar-fill {
+    height: 100%; border-radius: 99px;
+    transition: width .8s cubic-bezier(.25,.8,.25,1);
+}
+.pct-num { font-size: .78rem; font-weight: 800; min-width: 30px; }
+
+.status-badge {
+    display: inline-flex; padding: 4px 10px; border-radius: 8px;
+    font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+}
+
+/* ══════ QUICK STATS ══════ */
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
+}
+.qs-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 12px;
+}
+.qs-ico {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem; flex-shrink: 0;
+}
+.qs-val { font-size: 1.3rem; font-weight: 900; color: var(--dark); letter-spacing: -1px; line-height: 1; }
+.qs-lbl { font-size: .65rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; }
+
+/* ══════ BOTTOM 2-COL ══════ */
+.dash-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+/* ══════ WEEKLY CHART ══════ */
+.chart-body {
+    padding: 20px;
+}
+.chart-bars {
+    display: flex; align-items: flex-end; gap: 12px; height: 160px;
+    padding-top: 10px;
+}
+.chart-bar-col {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.chart-bar {
+    width: 100%; min-height: 4px; border-radius: 6px 6px 0 0;
+    background: var(--p10); transition: height .6s ease;
+    position: relative; cursor: pointer;
+}
+.chart-bar:hover { opacity: .85; }
+.chart-bar.active { background: var(--p); }
+.chart-bar-lbl {
+    font-size: .68rem; font-weight: 600; color: var(--gray);
+}
+.chart-legend {
+    display: flex; gap: 16px; padding: 12px 20px 16px;
+    border-top: 1px solid var(--border);
+}
+.chart-legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: .72rem; font-weight: 600; color: var(--gray);
+}
+.chart-legend-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+}
+
+/* ══════ RECENT ACTIVITIES ══════ */
+.activity-item {
+    display: flex; align-items: flex-start; gap: 12px;
     padding: 14px 20px;
     border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
+    transition: background .15s;
 }
-.mini-stat:last-child { border-bottom: none; }
-.ms-label { font-size: .78rem; font-weight: 600; color: var(--gray); }
-.ms-value { font-size: 1.15rem; font-weight: 900; color: var(--dark); letter-spacing: -.5px; }
+.activity-item:last-child { border-bottom: none; }
+.activity-item:hover { background: #FAFAFA; }
+.activity-ico {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; flex-shrink: 0;
+}
+.activity-body { flex: 1; min-width: 0; }
+.activity-title { font-size: .82rem; font-weight: 700; color: var(--dark); }
+.activity-desc { font-size: .72rem; color: var(--gray); margin-top: 2px; }
+.activity-meta {
+    text-align: right; flex-shrink: 0;
+}
+.activity-amount { font-size: .8rem; font-weight: 800; color: var(--dark); }
+.activity-time { font-size: .65rem; color: var(--gray); margin-top: 2px; }
 
-.empty-dash {
-    padding: 44px 20px; text-align: center;
-    font-size: .875rem; color: var(--gray);
+.empty-state {
+    padding: 40px 20px; text-align: center;
+    font-size: .85rem; color: var(--gray);
 }
 
-@media(max-width:1100px){ .kpi-row{ grid-template-columns: repeat(2,1fr); } }
-@media(max-width:1050px){ .dash-two{ grid-template-columns: 1fr; } }
-@media(max-width:900px) { .dash-three{ grid-template-columns: 1fr; } }
-@media(max-width:580px) { .kpi-row{ grid-template-columns: 1fr 1fr; gap: 8px; } }
-@media(max-width:480px) {
-    .kpi { padding: 14px 14px 12px; border-radius: 14px; }
-    .kpi-value { font-size: 1.6rem; letter-spacing: -1px; }
-    .kpi-value .unit { font-size: .7rem; }
-    .kpi-label { font-size: .58rem; letter-spacing: .5px; }
-    .kpi-icon { width: 34px; height: 34px; font-size: .85rem; }
-    .kpi-badge { font-size: .6rem; padding: 2px 7px; }
-    .bld-grid { padding: 12px; gap: 10px; }
-    .bld-card { padding: 14px; border-radius: 12px; }
-    .panel-head { padding: 10px 14px; flex-wrap: wrap; gap: 6px; }
-    .ph-title { font-size: .8rem; }
-    .mini-stat { padding: 10px 14px; }
-    .ms-label { font-size: .72rem; }
-    .ms-value { font-size: 1rem; }
+/* ══════ FAB ══════ */
+.fab-btn {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 52px; height: 52px; border-radius: 14px;
+    background: var(--p); color: #fff; border: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(0,43,127,.35);
+    transition: all .2s; z-index: 50;
+}
+.fab-btn:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(0,43,127,.45); }
+
+/* ══════ RESPONSIVE ══════ */
+@media(max-width:1100px){
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .quick-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width:1050px){
+    .dash-main { grid-template-columns: 1fr; }
+    .dash-bottom { grid-template-columns: 1fr; }
+}
+@media(max-width:580px){
+    .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quick-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+}
+@media(max-width:480px){
+    .kpi-card { padding: 14px; border-radius: 14px; }
+    .kpi-val { font-size: 1.3rem; letter-spacing: -1px; }
+    .kpi-lbl { font-size: .58rem; }
+    .kpi-ico { width: 36px; height: 36px; font-size: .85rem; }
+    .donut-wrap { width: 140px; height: 140px; }
+    .donut-pct { font-size: 1.8rem; }
+    .donut-stats { gap: 18px; }
+    .qs-card { padding: 12px; gap: 8px; }
+    .qs-val { font-size: 1.1rem; }
+    .qs-ico { width: 32px; height: 32px; font-size: .8rem; }
+    .chart-bars { height: 120px; }
+    .fab-btn { width: 46px; height: 46px; border-radius: 12px; bottom: 20px; right: 16px; }
 }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- ══════════════════════════════════════════════
-     KPI KARTALAR
-══════════════════════════════════════════════ -->
-<div class="kpi-row">
+<!-- ══════════════ KPI CARDS ══════════════ -->
+<div class="kpi-grid">
 
-    <div class="kpi">
-        <div class="kpi-top">
+    <div class="kpi-card">
+        <div class="kpi-head">
             <div>
-                <div class="kpi-label" style="margin-bottom:6px;">Jami yotoqxonalar</div>
-                <div class="kpi-value">{{ total_buildings }}</div>
+                <div class="kpi-lbl">Umumiy tushum</div>
+                <div class="kpi-val">{{ total_collected_all|floatformat:0 }}<span class="unit"> UZS</span></div>
             </div>
-            <div class="kpi-icon"><i class="fas fa-building"></i></div>
+            <div class="kpi-ico"><i class="fas fa-coins"></i></div>
         </div>
-        <span class="kpi-badge">
-            <i class="fas fa-door-open" style="font-size:.6rem;"></i> {{ total_rooms }} xona &middot; {{ total_capacity }} o'rin
-        </span>
+        <div class="kpi-foot">
+            <span class="kpi-badge-item">
+                <i class="fas fa-arrow-up" style="font-size:.55rem;"></i>
+                Bugun +{{ total_collected_today|floatformat:0 }}
+            </span>
+        </div>
     </div>
 
-    <div class="kpi">
-        <div class="kpi-top">
+    <div class="kpi-card">
+        <div class="kpi-head">
             <div>
-                <div class="kpi-label" style="margin-bottom:6px;">Bandlik darajasi</div>
-                <div class="kpi-value">{{ occupancy_rate }}<span class="unit">%</span></div>
+                <div class="kpi-lbl">Oylik kirim</div>
+                <div class="kpi-val">{{ total_collected_month|floatformat:0 }}<span class="unit"> UZS</span></div>
             </div>
-            <div class="kpi-icon"><i class="fas fa-chart-pie"></i></div>
+            <div class="kpi-ico"><i class="fas fa-money-bill-wave"></i></div>
         </div>
-        <span class="kpi-badge">
-            {{ full_rooms }} to'liq &middot; {{ empty_rooms }} bo'sh xona
-        </span>
+        <div class="kpi-foot">
+            <span class="kpi-badge-item">
+                <i class="fas fa-calendar-day" style="font-size:.55rem;"></i>
+                {{ today_present }} ta davomat
+            </span>
+        </div>
     </div>
 
-    <div class="kpi">
-        <div class="kpi-top">
+    <div class="kpi-card">
+        <div class="kpi-head">
             <div>
-                <div class="kpi-label" style="margin-bottom:6px;">Bu oy tushum</div>
-                <div class="kpi-value" style="font-size:1.6rem;letter-spacing:-1px;">{{ total_collected_month|floatformat:0 }}<span class="unit"> so'm</span></div>
+                <div class="kpi-lbl">Kutilayotgan to'lovlar</div>
+                <div class="kpi-val">{{ pending_amount|floatformat:0 }}<span class="unit"> UZS</span></div>
             </div>
-            <div class="kpi-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="kpi-ico"><i class="fas fa-clock"></i></div>
         </div>
-        <span class="kpi-badge">
-            Bugun +{{ total_collected_today|floatformat:0 }} so'm
-        </span>
+        <div class="kpi-foot">
+            <span class="kpi-badge-item">
+                <i class="fas fa-triangle-exclamation" style="font-size:.55rem;"></i>
+                {{ debtors_count }} ta qarzdor
+            </span>
+        </div>
     </div>
 
-    <div class="kpi">
-        <div class="kpi-top">
+    <div class="kpi-card kpi-accent">
+        <div class="kpi-head">
             <div>
-                <div class="kpi-label" style="margin-bottom:6px;">Qarzdorlar</div>
-                <div class="kpi-value">{{ debtors_count }}</div>
+                <div class="kpi-lbl">Bandlik darajasi</div>
+                <div class="kpi-val">{{ occupancy_rate }}<span class="unit">%</span></div>
             </div>
-            <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="kpi-ico"><i class="fas fa-chart-pie"></i></div>
         </div>
-        <span class="kpi-badge">
-            {{ pending_amount|floatformat:0 }} so'm kutilmoqda
-        </span>
+        <div class="kpi-progress">
+            <div class="kpi-progress-bar" style="width:{{ occupancy_rate }}%;"></div>
+        </div>
     </div>
 
 </div>
 
-<!-- ══════════════════════════════════════════════
-     2-QATOR: TALABALAR + BINOLAR
-══════════════════════════════════════════════ -->
-<!-- Binolar bandligi -->
+<!-- ══════════════ DONUT + BINOLAR HOLATI ══════════════ -->
+<div class="dash-main">
+
+    <!-- Donut Chart -->
+    <div class="panel">
+        <div class="panel-head">
+            <div>
+                <div class="ph-title">Binolar holati</div>
+                <div class="ph-sub">Band joylar monitoringi</div>
+            </div>
+        </div>
+        <div class="donut-section">
+            <div class="donut-wrap">
+                <svg viewBox="0 0 180 180" width="180" height="180">
+                    <circle class="donut-bg" cx="90" cy="90" r="72"/>
+                    <circle class="donut-fill" cx="90" cy="90" r="72"
+                        stroke-dasharray="452.4"
+                        stroke-dashoffset="452.4"
+                        data-rate="{{ occupancy_rate }}"
+                    />
+                </svg>
+                <div class="donut-center">
+                    <span class="donut-pct">{{ occupancy_rate }}%</span>
+                    <span class="donut-pct-label">To'liq</span>
+                </div>
+            </div>
+            <div class="donut-stats">
+                <div class="donut-stat">
+                    <div class="donut-stat-val" style="color:var(--p);">{{ occupied_beds }}</div>
+                    <div class="donut-stat-lbl">Band joylar</div>
+                </div>
+                <div class="donut-stat">
+                    <div class="donut-stat-val">{{ free_beds }}</div>
+                    <div class="donut-stat-lbl">Bo'sh joylar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Binolar holati jadvali -->
+    <div class="panel">
+        <div class="panel-head">
+            <div>
+                <div class="ph-title">Binolar holati</div>
+            </div>
+            <a href="{% url 'buildings:building_list' %}" class="ph-link">Barchasini ko'rish <i class="fas fa-arrow-right" style="font-size:.6rem;"></i></a>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="bld-tbl">
+                <thead>
+                    <tr>
+                        <th>Bino nomi</th>
+                        <th>Bandlik</th>
+                        <th>Bo'shlar soni</th>
+                        <th>Holat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bd in buildings_data %}
+                    <tr>
+                        <td>
+                            <div class="bld-name-cell">
+                                <div class="bld-letter" style="{% if bd.rate >= 85 %}background:#FEE2E2;color:#DC2626;{% elif bd.rate >= 60 %}background:#FEF3C7;color:#D97706;{% else %}background:var(--p10);color:var(--p);{% endif %}">
+                                    {{ bd.building.name|first }}
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;font-size:.85rem;">{{ bd.building.name }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="pct-bar-wrap">
+                                <span class="pct-num">{{ bd.rate }}%</span>
+                                <div class="pct-bar">
+                                    <div class="pct-bar-fill" style="width:{{ bd.rate }}%;background:{% if bd.rate >= 85 %}#DC2626{% elif bd.rate >= 60 %}#D97706{% else %}var(--p){% endif %};"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-weight:600;color:var(--gray);">{{ bd.free }} Xona</td>
+                        <td>
+                            {% if bd.rate >= 85 %}
+                            <span class="status-badge" style="background:#FEE2E2;color:#DC2626;">To'liq</span>
+                            {% elif bd.rate >= 60 %}
+                            <span class="status-badge" style="background:#FEF3C7;color:#D97706;">Yuqori</span>
+                            {% elif bd.rate >= 30 %}
+                            <span class="status-badge" style="background:#DCFCE7;color:#16A34A;">Optimal</span>
+                            {% else %}
+                            <span class="status-badge" style="background:var(--p10);color:var(--p);">Past</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="empty-state">Binolar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ══════════════ QUICK STATS ══════════════ -->
+<div class="quick-stats">
+    <div class="qs-card">
+        <div class="qs-ico" style="background:var(--p10);color:var(--p);">
+            <i class="fas fa-building"></i>
+        </div>
+        <div>
+            <div class="qs-val">{{ total_buildings }}</div>
+            <div class="qs-lbl">Binolar</div>
+        </div>
+    </div>
+    <div class="qs-card">
+        <div class="qs-ico" style="background:#EDE9FE;color:#7C3AED;">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div>
+            <div class="qs-val">{{ total_floors }}</div>
+            <div class="qs-lbl">Etajlar</div>
+        </div>
+    </div>
+    <div class="qs-card">
+        <div class="qs-ico" style="background:#DBEAFE;color:#2563EB;">
+            <i class="fas fa-bed"></i>
+        </div>
+        <div>
+            <div class="qs-val">{{ total_capacity }}</div>
+            <div class="qs-lbl">Jami o'rinlar</div>
+        </div>
+    </div>
+    <div class="qs-card">
+        <div class="qs-ico" style="background:#FCE7F3;color:#DB2777;">
+            <i class="fas fa-users"></i>
+        </div>
+        <div>
+            <div class="qs-val">{{ staff_count }}</div>
+            <div class="qs-lbl">Xodimlar</div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ WEEKLY CHART + RECENT ACTIVITIES ══════════════ -->
+<div class="dash-bottom">
+
+    <!-- Haftalik moliyaviy hisobot -->
+    <div class="panel">
+        <div class="panel-head">
+            <div>
+                <div class="ph-title">Moliyaviy Hisobot (Haftalik)</div>
+            </div>
+            <a href="{% url 'finance:dashboard' %}" class="ph-link">Ko'proq <i class="fas fa-arrow-right" style="font-size:.6rem;"></i></a>
+        </div>
+        <div class="chart-body">
+            <div class="chart-bars">
+                {% for wp in weekly_payments %}
+                <div class="chart-bar-col">
+                    <div class="chart-bar {% if forloop.last %}active{% endif %}" style="height:{{ wp.pct }}%;{% if not forloop.last %}background:var(--p10);{% endif %}"
+                         title="{{ wp.amount|floatformat:0 }} UZS"></div>
+                    <span class="chart-bar-lbl">{{ wp.day }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="chart-legend">
+            <div class="chart-legend-item">
+                <span class="chart-legend-dot" style="background:var(--p);"></span> Kirim
+            </div>
+            <div class="chart-legend-item">
+                <span class="chart-legend-dot" style="background:var(--p10);"></span> Chiqim
+            </div>
+        </div>
+    </div>
+
+    <!-- So'ngi harakatlar -->
+    <div class="panel">
+        <div class="panel-head">
+            <div>
+                <div class="ph-title">So'ngi harakatlar</div>
+            </div>
+        </div>
+        {% for act in recent_activities %}
+        <div class="activity-item">
+            <div class="activity-ico" style="background:{{ act.color }}15;color:{{ act.color }};">
+                <i class="fas {{ act.icon }}"></i>
+            </div>
+            <div class="activity-body">
+                <div class="activity-title">{{ act.title }}</div>
+                <div class="activity-desc">{{ act.desc }}</div>
+            </div>
+            <div class="activity-meta">
+                <div class="activity-amount">{{ act.detail }}</div>
+                <div class="activity-time">{{ act.time|timesince }} oldin</div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-inbox" style="font-size:1.5rem;margin-bottom:8px;display:block;"></i>
+            Hozircha harakatlar yo'q
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- ══════════════ QARZDORLAR ══════════════ -->
 <div class="panel" style="margin-bottom:16px;">
     <div class="panel-head">
         <span class="ph-title">
-            <span class="ph-icon"><i class="fas fa-building"></i></span>
-            Binolar bandligi
-        </span>
-        <a href="{% url 'buildings:building_list' %}" class="ph-link">Barchasini ko'rish →</a>
-    </div>
-    <div class="bld-grid">
-        {% for bd in buildings_data %}
-        <div class="bld-card">
-            <div class="bld-card-head">
-                <div class="bld-card-icon" style="background:{% if bd.rate >= 80 %}#FEE2E2;color:#DC2626;{% elif bd.rate >= 50 %}#FEF3C7;color:#D97706;{% else %}var(--p10);color:var(--p);{% endif %}">
-                    <i class="fas fa-building"></i>
-                </div>
-                <div>
-                    <div class="bld-card-name">{{ bd.building.name }}</div>
-                    <div class="bld-card-pct">{{ bd.occupied }} / {{ bd.capacity }} o'rin band</div>
-                </div>
-            </div>
-            <div class="bld-ring-wrap">
-                <div class="bld-ring">
-                    <svg viewBox="0 0 100 100" width="90" height="90">
-                        <circle class="bld-ring-bg" cx="50" cy="50" r="42"/>
-                        <circle class="bld-ring-fill" cx="50" cy="50" r="42"
-                            stroke="{% if bd.rate >= 80 %}#DC2626{% elif bd.rate >= 50 %}#D97706{% else %}var(--p){% endif %}"
-                            stroke-dasharray="263.9"
-                            stroke-dashoffset="263.9"
-                            data-rate="{{ bd.rate }}"
-                        />
-                    </svg>
-                    <span class="bld-ring-text">{{ bd.rate }}%</span>
-                </div>
-            </div>
-            <div class="bld-card-stats">
-                <div class="bld-stat">
-                    <div class="bld-stat-val" style="color:var(--p);">{{ bd.occupied }}</div>
-                    <div class="bld-stat-lbl">Talaba</div>
-                </div>
-                <div class="bld-stat">
-                    <div class="bld-stat-val">{{ bd.free }}</div>
-                    <div class="bld-stat-lbl">Bo'sh joy</div>
-                </div>
-                <div class="bld-stat">
-                    <div class="bld-stat-val">{{ bd.capacity }}</div>
-                    <div class="bld-stat-lbl">Sig'im</div>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="empty-dash" style="grid-column:1/-1;">Binolar topilmadi</div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════════════
-     3-QATOR: XONA HOLATI + MOLIYA + STATISTIKA
-══════════════════════════════════════════════ -->
-<div class="dash-three">
-
-    <!-- Xona holati -->
-    <div class="panel">
-        <div class="panel-head">
-            <span class="ph-title">
-                <span class="ph-icon"><i class="fas fa-door-open"></i></span>
-                Xona holati
-            </span>
-            <a href="{% url 'buildings:room_list' %}" class="ph-link">Ko'rish →</a>
-        </div>
-        {% for rs in rooms_by_status %}
-        <div class="status-row">
-            <span class="s-dot" style="background:
-                {% if rs.status == 'available' %}var(--p)
-                {% elif rs.status == 'partial' %}var(--p20)
-                {% elif rs.status == 'full' %}var(--dark)
-                {% else %}var(--gray){% endif %};"></span>
-            <span class="s-name">
-                {% if rs.status == 'available' %}Bo'sh
-                {% elif rs.status == 'partial' %}Qisman to'lgan
-                {% elif rs.status == 'full' %}To'liq band
-                {% elif rs.status == 'maintenance' %}Ta'mirda
-                {% else %}{{ rs.status }}{% endif %}
-            </span>
-            <span class="s-num">{{ rs.count }}</span>
-        </div>
-        {% empty %}
-        <div class="empty-dash">Xonalar topilmadi</div>
-        {% endfor %}
-        <div class="status-row" style="border-top:1.5px solid var(--border);background:#FFFFFF;">
-            <span class="s-dot" style="background:var(--dark);"></span>
-            <span class="s-name" style="font-weight:800;">Jami xonalar</span>
-            <span class="s-num" style="color:var(--p);">{{ total_rooms }}</span>
-        </div>
-    </div>
-
-    <!-- Moliyaviy ko'rsatkichlar -->
-    <div class="panel">
-        <div class="panel-head">
-            <span class="ph-title">
-                <span class="ph-icon"><i class="fas fa-chart-line"></i></span>
-                Moliyaviy ko'rsatkichlar
-            </span>
-            <a href="{% url 'finance:dashboard' %}" class="ph-link">Ko'rish →</a>
-        </div>
-        <div class="mini-stat">
-            <span class="ms-label">Bu oy tushum</span>
-            <span class="ms-value" style="color:var(--p);">{{ total_collected_month|floatformat:0 }}</span>
-        </div>
-        <div class="mini-stat">
-            <span class="ms-label">Bugungi tushum</span>
-            <span class="ms-value">{{ total_collected_today|floatformat:0 }}</span>
-        </div>
-        <div class="mini-stat">
-            <span class="ms-label">Kutilayotgan to'lovlar</span>
-            <span class="ms-value">{{ pending_amount|floatformat:0 }}</span>
-        </div>
-        <div class="mini-stat">
-            <span class="ms-label">Qarzdorlar soni</span>
-            <span class="ms-value">{{ debtors_count }} ta</span>
-        </div>
-        <div style="padding:12px 20px;">
-            <a href="{% url 'finance:debtor_list' %}" style="
-                display:block;text-align:center;padding:9px;
-                background:var(--p10);color:var(--p);
-                border-radius:10px;font-weight:700;font-size:.8rem;
-                text-decoration:none;transition:all .15s;
-            " onmouseover="this.style.background='var(--p)';this.style.color='#fff';"
-               onmouseout="this.style.background='var(--p10)';this.style.color='var(--p)';">
-                Qarzdorlar ro'yxatiga o'tish →
-            </a>
-        </div>
-    </div>
-
-    <!-- Umumiy statistika -->
-    <div class="panel">
-        <div class="panel-head">
-            <span class="ph-title">
-                <span class="ph-icon"><i class="fas fa-circle-info"></i></span>
-                Umumiy statistika
-            </span>
-        </div>
-        <div class="mini-stat">
-            <span class="ms-label">Jami binolar</span>
-            <span class="ms-value">{{ total_buildings }}</span>
-        </div>
-        <div class="mini-stat">
-            <span class="ms-label">Jami xonalar</span>
-            <span class="ms-value">{{ total_rooms }}</span>
-        </div>
-        <div class="mini-stat">
-            <span class="ms-label">Umumiy sig'im</span>
-            <span class="ms-value">{{ total_capacity }}</span>
-        </div>
-        <div class="mini-stat">
-            <span class="ms-label">Band o'rinlar</span>
-            <span class="ms-value" style="color:var(--p);">{{ occupied_beds }}</span>
-        </div>
-        <div class="mini-stat">
-            <span class="ms-label">Bo'sh o'rinlar</span>
-            <span class="ms-value">{{ free_beds }}</span>
-        </div>
-    </div>
-
-</div>
-
-<!-- ══════════════════════════════════════════════
-     QARZDORLAR RO'YXATI
-══════════════════════════════════════════════ -->
-<div class="panel" style="margin-top:16px;">
-    <div class="panel-head">
-        <span class="ph-title">
-            <span class="ph-icon"><i class="fas fa-triangle-exclamation"></i></span>
+            <i class="fas fa-triangle-exclamation" style="color:#DC2626;font-size:.85rem;"></i>
             Qarzdorlar ro'yxati
         </span>
         <div style="display:flex;align-items:center;gap:10px;">
             <form method="get" style="display:flex;align-items:center;gap:8px;" id="debtorFilterForm">
                 <select name="debtor_building" onchange="document.getElementById('debtorFilterForm').submit();"
-                    style="padding:6px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.8rem;font-weight:600;background:#fff;color:var(--dark);cursor:pointer;">
+                    style="padding:6px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.78rem;font-weight:600;background:#fff;color:var(--dark);cursor:pointer;">
                     <option value="">Barcha yotoqxonalar</option>
                     {% for b in all_buildings %}
                     <option value="{{ b.id }}" {% if selected_debtor_building == b.id|stringformat:"d" %}selected{% endif %}>{{ b.name }}</option>
                     {% endfor %}
                 </select>
             </form>
-            <a href="{% url 'finance:debtor_list' %}" class="ph-link">Barchasini ko'rish &rarr;</a>
+            <a href="{% url 'finance:debtor_list' %}" class="ph-link">Barchasini ko'rish <i class="fas fa-arrow-right" style="font-size:.6rem;"></i></a>
         </div>
     </div>
     <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+        <table class="bld-tbl">
             <thead>
-                <tr style="background:#F8F9FA;border-bottom:1.5px solid var(--border);">
-                    <th style="padding:10px 20px;text-align:left;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">#</th>
-                    <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Talaba</th>
-                    <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Yotoqxona</th>
-                    <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Xona</th>
-                    <th style="padding:10px 12px;text-align:right;font-weight:700;color:var(--gray);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;">Qarz summasi</th>
+                <tr>
+                    <th>#</th>
+                    <th>Talaba</th>
+                    <th>Yotoqxona</th>
+                    <th>Xona</th>
+                    <th style="text-align:right;">Qarz summasi</th>
                 </tr>
             </thead>
             <tbody>
                 {% for d in debtors_list %}
-                <tr style="border-bottom:1px solid var(--border);transition:background .15s;" onmouseover="this.style.background='#F8F9FA'" onmouseout="this.style.background='transparent'">
-                    <td style="padding:10px 20px;color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
-                    <td style="padding:10px 12px;font-weight:700;color:var(--dark);">{{ d.last_name }} {{ d.first_name }}</td>
-                    <td style="padding:10px 12px;color:var(--gray);font-weight:600;">
-                        {% if d.room and d.room.floor %}{{ d.room.floor.building.name }}{% else %}—{% endif %}
+                <tr>
+                    <td style="color:var(--gray);font-weight:600;">{{ forloop.counter }}</td>
+                    <td style="font-weight:700;">{{ d.last_name }} {{ d.first_name }}</td>
+                    <td style="color:var(--gray);font-weight:600;">
+                        {% if d.room and d.room.floor %}{{ d.room.floor.building.name }}{% else %}&mdash;{% endif %}
                     </td>
-                    <td style="padding:10px 12px;color:var(--gray);font-weight:600;">
-                        {% if d.room %}{{ d.room.number }}-xona{% else %}—{% endif %}
+                    <td style="color:var(--gray);font-weight:600;">
+                        {% if d.room %}{{ d.room.number }}-xona{% else %}&mdash;{% endif %}
                     </td>
-                    <td style="padding:10px 20px;text-align:right;font-weight:800;color:#DC2626;">{{ d.debt|floatformat:0 }} so'm</td>
+                    <td style="text-align:right;font-weight:800;color:#DC2626;">{{ d.debt|floatformat:0 }} so'm</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="empty-dash">Qarzdorlar topilmadi</td>
+                    <td colspan="5" class="empty-state">Qarzdorlar topilmadi</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -495,14 +662,32 @@
     </div>
 </div>
 
+<!-- FAB Button -->
+<a href="{% url 'students:student_create' %}" class="fab-btn" title="Yangi talaba qo'shish">
+    <i class="fas fa-plus"></i>
+</a>
+
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    document.querySelectorAll('.bld-ring-fill').forEach(function(el){
+    // Donut chart animation
+    document.querySelectorAll('.donut-fill').forEach(function(el){
         var rate = parseFloat(el.dataset.rate) || 0;
-        var circ = 2 * Math.PI * 42;
+        var circ = 2 * Math.PI * 72;
         var offset = circ - (circ * rate / 100);
-        setTimeout(function(){ el.style.strokeDashoffset = offset; }, 100);
+        setTimeout(function(){ el.style.strokeDashoffset = offset; }, 200);
     });
+
+    // Search
+    var searchInput = document.getElementById('dashSearch');
+    if(searchInput){
+        searchInput.addEventListener('input', function(){
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('.bld-tbl tbody tr').forEach(function(row){
+                var text = row.textContent.toLowerCase();
+                row.style.display = text.includes(q) ? '' : 'none';
+            });
+        });
+    }
 });
 </script>
 {% endblock %}
