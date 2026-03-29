@@ -76,6 +76,7 @@ class Floor(models.Model):
     class Gender(models.TextChoices):
         MALE = 'male', 'Erkaklar'
         FEMALE = 'female', 'Ayollar'
+        MIXED = 'mixed', 'Aralash'
 
     building = models.ForeignKey(
         Building,

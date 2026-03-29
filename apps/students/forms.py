@@ -86,7 +86,7 @@ class StudentForm(forms.ModelForm):
         if room:
             if self.instance.pk and self.instance.room == room:
                 # Jinsni hali ham tekshiramiz
-                if gender and room.floor.gender != gender:
+                if gender and room.floor.gender != 'mixed' and room.floor.gender != gender:
                     gender_label = 'Ayollar' if room.floor.gender == 'female' else 'Erkaklar'
                     raise forms.ValidationError(
                         f"Bu etaj faqat {gender_label} uchun! Talaba jinsiga mos etajni tanlang."
@@ -95,7 +95,7 @@ class StudentForm(forms.ModelForm):
             if hasattr(room, 'available_beds') and room.available_beds <= 0:
                 raise forms.ValidationError("Ushbu xonada bo'sh joy qolmagan!")
             # Talaba jinsi va etaj jinsi mosligini tekshirish
-            if gender and room.floor.gender != gender:
+            if gender and room.floor.gender != 'mixed' and room.floor.gender != gender:
                 gender_label = 'Ayollar' if room.floor.gender == 'female' else 'Erkaklar'
                 raise forms.ValidationError(
                     f"Bu etaj faqat {gender_label} uchun! Talaba jinsiga mos etajni tanlang."
@@ -160,7 +160,7 @@ class StudentTransferForm(forms.Form):
             if self.student and room == self.student.room:
                 raise forms.ValidationError("Talaba hozirda ham shu xonada yashaydi")
             # Talaba jinsi va etaj jinsi mosligini tekshirish
-            if self.student and room.floor.gender != self.student.gender:
+            if self.student and room.floor.gender != 'mixed' and room.floor.gender != self.student.gender:
                 gender_label = 'Ayollar' if room.floor.gender == 'female' else 'Erkaklar'
                 raise forms.ValidationError(
                     f"Bu etaj faqat {gender_label} uchun! Talaba jinsiga mos etajni tanlang."
